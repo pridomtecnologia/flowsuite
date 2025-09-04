@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -68,7 +69,10 @@ const FormCadastro = () => {
     fetchTags();
   }, []);
 
+  const navigate = useNavigate();
   const handleSubmit = (event) => {
+    event.preventDefault();
+    navigate("/cadastro/listar-cadastrados");
     console.log("submitted");
     console.log(event);
   };

@@ -26,31 +26,22 @@ const StyledTable = styled(Table)(() => ({
 const subscribarList = [
   {
     name: "john doe",
-    date: "john@example.com",
-    status: "11111-1111",
-    company: "48.850.555/0001-39",
-    situacao: "Ativo",
-    tag: "Cliente"
+    date: "46.555.888/0001-99",
+    company: "john rap"
   },
   {
     name: "kessy bryan",
-    date: "kessybryan@example.com",
-    status: "11111-1111",
-    company: "48.850.600/0001-39",
-    situacao: "Ativo",
-    tag: "Fornecedor"
+    date: "46.555.888/0001-99",
+    company: "kessy music"
   },
   {
-    name: "Joao Silva",
-    date: "joaosilva@example.com",
-    status: "11111-1111",
-    company: "48.850.888/0001-39",
-    situacao: "Inativo",
-    tag: "Vendedor"
+    name: "joão silva",
+    date: "46.555.888/0001-99",
+    company: "joao som"
   }
 ];
 
-export default function TabelaUsuarios() {
+export default function TabelaCoprodutor() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -68,12 +59,10 @@ export default function TabelaUsuarios() {
       <StyledTable>
         <TableHead>
           <TableRow>
-            <TableCell align="center">Situação</TableCell>
-            <TableCell align="center">Tag</TableCell>
-            <TableCell align="center">Razão Social</TableCell>
-            <TableCell align="center">CNPJ / CPF</TableCell>
-            <TableCell align="center">E-mail</TableCell>
-            <TableCell align="center">Ação</TableCell>
+            <TableCell align="center">Nome</TableCell>
+            <TableCell align="center">Nome Artístico</TableCell>
+            <TableCell align="center">CNPJ</TableCell>
+            <TableCell align="center">Action</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -81,8 +70,6 @@ export default function TabelaUsuarios() {
             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
             .map((subscriber, index) => (
               <TableRow key={index}>
-                <TableCell align="center">{subscriber.situacao}</TableCell>
-                <TableCell align="center">{subscriber.tag}</TableCell>
                 <TableCell align="center">{subscriber.name}</TableCell>
                 <TableCell align="center">{subscriber.company}</TableCell>
                 <TableCell align="center">{subscriber.date}</TableCell>

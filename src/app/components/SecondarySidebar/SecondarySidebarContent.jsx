@@ -44,17 +44,18 @@ export default function SecondarySidebarContent() {
   return (
     <SidebarRoot width={"50px"} className="secondary-sidebar">
       <Span m="auto" />
-      <MatxCustomizer />
-      <ShoppingCart />
+      {/* <MatxCustomizer /> */}
+      {/* <ShoppingCart /> */}
 
-      <ChatHead
+      {/* <ChatHead
         icon={
           <IconButton size="small" sx={{ my: "12px", color: "primary.contrastText" }}>
             <Comment />
           </IconButton>
-        }>
+        }
+      >
         <Chatbox />
-      </ChatHead>
+      </ChatHead> */}
 
       <Span m="auto" />
     </SidebarRoot>

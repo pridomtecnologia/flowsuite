@@ -43,16 +43,17 @@ const StyledIcon = styled(Home)({
 export default function Breadcrumb({ routeSegments }) {
   return (
     <BreadcrumbRoot>
-      {routeSegments ? (
+      {/* {routeSegments ? (
         <Fragment>
           <BreadcrumbName>{routeSegments[routeSegments.length - 1]["name"]}</BreadcrumbName>
           <Separator>|</Separator>
         </Fragment>
-      ) : null}
+      ) : null} */}
 
       <Breadcrumbs
         separator={<NavigateNext sx={{ color: "text.hint" }} />}
-        sx={{ display: "flex", alignItems: "center", position: "relative" }}>
+        sx={{ display: "flex", alignItems: "center", position: "relative" }}
+      >
         <NavLink to="/">
           <StyledIcon color="primary" />
         </NavLink>

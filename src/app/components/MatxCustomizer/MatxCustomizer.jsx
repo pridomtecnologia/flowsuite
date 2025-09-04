@@ -111,7 +111,8 @@ export default function MatxCustomizer() {
           anchor="right"
           variant="temporary"
           onClose={tooglePanel}
-          ModalProps={{ keepMounted: true }}>
+          ModalProps={{ keepMounted: true }}
+        >
           <MaxCustomaizer>
             <Controller>
               <Box display="flex">
@@ -131,14 +132,16 @@ export default function MatxCustomizer() {
                 variant="outlined"
                 onClick={() => handleTabChange(0)}
                 color={tabIndex === 0 ? "secondary" : "primary"}
-                sx={{ mr: 2 }}>
+                sx={{ mr: 2 }}
+              >
                 Demos
               </Button>
 
               <Button
                 variant="outlined"
                 onClick={() => handleTabChange(1)}
-                color={tabIndex === 1 ? "secondary" : "primary"}>
+                color={tabIndex === 1 ? "secondary" : "primary"}
+              >
                 Settings
               </Button>
             </Box>
@@ -154,11 +157,13 @@ export default function MatxCustomizer() {
                         key={layout.name}
                         color="secondary"
                         badgeContent={"Pro"}
-                        invisible={!layout.isPro}>
+                        invisible={!layout.isPro}
+                      >
                         <Card
                           elevation={4}
                           sx={{ position: "relative" }}
-                          onClick={() => updateSettings(layout.options)}>
+                          onClick={() => updateSettings(layout.options)}
+                        >
                           <Box overflow="hidden" className="layout-name">
                             <Button variant="contained" color="secondary">
                               {layout.name}

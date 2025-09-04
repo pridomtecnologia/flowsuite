@@ -14,6 +14,22 @@ const Analytics = Loadable(lazy(() => import("app/views/dashboard/Analytics")));
 // cadastro
 const AppListarUsuarios = Loadable(lazy(() => import("app/views/cadastro/AppListarUsuarios")));
 const Cadastrar = Loadable(lazy(() => import("app/views/cadastro/Cadastrar")));
+const ListarCoprodutor = Loadable(lazy(() => import("app/views/cadastro/ListarCoprodutor")));
+const ListarDiretor = Loadable(lazy(() => import("app/views/cadastro/ListarDiretor")));
+const CadastrarCoprodutor = Loadable(lazy(() => import("app/views/cadastro/CadastrarCoprodutor")));
+const CadastrarDiretor = Loadable(lazy(() => import("app/views/cadastro/CadastrarDiretor")));
+
+// ´projetos
+const AppListarProjetos = Loadable(lazy(() => import("app/views/projetos/AppListarProjetos")));
+const CadastrarProjeto = Loadable(lazy(() => import("app/views/projetos/CadastrarProjeto")));
+const AppListarOrcamento = Loadable(
+  lazy(() => import("app/views/projetos/orcamento/AppListarOrcamento"))
+);
+const CadastrarOrcamento = Loadable(
+  lazy(() => import("app/views/projetos/orcamento/CadastrarOrcamento"))
+);
+const AppListarJobs = Loadable(lazy(() => import("app/views/projetos/jobs/AppListarJobs")));
+// const VisualizarJobs = Loadable(lazy(() => import("app/views/projetos/jobs/VisualizarJobs")));
 
 const routes = [
   { path: "/", element: <Navigate to="dashboard" /> },
@@ -34,7 +50,31 @@ const routes = [
         element: <AppListarUsuarios />,
         auth: authRoles.admin
       },
-      { path: "/cadastro", element: <Cadastrar />, auth: authRoles.admin }
+      { path: "/cadastro", element: <Cadastrar />, auth: authRoles.admin },
+      { path: "/cadastro/listar-coprodutor", element: <ListarCoprodutor />, auth: authRoles.admin },
+      { path: "/cadastro/listar-diretor", element: <ListarDiretor />, auth: authRoles.admin },
+      { path: "/cadastro/coprodutor", element: <CadastrarCoprodutor />, auth: authRoles.admin },
+      { path: "/cadastro/diretor", element: <CadastrarDiretor />, auth: authRoles.admin },
+
+      // projetos
+      {
+        path: "/projetos/listar-projetos",
+        element: <AppListarProjetos />,
+        auth: authRoles.admin
+      },
+      { path: "/projeto/cadastrar", element: <CadastrarProjeto />, auth: authRoles.admin },
+      {
+        path: "/projetos/orcamento/listar-orcamento",
+        element: <AppListarOrcamento />,
+        auth: authRoles.admin
+      },
+      {
+        path: "/projeto/orcamento/cadastrar",
+        element: <CadastrarOrcamento />,
+        auth: authRoles.admin
+      },
+      { path: "/projetos/jobs/listar-jobs", element: <AppListarJobs />, auth: authRoles.admin }
+      // { path: "/projeto/diretor", element: <CadastrarDiretor />, auth: authRoles.admin }
 
       // // e-chart route
       // { path: "/charts/echarts", element: <AppEchart />, auth: authRoles.editor }
