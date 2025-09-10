@@ -18,6 +18,7 @@ const ListarCoprodutor = Loadable(lazy(() => import("app/views/cadastro/ListarCo
 const ListarDiretor = Loadable(lazy(() => import("app/views/cadastro/ListarDiretor")));
 const CadastrarCoprodutor = Loadable(lazy(() => import("app/views/cadastro/CadastrarCoprodutor")));
 const CadastrarDiretor = Loadable(lazy(() => import("app/views/cadastro/CadastrarDiretor")));
+const EditarCadastro = Loadable(lazy(() => import("app/views/cadastro/EditarCadastro")));
 
 // ´projetos
 const AppListarProjetos = Loadable(lazy(() => import("app/views/projetos/AppListarProjetos")));
@@ -55,7 +56,7 @@ const routes = [
       { path: "/cadastro/listar-diretor", element: <ListarDiretor />, auth: authRoles.admin },
       { path: "/cadastro/coprodutor", element: <CadastrarCoprodutor />, auth: authRoles.admin },
       { path: "/cadastro/diretor", element: <CadastrarDiretor />, auth: authRoles.admin },
-
+      { path: "/cadastro/editar/:id", element: <EditarCadastro />, auth: authRoles.admin },
       // projetos
       {
         path: "/projetos/listar-projetos",

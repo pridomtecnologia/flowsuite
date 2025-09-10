@@ -7,7 +7,6 @@ import IconButton from "@mui/material/IconButton";
 import styled from "@mui/material/styles/styled";
 import useTheme from "@mui/material/styles/useTheme";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import Home from "@mui/icons-material/Home";
 import Menu from "@mui/icons-material/Menu";
 import Person from "@mui/icons-material/Person";
 import Settings from "@mui/icons-material/Settings";

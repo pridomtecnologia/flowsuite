@@ -1,7 +1,7 @@
 import { Stack } from "@mui/material";
 import { Box, styled } from "@mui/material";
 import { Breadcrumb, SimpleCard } from "app/components";
-import Adaptacao from "./Adaptacao";
+import FormEditarCadastro from "./FormEditarCadastro";
 
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
@@ -13,16 +13,16 @@ const Container = styled("div")(({ theme }) => ({
   }
 }));
 
-export default function CadastrarProjeto() {
+export default function EditarCadastro() {
   return (
     <Container>
       <Box className="breadcrumb">
-        <Breadcrumb routeSegments={[{ name: "Cadastrar Projeto" }]} />
+        <Breadcrumb routeSegments={[{ name: "Cadastro" }, { name: "Cadastro Geral" }]} />
       </Box>
 
       <Stack spacing={3}>
         <SimpleCard title="">
-          <Adaptacao />
+          <FormEditarCadastro />
         </SimpleCard>
       </Stack>
     </Container>

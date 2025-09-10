@@ -1,16 +1,21 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material/styles";
-import Button from "@mui/material/Button";
-import Icon from "@mui/material/Icon";
+import IconButton from "@mui/material/IconButton";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid2";
 import Stack from "@mui/material/Stack";
 import Autocomplete from "@mui/material/Autocomplete";
-import { Span } from "app/components/Typography";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { Box } from "@mui/material";
+import Icon from "@mui/material/Icon";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import FormCadastroCoprodutor from "../cadastro/FormCadastroCoprodutor";
+import FormCadastroDiretor from "../cadastro/FormCadastroDiretor";
 
 import axios from "axios";
 import useAuth from "app/hooks/useAuth";
@@ -71,6 +76,8 @@ const FormCadastroProjeto = () => {
     tipoJobId: "",
     validadeOrcamento: ""
   });
+  const [open, setOpen] = useState(false);
+  const [openDiretor, setOpenDiretor] = useState(false);
 
   const navigate = useNavigate();
 
@@ -124,6 +131,12 @@ const FormCadastroProjeto = () => {
     validadeOrcamento
   } = state;
 
+  const handleOpenCoprodutor = () => setOpen(true);
+  const handleCloseCoprodutor = () => setOpen(false);
+
+  const handleOpenDiretor = () => setOpenDiretor(true);
+  const handleCloseDiretor = () => setOpenDiretor(false);
+
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -134,9 +147,11 @@ const FormCadastroProjeto = () => {
                 type="text"
                 name="numerOrcamento"
                 label="Número do Orçamento"
-                required
-                onChange={handleChange}
                 value={numerOrcamento}
+                onChange={handleChange}
+                InputProps={{
+                  readOnly: true
+                }}
               />
 
               <AutoComplete
@@ -157,14 +172,23 @@ const FormCadastroProjeto = () => {
                 )}
               />
 
-              <AutoComplete
-                required
-                options={suggestions}
-                getOptionLabel={(option) => option.label}
-                renderInput={(params) => (
-                  <TextField {...params} label="Coprodutor" variant="outlined" fullWidth />
-                )}
-              />
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box>
+                  <AutoComplete
+                    required
+                    options={suggestions}
+                    getOptionLabel={(option) => option.label}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Coprodutor" variant="outlined" fullWidth />
+                    )}
+                  />
+                </Box>
+                <Box>
+                  <IconButton sx={{ cursor: "pointer" }} onClick={handleOpenCoprodutor}>
+                    <Icon title="Adicionar Coprodutor">person_add</Icon>
+                  </IconButton>
+                </Box>
+              </Box>
 
               <AutoComplete
                 required
@@ -206,13 +230,29 @@ const FormCadastroProjeto = () => {
                 )}
               />
 
-              <AutoComplete
-                options={suggestions}
-                getOptionLabel={(option) => option.label}
-                renderInput={(params) => (
-                  <TextField {...params} label="Diretor" variant="outlined" fullWidth />
-                )}
-              />
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1
+                }}
+              >
+                <Box>
+                  <AutoComplete
+                    options={suggestions}
+                    getOptionLabel={(option) => option.label}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Diretor" variant="outlined" fullWidth />
+                    )}
+                  />
+                </Box>
+
+                <Box>
+                  <IconButton sx={{ cursor: "pointer" }} onClick={handleOpenDiretor}>
+                    <Icon title="Adicionar Diretor">person_add</Icon>
+                  </IconButton>
+                </Box>
+              </Box>
 
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
@@ -225,12 +265,39 @@ const FormCadastroProjeto = () => {
             </Stack>
           </Grid>
         </Grid>
-
-        <Button color="primary" variant="contained" type="submit" sx={{ mt: 2 }}>
-          <Icon>send</Icon>
-          <Span sx={{ pl: 1, textTransform: "capitalize" }}>Cadastrar Projeto</Span>
-        </Button>
       </form>
+
+      <Dialog open={open} onClose={handleCloseCoprodutor} fullWidth maxWidth="sm">
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2 }}>
+          <Box>
+            <DialogTitle>Novo Coprodutor</DialogTitle>
+          </Box>
+          <Box>
+            <IconButton sx={{ cursor: "pointer" }} onClick={handleCloseCoprodutor}>
+              <Icon title="Fechar">cancel</Icon>
+            </IconButton>
+          </Box>
+        </Box>
+        <DialogContent>
+          <FormCadastroCoprodutor />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={openDiretor} onClose={handleCloseDiretor} fullWidth maxWidth="sm">
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 1 }}>
+          <Box>
+            <DialogTitle>Novo Diretor</DialogTitle>
+          </Box>
+          <Box>
+            <IconButton sx={{ cursor: "pointer" }} onClick={handleCloseDiretor}>
+              <Icon title="Fechar">cancel</Icon>
+            </IconButton>
+          </Box>
+        </Box>
+        <DialogContent>
+          <FormCadastroDiretor />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

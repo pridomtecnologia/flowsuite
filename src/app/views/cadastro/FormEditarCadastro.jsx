@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -15,8 +15,9 @@ import axios from "axios";
 import useAuth from "app/hooks/useAuth";
 import { Tab, Tabs, Snackbar, Alert } from "@mui/material";
 
-const FormCadastro = () => {
-  const [definirComissao, setDefinirComissao] = useState(null);
+const FormEditarCadastro = () => {
+  const { id } = useParams(); // Pega o ID da URL
+  const [definirComissao, setDefinirComissao] = useState("none");
   const [state, setState] = useState({
     nome: "",
     nomeFantasia: "",
@@ -45,48 +46,102 @@ const FormCadastro = () => {
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [showComissao, setShowComissao] = useState(false);
-  const [tipoComissao, seTipoComissa] = useState("");
+  const [tipoComissao, setTipoComissao] = useState("");
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const api = import.meta.env.VITE_API_FLOWSUITE;
-
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    setDefinirComissao("none");
-
-    const fetchTags = async () => {
+    const fetchData = async () => {
       try {
+        // Buscar tags disponíveis
         const response_tag = await axios.get(`${api}tag/list`, {
           headers: {
             Accept: "application/json",
             Authorization: "Bearer " + localStorage.getItem("accessToken")
           }
         });
-
         setTags(response_tag.data);
+
+        // Buscar dados do cadastro
+        const response_cadastro = await axios.get(`${api}cadastro/${id}`, {
+          headers: {
+            Accept: "application/json",
+            Authorization: "Bearer " + localStorage.getItem("accessToken")
+          }
+        });
+
+        const cadastroData = response_cadastro.data[0];
+
+        // Preencher o estado com os dados do cadastro
+        setState({
+          nome: cadastroData.razao_social || "",
+          nomeFantasia: cadastroData.nome_fantasia || "",
+          documento: cadastroData.documento || "",
+          email: cadastroData.email || "",
+          telefone: cadastroData.telefone || "",
+          responsavel: cadastroData.responsavel_contato || "",
+          observacao: cadastroData.observacao || "",
+          comissao: cadastroData.comissao || "",
+          endereco: cadastroData.endereco || "",
+          numeroEndereco: cadastroData.numero || "",
+          bairro: cadastroData.bairro || "",
+          complemento: cadastroData.complemento || "",
+          estado: cadastroData.estado || "",
+          cidade: cadastroData.cidade || "",
+          cep: cadastroData.cep || "",
+          webSite: cadastroData.web_site || "",
+          banco: cadastroData.banco || "",
+          agencia: cadastroData.agencia || "",
+          contaCorrente: cadastroData.conta_corrente || "",
+          inscricaoEstadual: cadastroData.inscricao_estadual || "",
+          inscricaoMunicipal: cadastroData.inscricao_municipal || "",
+          tipo_comissao: cadastroData.tipo_comissao || ""
+        });
+
+        const tipo_comissao_id = cadastroData.tipo_comissao_id || "";
+
+        // Configurar tags selecionadas
+        if (cadastroData.ids_tags) {
+          const tagIds = cadastroData.ids_tags.split(",").map((id) => parseInt(id.trim()));
+          setSelectedTags(tagIds);
+
+          // Verificar se tem tag de Vendedor para mostrar comissão
+          const hasVendedorTag = tagIds.some((tagId) => {
+            const tag = response_tag.data.find((t) => t.id_tag === tagId);
+            return tag && tag.tag === "Vendedor";
+          });
+
+          if (hasVendedorTag) {
+            setShowComissao(true);
+            setDefinirComissao("block");
+          }
+        }
+
+        setTipoComissao(cadastroData.tipo_comissao_id || "");
       } catch (error) {
         console.error("Erro na requisição:", error.response?.data || error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchTags();
-  }, []);
-
-  const navigate = useNavigate();
+    fetchData();
+  }, [id, api]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     let tipoComissaoId = tipoComissao;
-
-    if (tipoComissao == "") {
+    if (tipoComissao === "") {
       tipoComissaoId = 0;
     }
 
     const payload = {
-      id_user: user.id_user,
       tag_id: selectedTags,
       razao_social: state.nome,
       nome_fantasia: state.nomeFantasia,
@@ -102,7 +157,7 @@ const FormCadastro = () => {
       inscricao_municipal: state.inscricaoMunicipal,
       web_site: state.webSite,
       comissao: state.comissao,
-      tipo_comissao: parseInt(tipoComissaoId),
+      tipo_comissao: tipoComissaoId,
       address: [
         {
           address: state.endereco,
@@ -117,51 +172,27 @@ const FormCadastro = () => {
     };
 
     try {
-      const response_cadastro = await axios.post(`${api}cadastro/create`, payload, {
+      const response = await axios.put(`${api}cadastro/atualizar/${id}`, payload, {
         headers: {
           Accept: "application/json",
           Authorization: "Bearer " + localStorage.getItem("accessToken")
         }
       });
+
       setOpen(true);
       navigate("/cadastro/listar-cadastrados");
     } catch (error) {
-      console.error("Erro ao enviar cadastro:", error.response?.data || error.message);
+      console.error("Erro ao atualizar cadastro:", error.response?.data || error.message);
     }
   };
 
   const handleChangeTipoComissao = (event) => {
-    seTipoComissa(event.target.value);
+    setTipoComissao(event.target.value);
   };
 
   const handleChange = (event) => {
-    event.persist();
     setState({ ...state, [event.target.name]: event.target.value });
   };
-
-  const {
-    nome,
-    nomeFantasia,
-    documento,
-    email,
-    telefone,
-    responsavel,
-    observacao,
-    comissao,
-    endereco,
-    numeroEndereco,
-    bairro,
-    complemento,
-    estado,
-    cidade,
-    cep,
-    webSite,
-    banco,
-    agencia,
-    contaCorrente,
-    inscricaoEstadual,
-    inscricaoMunicipal
-  } = state;
 
   const handleTagChange = (event, tag) => {
     const isChecked = event.target.checked;
@@ -186,9 +217,36 @@ const FormCadastro = () => {
     if (reason === "clickaway") {
       return;
     }
-
     setOpen(false);
   }
+
+  if (loading) {
+    return <div>Carregando...</div>;
+  }
+
+  const {
+    nome,
+    nomeFantasia,
+    documento,
+    email,
+    telefone,
+    responsavel,
+    observacao,
+    comissao,
+    endereco,
+    numeroEndereco,
+    bairro,
+    complemento,
+    estado,
+    cidade,
+    cep,
+    webSite,
+    banco,
+    agencia,
+    contaCorrente,
+    inscricaoEstadual,
+    inscricaoMunicipal
+  } = state;
 
   return (
     <div>
@@ -280,18 +338,19 @@ const FormCadastro = () => {
 
         <RadioGroup
           row
-          name="comissao"
+          name="tipo_comissao"
           value={tipoComissao}
           onChange={handleChangeTipoComissao}
-          sx={{ display: definirComissao }}
+          sx={{ display: definirComissao, mt: 2 }}
         >
           <TextField
             fullWidth
-            type="text"
+            type="number"
             name="comissao"
             onChange={handleChange}
             label="Comissão (%)"
             value={comissao}
+            sx={{ mb: 2 }}
           />
 
           <FormControlLabel
@@ -326,7 +385,6 @@ const FormCadastro = () => {
         {/* endereço */}
         {tab === 0 && (
           <Grid container spacing={6}>
-            {/* <Grid size={{ md: 6, xs: 12 }} sx={{ mt: 2 }}></Grid> */}
             <Grid size={{ md: 6, xs: 12 }} sx={{ mt: 2 }}>
               <Stack spacing={3}>
                 <TextField
@@ -398,7 +456,6 @@ const FormCadastro = () => {
         {/* dados bancários */}
         {tab === 1 && (
           <Grid container spacing={6}>
-            {/* <Grid size={{ md: 6, xs: 12 }} sx={{ mt: 2 }}></Grid> */}
             <Grid size={{ md: 6, xs: 12 }} sx={{ mt: 2 }}>
               <Stack spacing={3}>
                 <TextField
@@ -409,7 +466,6 @@ const FormCadastro = () => {
                   value={banco}
                   onChange={handleChange}
                 />
-
                 <TextField
                   fullWidth
                   type="text"
@@ -427,7 +483,7 @@ const FormCadastro = () => {
                   fullWidth
                   type="text"
                   name="agencia"
-                  label="Agencia"
+                  label="Agência"
                   value={agencia}
                   onChange={handleChange}
                 />
@@ -439,7 +495,6 @@ const FormCadastro = () => {
         {/* inscrição */}
         {tab === 2 && (
           <Grid container spacing={6}>
-            {/* <Grid size={{ md: 6, xs: 12 }} sx={{ mt: 2 }}></Grid> */}
             <Grid size={{ md: 6, xs: 12 }} sx={{ mt: 2 }}>
               <Stack spacing={3}>
                 <TextField
@@ -450,7 +505,6 @@ const FormCadastro = () => {
                   label="Inscrição Estadual"
                   value={inscricaoEstadual}
                 />
-
                 <TextField
                   fullWidth
                   type="text"
@@ -472,7 +526,6 @@ const FormCadastro = () => {
                   label="Inscrição Municipal"
                   value={inscricaoMunicipal}
                 />
-
                 <TextField
                   sx={{ mb: 4 }}
                   rows={3}
@@ -490,10 +543,11 @@ const FormCadastro = () => {
         )}
 
         <Button color="primary" variant="contained" type="submit" sx={{ mt: 2 }}>
-          <Icon>send</Icon>
-          <Span sx={{ pl: 1, textTransform: "capitalize" }}>Cadastrar</Span>
+          <Icon>save</Icon>
+          <Span sx={{ pl: 1, textTransform: "capitalize" }}>Atualizar</Span>
         </Button>
       </form>
+
       <Snackbar
         open={open}
         autoHideDuration={2000}
@@ -504,11 +558,11 @@ const FormCadastro = () => {
         }}
       >
         <Alert onClose={handleClose} severity="success" variant="filled">
-          Cadastrado com sucesso!
+          Cadastro atualizado com sucesso!
         </Alert>
       </Snackbar>
     </div>
   );
 };
 
-export default FormCadastro;
+export default FormEditarCadastro;
