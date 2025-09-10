@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Icon,
@@ -9,8 +10,11 @@ import {
   TableCell,
   TableHead,
   IconButton,
-  TablePagination
+  TablePagination,
+  Snackbar,
+  Alert
 } from "@mui/material";
+import axios from "axios";
 
 // STYLED COMPONENT
 const StyledTable = styled(Table)(() => ({
@@ -23,36 +27,15 @@ const StyledTable = styled(Table)(() => ({
   }
 }));
 
-const subscribarList = [
-  {
-    name: "john doe",
-    date: "john@example.com",
-    status: "11111-1111",
-    company: "48.850.555/0001-39",
-    situacao: "Ativo",
-    tag: "Cliente"
-  },
-  {
-    name: "kessy bryan",
-    date: "kessybryan@example.com",
-    status: "11111-1111",
-    company: "48.850.600/0001-39",
-    situacao: "Ativo",
-    tag: "Fornecedor"
-  },
-  {
-    name: "Joao Silva",
-    date: "joaosilva@example.com",
-    status: "11111-1111",
-    company: "48.850.888/0001-39",
-    situacao: "Inativo",
-    tag: "Vendedor"
-  }
-];
-
 export default function TabelaUsuarios() {
+  const [open, setOpen] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [listCadastrado, setListCadastrado] = useState([]);
+
+  const api = import.meta.env.VITE_API_FLOWSUITE;
+
+  const navigate = useNavigate();
 
   const handleChangePage = (_, newPage) => {
     setPage(newPage);
@@ -62,6 +45,57 @@ export default function TabelaUsuarios() {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
+
+  const handleEditarCadastro = (id_cadastro) => {
+    navigate(`/cadastro/editar/${id_cadastro}`);
+  };
+
+  const handleExcluirCadastro = async (id_cadastro) => {
+    try {
+      const response_exclusao_cadastro = await axios.delete(
+        `${api}cadastro/delete/${id_cadastro}`,
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: "Bearer " + localStorage.getItem("accessToken")
+          }
+        }
+      );
+
+      setListCadastrado((prev) => prev.filter((item) => item.id_cadastro !== id_cadastro));
+
+      setOpen(true);
+    } catch (error) {
+      console.error("Erro ao enviar cadastro:", error.response?.data || error.message);
+    }
+  };
+
+  function handleClose(_, reason) {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpen(false);
+  }
+
+  useEffect(() => {
+    const listCadastro = async () => {
+      try {
+        const response_list_cadastro = await axios.get(`${api}cadastro/list`, {
+          headers: {
+            accept: "application/json",
+            Authorization: "Bearer " + localStorage.getItem("accessToken")
+          }
+        });
+
+        setListCadastrado(response_list_cadastro.data);
+      } catch (error) {
+        alert(error.response.data.detail.message);
+      }
+    };
+
+    listCadastro();
+  }, []);
 
   return (
     <Box width="100%" overflow="auto">
@@ -77,44 +111,70 @@ export default function TabelaUsuarios() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {subscribarList
-            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            .map((subscriber, index) => (
-              <TableRow key={index}>
-                <TableCell align="center">{subscriber.situacao}</TableCell>
-                <TableCell align="center">{subscriber.tag}</TableCell>
-                <TableCell align="center">{subscriber.name}</TableCell>
-                <TableCell align="center">{subscriber.company}</TableCell>
-                <TableCell align="center">{subscriber.date}</TableCell>
-                <TableCell align="center">
-                  <IconButton>
-                    <Icon color="blue" title="Editar">
-                      edit
-                    </Icon>
-                  </IconButton>
-                  <IconButton>
-                    <Icon color="error" title="Excluir">
-                      delete_forever
-                    </Icon>
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
+          {listCadastrado != "" ? (
+            <>
+              {listCadastrado
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((subscriber, index) => (
+                  <TableRow key={index}>
+                    <TableCell align="center">{subscriber.situacao_cadastro}</TableCell>
+                    <TableCell align="center">{subscriber.tags}</TableCell>
+                    <TableCell align="center">{subscriber.razao_social}</TableCell>
+                    <TableCell align="center">{subscriber.documento}</TableCell>
+                    <TableCell align="center">{subscriber.email}</TableCell>
+                    <TableCell align="center">
+                      <IconButton onClick={() => handleEditarCadastro(subscriber.id_cadastro)}>
+                        <Icon color="blue" title="Editar">
+                          edit
+                        </Icon>
+                      </IconButton>
+                      <IconButton onClick={() => handleExcluirCadastro(subscriber.id_cadastro)}>
+                        <Icon color="error" title="Excluir">
+                          delete_forever
+                        </Icon>
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </>
+          ) : (
+            <TableRow>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center">Sem registro</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </StyledTable>
-
       <TablePagination
         sx={{ px: 2 }}
         page={page}
         component="div"
         rowsPerPage={rowsPerPage}
-        count={subscribarList.length}
+        count={listCadastrado.length}
         onPageChange={handleChangePage}
         rowsPerPageOptions={[5, 10, 25]}
         onRowsPerPageChange={handleChangeRowsPerPage}
         nextIconButtonProps={{ "aria-label": "Next Page" }}
         backIconButtonProps={{ "aria-label": "Previous Page" }}
       />
+
+      <Snackbar
+        open={open}
+        autoHideDuration={2000}
+        onClose={handleClose}
+        sx={{
+          position: "relative",
+          left: "50%"
+        }}
+      >
+        <Alert onClose={handleClose} severity="success" variant="filled">
+          Cadastro excluído com sucesso!
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

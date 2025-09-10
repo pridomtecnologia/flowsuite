@@ -2,15 +2,15 @@ const navigations = [
   { name: "Dashboard", path: "/dashboard", icon: "dashboard" },
 
   { label: "CADASTRAR", type: "label" },
-  { name: "Cadastros Gerais", path: "/cadastro/listar-cadastrados", icon: "person" },
-  { name: "Diretor", path: "/cadastro/listar-diretor", icon: "person" },
-  { name: "Coprodutor", path: "/cadastro/listar-coprodutor", icon: "person" },
-  { name: "Centro de Custo", path: "/cadastro/listar-centro-custo", icon: "add" },
+  { name: "Cadastros Gerais", path: "/cadastro/listar-cadastrados", icon: "person" }
+  // { name: "Diretor", path: "/cadastro/listar-diretor", icon: "person" },
+  // { name: "Coprodutor", path: "/cadastro/listar-coprodutor", icon: "person" },
+  // { name: "Centro de Custo", path: "/cadastro/listar-centro-custo", icon: "add" },
 
-  { label: "PROJETOS", type: "label" },
-  { name: "Criar Projeto", path: "/projetos/listar-projetos", icon: "add" },
-  { name: "Criar Orçamento", path: "/projetos/orcamento/listar-orcamento", icon: "add" },
-  { name: "Projetos (JOBs)", path: "/projetos/jobs/listar-jobs", icon: "visibility" }
+  // { label: "PROJETOS", type: "label" },
+  // { name: "Criar Projeto", path: "/projetos/listar-projetos", icon: "add" },
+  // // { name: "Criar Orçamento", path: "/projetos/orcamento/listar-orcamento", icon: "add" },
+  // { name: "Projetos (JOBs)", path: "/projetos/jobs/listar-jobs", icon: "visibility" }
 
   // { label: "PAGES", type: "label" },
   // {

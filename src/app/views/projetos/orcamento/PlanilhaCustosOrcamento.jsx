@@ -61,10 +61,9 @@ export default function PlanilhaCustosOrcamento() {
   );
 
   const [totais, setTotais] = useState({
-    custoProducao: 0,
-    taxaImplantacao: 12.5,
-    condicaoComercial: 3,
-    impostos: 12.5
+    taxaImplantacao: 0,
+    condicaoComercial: 0,
+    impostos: 0
   });
 
   const [validadeOrcamento, setValidadeOrcamento] = useState(null);
@@ -90,38 +89,6 @@ export default function PlanilhaCustosOrcamento() {
     <Grid container spacing={2}>
       {/* Parte da esquerda (Accordion com categorias e itens) */}
       <Grid item xs={9}>
-        <Paper
-          sx={{
-            pl: 1,
-            pt: 2,
-            mb: 2,
-            bgcolor: "primary.white",
-            color: "white"
-          }}
-        >
-          <Grid container spacing={2}>
-            <Grid item>
-              <Button variant="contained" title="Transformar em JOB">
-                <IconButton color="white">
-                  <Icon color="white">swap_horiz</Icon>
-                </IconButton>
-                Transformar em JOB
-              </Button>
-            </Grid>
-
-            <Grid item>
-              <AutoComplete
-                required
-                options={suggestions}
-                getOptionLabel={(option) => option.label}
-                renderInput={(params) => (
-                  <TextField {...params} label="Projeto" variant="outlined" fullWidth />
-                )}
-              />
-            </Grid>
-          </Grid>
-        </Paper>
-
         {categorias.map((cat) => (
           <Accordion key={cat.id}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -190,7 +157,7 @@ export default function PlanilhaCustosOrcamento() {
                 component="button"
                 variant="body2"
                 onClick={() => handleAddItem(cat.id)}
-                sx={{ mt: 1 }}
+                sx={{ mt: 1, textDecoration: "none", cursor: "pointer" }}
               >
                 + Adicionar Item
               </Link>
@@ -201,25 +168,6 @@ export default function PlanilhaCustosOrcamento() {
         <Paper sx={{ p: 2, mt: 2, mb: 2, bgcolor: "primary.dark", color: "white" }}>
           <Typography variant="h6">TOTAL PLANILHA: R$ 0,00</Typography>
         </Paper>
-
-        <Grid container spacing={2}>
-          <Grid item>
-            <Button variant="contained" title="Transformar em JOB" onClick={handleCloseOrcamento}>
-              Cadastrar Orçamento
-            </Button>
-          </Grid>
-
-          <Grid item>
-            <Button
-              variant="contained"
-              title="Cancelar"
-              color="error"
-              onClick={handleCloseOrcamento}
-            >
-              Cancelar
-            </Button>
-          </Grid>
-        </Grid>
       </Grid>
 
       {/* Parte da direita (Resumo) */}
@@ -230,15 +178,7 @@ export default function PlanilhaCustosOrcamento() {
           <TextField
             fullWidth
             size="small"
-            label="Custo de Produção com honorários"
-            value={totais.custoProducao}
-            sx={{ mt: 2 }}
-          />
-
-          <TextField
-            fullWidth
-            size="small"
-            label="Taxa de Implementação"
+            label="Taxa de Impulsionamento"
             value={totais.taxaImplantacao}
             sx={{ mt: 2 }}
           />
@@ -246,16 +186,8 @@ export default function PlanilhaCustosOrcamento() {
           <TextField
             fullWidth
             size="small"
-            label="Condição Comercial"
+            label="Comissão Comercial"
             value={totais.condicaoComercial}
-            sx={{ mt: 2 }}
-          />
-
-          <TextField
-            fullWidth
-            size="small"
-            label="Total sem honorários"
-            value={totais.custoProducao}
             sx={{ mt: 2 }}
           />
 
@@ -267,20 +199,8 @@ export default function PlanilhaCustosOrcamento() {
             sx={{ mt: 2 }}
           />
 
-          {/* Combo de data aqui */}
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              label="Validade Orçamento"
-              value={validadeOrcamento}
-              onChange={(newValue) => setValidadeOrcamento(newValue)}
-              slotProps={{
-                textField: { fullWidth: true, size: "small", sx: { mt: 2 } }
-              }}
-            />
-          </LocalizationProvider>
-
-          <Paper sx={{ mt: 3, p: 2, bgcolor: "primary.main", color: "white" }}>
-            <Typography variant="h6">TOTAL GERAL: R$ 0,00</Typography>
+          <Paper sx={{ mt: 3, p: 1, bgcolor: "primary.main", color: "white" }}>
+            <Typography variant="p">TOTAL GERAL: R$ 0,00</Typography>
           </Paper>
         </Paper>
       </Grid>
