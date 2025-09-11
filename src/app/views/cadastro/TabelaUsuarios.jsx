@@ -12,7 +12,8 @@ import {
   IconButton,
   TablePagination,
   Snackbar,
-  Alert
+  Alert,
+  Typography
 } from "@mui/material";
 import axios from "axios";
 
@@ -117,8 +118,35 @@ export default function TabelaUsuarios() {
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((subscriber, index) => (
                   <TableRow key={index}>
-                    <TableCell align="center">{subscriber.situacao_cadastro}</TableCell>
-                    <TableCell align="center">{subscriber.tags}</TableCell>
+                    <TableCell align="center">
+                      <Typography
+                        sx={{
+                          background:
+                            subscriber.situacao_cadastro == "Ativo" ? "#8fa5c7ff" : "#a3a3a3ff",
+                          padding: "2px 5px",
+                          color: "#252323ff",
+                          fontWeight: "bold"
+                        }}
+                      >
+                        {subscriber.situacao_cadastro}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="center">
+                      {subscriber.tags.split(" ").map((word, i) => (
+                        <span
+                          key={i}
+                          style={{
+                            background: i % 2 === 0 ? "#8fa5c7ff" : "#a3a3a3ff",
+                            margin: "1px",
+                            padding: "2px 5px",
+                            color: "#302f2fff",
+                            fontWeight: "bold"
+                          }}
+                        >
+                          {word}
+                        </span>
+                      ))}
+                    </TableCell>
                     <TableCell align="center">{subscriber.razao_social}</TableCell>
                     <TableCell align="center">{subscriber.documento}</TableCell>
                     <TableCell align="center">{subscriber.email}</TableCell>
