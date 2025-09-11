@@ -48,6 +48,8 @@ const FormCadastro = () => {
   const [tipoComissao, seTipoComissa] = useState("");
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState(0);
+  const [messageAlert, setMessageAlert] = useState("");
+  const [corAlert, setCorAlert] = useState("");
 
   const api = import.meta.env.VITE_API_FLOWSUITE;
 
@@ -78,6 +80,13 @@ const FormCadastro = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    if (selectedTags.length == 0) {
+      setOpen(true);
+      setCorAlert("warning");
+      setMessageAlert("Obrigatório informar o perfil do cadastro");
+      return;
+    }
 
     let tipoComissaoId = tipoComissao;
 
@@ -124,6 +133,10 @@ const FormCadastro = () => {
         }
       });
       setOpen(true);
+      setMessageAlert("Cadastrado com sucesso!");
+
+      setCorAlert("success");
+
       navigate("/cadastro/listar-cadastrados");
     } catch (error) {
       console.error("Erro ao enviar cadastro:", error.response?.data || error.message);
@@ -221,7 +234,6 @@ const FormCadastro = () => {
                 type="text"
                 name="telefone"
                 label="Telefone"
-                required
                 value={telefone}
                 onChange={handleChange}
               />
@@ -256,7 +268,6 @@ const FormCadastro = () => {
                 name="responsavel"
                 onChange={handleChange}
                 label="Responsável Contato"
-                required
                 value={responsavel}
               />
             </Stack>
@@ -494,6 +505,7 @@ const FormCadastro = () => {
           <Span sx={{ pl: 1, textTransform: "capitalize" }}>Cadastrar</Span>
         </Button>
       </form>
+
       <Snackbar
         open={open}
         autoHideDuration={2000}
@@ -503,8 +515,8 @@ const FormCadastro = () => {
           left: "50%"
         }}
       >
-        <Alert onClose={handleClose} severity="success" variant="filled">
-          Cadastrado com sucesso!
+        <Alert onClose={handleClose} severity={corAlert} variant="filled">
+          {messageAlert}
         </Alert>
       </Snackbar>
     </div>

@@ -50,6 +50,8 @@ const FormEditarCadastro = () => {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [messageAlert, setMessageAlert] = useState("");
+  const [corAlert, setCorAlert] = useState("");
 
   const api = import.meta.env.VITE_API_FLOWSUITE;
   const { user } = useAuth();
@@ -135,6 +137,13 @@ const FormEditarCadastro = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    if (selectedTags.length == 0) {
+      setOpen(true);
+      setCorAlert("warning");
+      setMessageAlert("Obrigatório informar o perfil do cadastro");
+      return;
+    }
 
     let tipoComissaoId = tipoComissao;
     if (tipoComissao === "") {
@@ -279,7 +288,6 @@ const FormEditarCadastro = () => {
                 type="text"
                 name="telefone"
                 label="Telefone"
-                required
                 value={telefone}
                 onChange={handleChange}
               />
@@ -314,7 +322,6 @@ const FormEditarCadastro = () => {
                 name="responsavel"
                 onChange={handleChange}
                 label="Responsável Contato"
-                required
                 value={responsavel}
               />
             </Stack>
@@ -557,8 +564,8 @@ const FormEditarCadastro = () => {
           left: "50%"
         }}
       >
-        <Alert onClose={handleClose} severity="success" variant="filled">
-          Cadastro atualizado com sucesso!
+        <Alert onClose={handleClose} severity={corAlert} variant="filled">
+          {messageAlert}
         </Alert>
       </Snackbar>
     </div>
