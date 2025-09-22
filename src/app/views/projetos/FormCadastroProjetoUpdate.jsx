@@ -25,12 +25,7 @@ const AutoComplete = styled(Autocomplete)({
   marginBottom: "16px"
 });
 
-const suggestions = [
-  { id_centro_custo: 1, label: "PUBLICIDADE" },
-  { id_centro_custo: 2, label: "MARKETING" }
-];
-
-const FormCadastroProjeto = ({ values, onChange }) => {
+const FormCadastroProjetoUpdate = ({ values, onChange }) => {
   const [state, setState] = useState({
     numerOrcamento: "",
     empresaId: "",
@@ -48,6 +43,7 @@ const FormCadastroProjeto = ({ values, onChange }) => {
 
   const [listaCadastro, setListaCadastro] = useState([]);
   const [listaCoprodutor, setListaCoprodutor] = useState([]);
+  const [statusProjeto, setStatusProjeto] = useState(0);
   const [listaDiretores, setListaDiretores] = useState([]);
   const [listaCentroCusto, setListaCentroCusto] = useState([]);
 
@@ -210,6 +206,7 @@ const FormCadastroProjeto = ({ values, onChange }) => {
                 type="text"
                 name="numerOrcamento"
                 label="Número do Orçamento"
+                disabled={statusProjeto == 2 || statusProjeto == 3 ? true : false}
                 value={state.numerOrcamento}
                 onChange={handleChange}
                 InputProps={{
@@ -220,8 +217,17 @@ const FormCadastroProjeto = ({ values, onChange }) => {
               <AutoComplete
                 options={listaCentroCusto}
                 value={values.centroCustoId || null}
+                disabled={statusProjeto == 2 || statusProjeto == 3 ? true : true}
                 onChange={(e, newVal) => onChange({ ...values, centroCustoId: newVal })}
-                renderInput={(params) => <TextField {...params} label="Centro de Custo" />}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Centro de Custo"
+                    sx={{
+                      background: statusProjeto == 2 || statusProjeto == 3 ? "#d3d3d3" : ""
+                    }}
+                  />
+                )}
               />
 
               <AutoComplete
@@ -357,4 +363,4 @@ const FormCadastroProjeto = ({ values, onChange }) => {
   );
 };
 
-export default FormCadastroProjeto;
+export default FormCadastroProjetoUpdate;

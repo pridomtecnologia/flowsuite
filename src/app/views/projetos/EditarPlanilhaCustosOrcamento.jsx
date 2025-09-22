@@ -28,7 +28,7 @@ const categorias = [
   { id: "015", nome: "OUTROS FORA DA TAXA" }
 ];
 
-export default function PlanilhaCustosOrcamento({ values, onChange }) {
+export default function EditarPlanilhaCustosOrcamento({ values, onChange }) {
   const { itensPorCategoria, totais } = values;
 
   const handleAddItem = (catId) => {
