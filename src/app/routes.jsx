@@ -23,6 +23,7 @@ const EditarCadastro = Loadable(lazy(() => import("app/views/cadastro/EditarCada
 // ´projetos
 const AppListarProjetos = Loadable(lazy(() => import("app/views/projetos/AppListarProjetos")));
 const CadastrarProjeto = Loadable(lazy(() => import("app/views/projetos/CadastrarProjeto")));
+const EditarOrcamento = Loadable(lazy(() => import("app/views/projetos/EditarOrcamento")));
 const AppListarOrcamento = Loadable(
   lazy(() => import("app/views/projetos/orcamento/AppListarOrcamento"))
 );
@@ -74,11 +75,8 @@ const routes = [
         element: <CadastrarOrcamento />,
         auth: authRoles.admin
       },
-      { path: "/projetos/jobs/listar-jobs", element: <AppListarJobs />, auth: authRoles.admin }
-      // { path: "/projeto/diretor", element: <CadastrarDiretor />, auth: authRoles.admin }
-
-      // // e-chart route
-      // { path: "/charts/echarts", element: <AppEchart />, auth: authRoles.editor }
+      { path: "/projetos/jobs/listar-jobs", element: <AppListarJobs />, auth: authRoles.admin },
+      { path: "/projeto/:id/:job/:id_job", element: <EditarOrcamento />, auth: authRoles.admin }
     ]
   },
 

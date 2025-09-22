@@ -1,6 +1,6 @@
 import { Button, styled } from "@mui/material";
 import { SimpleCard } from "app/components";
-import TabelaProjeto from "./TabelaJobs";
+import TabelaJobs from "./TabelaJobs";
 
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
@@ -19,8 +19,8 @@ const StyledButton = styled(Button)(({ theme }) => ({
 export default function AppListarJobs() {
   return (
     <Container>
-      <SimpleCard title="Projetos cadastrados">
-        <TabelaProjeto />
+      <SimpleCard title="Projetos JOBs">
+        <TabelaJobs />
       </SimpleCard>
     </Container>
   );
