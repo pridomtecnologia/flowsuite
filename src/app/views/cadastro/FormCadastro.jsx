@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
+import { Box } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Icon from "@mui/material/Icon";
@@ -10,6 +11,7 @@ import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid2";
 import Stack from "@mui/material/Stack";
 import { Span } from "app/components/Typography";
+import Swal from "sweetalert2";
 
 import axios from "axios";
 import useAuth from "app/hooks/useAuth";
@@ -82,9 +84,12 @@ const FormCadastro = () => {
     event.preventDefault();
 
     if (selectedTags.length == 0) {
-      setOpen(true);
-      setCorAlert("warning");
-      setMessageAlert("Obrigatório informar o perfil do cadastro");
+      Swal.fire({
+        title: "Atenção",
+        text: "Obrigatório selecionar o perfil de cadastro",
+        icon: "warning",
+        confirmButtonText: "Fechar"
+      });
       return;
     }
 
@@ -132,13 +137,23 @@ const FormCadastro = () => {
           Authorization: "Bearer " + localStorage.getItem("accessToken")
         }
       });
-      setOpen(true);
-      setMessageAlert("Cadastrado com sucesso!");
 
-      setCorAlert("success");
+      Swal.fire({
+        title: "",
+        text: "Cadastro realizado com sucesso",
+        icon: "success"
+      });
 
-      navigate("/cadastro/listar-cadastrados");
+      setTimeout(() => {
+        navigate("/cadastro/listar-cadastrados");
+      }, 1500);
     } catch (error) {
+      Swal.fire({
+        title: "",
+        text: "Erro ao realizar o cadastro",
+        icon: "error",
+        confirmButtonText: "Fechar"
+      });
       console.error("Erro ao enviar cadastro:", error.response?.data || error.message);
     }
   };
@@ -202,6 +217,10 @@ const FormCadastro = () => {
 
     setOpen(false);
   }
+
+  const handleVoltar = () => {
+    navigate("/cadastro/listar-cadastrados");
+  };
 
   return (
     <div>
@@ -500,10 +519,27 @@ const FormCadastro = () => {
           </Grid>
         )}
 
-        <Button color="primary" variant="contained" type="submit" sx={{ mt: 2 }}>
-          <Icon>send</Icon>
-          <Span sx={{ pl: 1, textTransform: "capitalize" }}>Cadastrar</Span>
-        </Button>
+        <Box sx={{ display: "flex", gap: "10px" }}>
+          <Box>
+            <Button
+              color="primary"
+              variant="contained"
+              type="submit"
+              sx={{ mt: 2 }}
+              onClick={handleVoltar}
+            >
+              <Icon>arrow_back</Icon>
+              <Span sx={{ pl: 1, textTransform: "capitalize" }}>Voltar</Span>
+            </Button>
+          </Box>
+
+          <Box>
+            <Button color="primary" variant="contained" type="submit" sx={{ mt: 2 }}>
+              <Icon>send</Icon>
+              <Span sx={{ pl: 1, textTransform: "capitalize" }}>Cadastrar</Span>
+            </Button>
+          </Box>
+        </Box>
       </form>
 
       <Snackbar

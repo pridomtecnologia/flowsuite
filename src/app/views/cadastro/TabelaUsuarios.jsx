@@ -16,6 +16,7 @@ import {
   Typography
 } from "@mui/material";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 // STYLED COMPONENT
 const StyledTable = styled(Table)(() => ({
@@ -65,8 +66,18 @@ export default function TabelaUsuarios() {
 
       setListCadastrado((prev) => prev.filter((item) => item.id_cadastro !== id_cadastro));
 
-      setOpen(true);
+      Swal.fire({
+        title: "",
+        text: "Cadastro excluído com sucesso",
+        icon: "success"
+      });
     } catch (error) {
+      Swal.fire({
+        title: "",
+        text: "Erro ao excluír o cadastro",
+        icon: "error",
+        confirmButtonText: "Fechar"
+      });
       console.error("Erro ao enviar cadastro:", error.response?.data || error.message);
     }
   };
