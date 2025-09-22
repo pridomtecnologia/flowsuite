@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   Accordion,
   AccordionSummary,
@@ -11,21 +12,21 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const categorias = [
-  { id: "001", nome: "PRÉ-PRODUÇÃO" },
-  { id: "002", nome: "PRODUÇÃO" },
-  { id: "003", nome: "CENOGRAFIA" },
-  { id: "004", nome: "TRANSPORTES" },
-  { id: "005", nome: "EQUIPE DE FILMAGEM" },
-  { id: "006", nome: "ELENCO" },
-  { id: "007", nome: "ALIMENTAÇÃO" },
-  { id: "008", nome: "HOTEL" },
-  { id: "009", nome: "PASSAGENS AÉREAS" },
-  { id: "010", nome: "EQUIPAMENTO DE FILMAGEM" },
-  { id: "011", nome: "ILUMINAÇÃO" },
-  { id: "012", nome: "PRODUÇÃO DE SOM" },
-  { id: "013", nome: "FINALIZAÇÃO" },
-  { id: "014", nome: "OUTROS" },
-  { id: "015", nome: "OUTROS FORA DA TAXA" }
+  { id: "1", nome: "PRÉ-PRODUÇÃO" },
+  { id: "2", nome: "PRODUÇÃO" },
+  { id: "3", nome: "CENOGRAFIA" },
+  { id: "4", nome: "TRANSPORTES" },
+  { id: "5", nome: "EQUIPE DE FILMAGEM" },
+  { id: "6", nome: "ELENCO" },
+  { id: "7", nome: "ALIMENTAÇÃO" },
+  { id: "8", nome: "HOTEL" },
+  { id: "9", nome: "PASSAGENS AÉREAS" },
+  { id: "10", nome: "EQUIPAMENTO DE FILMAGEM" },
+  { id: "11", nome: "ILUMINAÇÃO" },
+  { id: "12", nome: "PRODUÇÃO DE SOM" },
+  { id: "13", nome: "FINALIZAÇÃO" },
+  { id: "14", nome: "OUTROS" },
+  { id: "15", nome: "OUTROS FORA DA TAXA" }
 ];
 
 export default function PlanilhaCustosOrcamento({ values, onChange }) {
@@ -38,7 +39,7 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
         ...itensPorCategoria,
         [catId]: [
           ...itensPorCategoria[catId],
-          { descricao: "", qtd: 1, valorUnit: 0, dias: 1, unid: "un", obs: "" }
+          { descricao: "", qtd: 0, valorUnit: 0, dias: 0, unid: "0", obs: "" }
         ]
       }
     });
@@ -46,10 +47,16 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
 
   const handleItemChange = (catId, index, field, value) => {
     const novosItens = [...itensPorCategoria[catId]];
-    novosItens[index] = {
-      ...novosItens[index],
-      [field]: field === "descricao" || field === "obs" || field === "unid" ? value : Number(value)
-    };
+    let item = { ...novosItens[index] };
+
+    item[field] =
+      field === "descricao" || field === "obs" || field === "unid" ? value : Number(value);
+
+    // recalcula o total sempre
+    item.total = (item.qtd || 0) * (item.valorUnit || 0) * (item.dias || 0);
+
+    novosItens[index] = item;
+
     onChange({
       ...values,
       itensPorCategoria: { ...itensPorCategoria, [catId]: novosItens }
@@ -77,6 +84,17 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
   const valorTaxa = (totalPlanilha * Number(totais.taxaImplantacao)) / 100;
   const valorImpostos = (totalPlanilha * Number(totais.impostos)) / 100;
   const totalGeral = totalPlanilha + valorTaxa + valorImpostos + Number(totais.condicaoComercial);
+
+  useEffect(() => {
+    onChange({
+      ...values,
+      totais: {
+        ...totais,
+        total_planilha: totalPlanilha,
+        total_geral: totalGeral
+      }
+    });
+  }, [totalPlanilha, totalGeral]);
 
   return (
     <Grid container spacing={2}>
@@ -155,6 +173,7 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
                     <TextField
                       fullWidth
                       size="small"
+                      type="number"
                       value={item.unid}
                       onChange={(e) => handleItemChange(cat.id, index, "unid", e.target.value)}
                     />
@@ -165,7 +184,7 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
                       size="small"
                       disabled
                       sx={{ bgcolor: "#e0e0e06b" }}
-                      value={`R$ ${(item.qtd * item.valorUnit * item.dias).toFixed(2)}`}
+                      value={`R$ ${(item.total || 0).toFixed(2)}`}
                     />
                   </Grid>
                   <Grid item xs={3}>

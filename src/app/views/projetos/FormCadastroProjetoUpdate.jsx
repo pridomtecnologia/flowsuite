@@ -53,6 +53,50 @@ const FormCadastroProjetoUpdate = ({ values, onChange }) => {
 
   const { user } = useAuth();
 
+  const coprodutores = async () => {
+    try {
+      const response_coprodutores = await axios.get(`${api}coprodutor`, {
+        headers: {
+          Accept: "application/json",
+          Authorization: "Bearer " + localStorage.getItem("accessToken")
+        }
+      });
+
+      const listaCoprodutores = response_coprodutores.data.map((item) => ({
+        label: item.nome,
+        id: item.id_coprodutor,
+        original: item
+      }));
+
+      setListaCoprodutor(listaCoprodutores);
+    } catch (error) {
+      console.error("Erro na requisição:", error.response?.data || error.message);
+    }
+  };
+
+  const diretores = async () => {
+    try {
+      const diretor_response = await axios.get(`${api}diretor`, {
+        headers: {
+          Accept: "application/json",
+          Authorization: "Bearer " + localStorage.getItem("accessToken")
+        }
+      });
+
+      const listaDiretores = diretor_response.data.map((item) => ({
+        label: item.nome,
+        id: item.id_diretor,
+        nome_interno: item.nome_interno,
+        identificador_lancamento: item.identificador_lancamento,
+        original: item
+      }));
+
+      setListaDiretores(listaDiretores);
+    } catch (error) {
+      console.error("Erro na requisição:", error.response?.data || error.message);
+    }
+  };
+
   useEffect(() => {
     const listarCadastro = async () => {
       try {
@@ -69,68 +113,6 @@ const FormCadastroProjetoUpdate = ({ values, onChange }) => {
         }));
 
         setListaCadastro(listaFormatada);
-      } catch (error) {
-        console.error("Erro na requisição:", error.response?.data || error.message);
-      }
-    };
-
-    const numeroOrcamento = async () => {
-      try {
-        const response_number_orcamento = await axios.get(`${api}projetos/next_orc_number`, {
-          headers: {
-            Accept: "application/json",
-            Authorization: "Bearer " + localStorage.getItem("accessToken")
-          }
-        });
-
-        setState((prevState) => ({
-          ...prevState,
-          numerOrcamento: response_number_orcamento.data.number_orc
-        }));
-      } catch (error) {
-        console.error("Erro na requisição:", error.response?.data || error.message);
-      }
-    };
-
-    const coprodutores = async () => {
-      try {
-        const response_coprodutores = await axios.get(`${api}coprodutor`, {
-          headers: {
-            Accept: "application/json",
-            Authorization: "Bearer " + localStorage.getItem("accessToken")
-          }
-        });
-
-        const listaCoprodutores = response_coprodutores.data.map((item) => ({
-          label: item.nome,
-          id: item.id_coprodutor,
-          original: item
-        }));
-
-        setListaCoprodutor(listaCoprodutores);
-      } catch (error) {
-        console.error("Erro na requisição:", error.response?.data || error.message);
-      }
-    };
-
-    const diretores = async () => {
-      try {
-        const diretor_response = await axios.get(`${api}diretor`, {
-          headers: {
-            Accept: "application/json",
-            Authorization: "Bearer " + localStorage.getItem("accessToken")
-          }
-        });
-
-        const listaDiretores = diretor_response.data.map((item) => ({
-          label: item.nome,
-          id: item.id_diretor,
-          nome_interno: item.nome_interno,
-          identificador_lancamento: item.identificador_lancamento,
-          original: item
-        }));
-
-        setListaDiretores(listaDiretores);
       } catch (error) {
         console.error("Erro na requisição:", error.response?.data || error.message);
       }
@@ -158,7 +140,6 @@ const FormCadastroProjetoUpdate = ({ values, onChange }) => {
     };
 
     listarCadastro();
-    numeroOrcamento();
     coprodutores();
     diretores();
     centro_custo();
@@ -207,7 +188,7 @@ const FormCadastroProjetoUpdate = ({ values, onChange }) => {
                 name="numerOrcamento"
                 label="Número do Orçamento"
                 disabled={statusProjeto == 2 || statusProjeto == 3 ? true : false}
-                value={state.numerOrcamento}
+                value={values.numerOrcamento}
                 onChange={handleChange}
                 InputProps={{
                   readOnly: true
@@ -340,7 +321,7 @@ const FormCadastroProjetoUpdate = ({ values, onChange }) => {
           </Box>
         </Box>
         <DialogContent>
-          <FormCadastroCoprodutor />
+          <FormCadastroCoprodutor onSuccess={coprodutores} onClose={handleCloseCoprodutor} />
         </DialogContent>
       </Dialog>
 
@@ -356,7 +337,7 @@ const FormCadastroProjetoUpdate = ({ values, onChange }) => {
           </Box>
         </Box>
         <DialogContent>
-          <FormCadastroDiretor />
+          <FormCadastroDiretor onSuccess={diretores} onClose={handleCloseDiretor} />
         </DialogContent>
       </Dialog>
     </div>

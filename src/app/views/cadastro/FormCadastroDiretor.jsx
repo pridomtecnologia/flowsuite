@@ -1,59 +1,56 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import Icon from "@mui/material/Icon";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid2";
 import Stack from "@mui/material/Stack";
 import { Span } from "app/components/Typography";
-
+import Swal from "sweetalert2";
 import axios from "axios";
 import useAuth from "app/hooks/useAuth";
 
-const FormCadastroDiretor = () => {
-  const [definirComissao, setDefinirComissao] = useState(null);
+const FormCadastroDiretor = ({ onSuccess, onClose }) => {
   const [state, setState] = useState({
     nomeInterno: "",
     nome: "",
     identificador_lancamento: ""
   });
 
-  const [tags, setTags] = useState([]);
-  const [selectedTags, setSelectedTags] = useState([]);
-  const [showComissao, setShowComissao] = useState(false);
-
-  const navigate = useNavigate();
-
   const api = import.meta.env.VITE_API_FLOWSUITE;
 
   const { user } = useAuth();
 
-  useEffect(() => {
-    setDefinirComissao("none");
-
-    const fetchTags = async () => {
-      try {
-        const response_tag = await axios.get(`${api}tag/list`, {
-          headers: {
-            Accept: "application/json",
-            Authorization: "Bearer " + localStorage.getItem("accessToken")
-          }
-        });
-
-        setTags(response_tag.data);
-      } catch (error) {
-        console.error("Erro na requisição:", error.response?.data || error.message);
-      }
-    };
-
-    fetchTags();
-  }, []);
-
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    navigate("/cadastro/listar-diretor");
-    console.log("submitted");
-    console.log(event);
+    try {
+      const payload = {
+        nome_interno: nomeInterno,
+        nome: nome,
+        identificador_lancamento: identificador_lancamento
+      };
+
+      const response_diretor = await axios.post(`${api}diretor/create`, payload, {
+        headers: {
+          Accept: "application/json",
+          Authorization: "Bearer " + localStorage.getItem("accessToken")
+        }
+      });
+
+      Swal.fire({
+        title: "",
+        text: "Diretor cadastrado com sucesso",
+        icon: "success"
+      });
+
+      if (onSuccess) onSuccess();
+      if (onClose) onClose();
+    } catch (error) {
+      Swal.fire({
+        title: "",
+        text: "Erro ao cadastrar o Diretor",
+        icon: "error"
+      });
+    }
   };
 
   const handleChange = (event) => {
@@ -62,29 +59,6 @@ const FormCadastroDiretor = () => {
   };
 
   const { nomeInterno, nome, identificador_lancamento } = state;
-
-  const handleChangeComissao = (event) => {
-    if (event.target.checked) {
-      setDefinirComissao("flex");
-    } else {
-      setDefinirComissao("none");
-    }
-  };
-
-  const handleTagChange = (event, tag) => {
-    const isChecked = event.target.checked;
-
-    if (tag.tag === "Vendedor") {
-      setShowComissao(isChecked);
-      setDefinirComissao(isChecked ? "block" : "none");
-    }
-
-    if (isChecked) {
-      setSelectedTags((prev) => [...prev, tag.id_tag]);
-    } else {
-      setSelectedTags((prev) => prev.filter((id) => id !== tag.id_tag));
-    }
-  };
 
   return (
     <div>

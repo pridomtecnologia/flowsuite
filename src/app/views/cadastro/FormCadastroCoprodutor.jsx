@@ -6,12 +6,12 @@ import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid2";
 import Stack from "@mui/material/Stack";
 import { Span } from "app/components/Typography";
+import Swal from "sweetalert2";
 
 import axios from "axios";
 import useAuth from "app/hooks/useAuth";
 
-const FormCadastroCoprodutor = () => {
-  const [definirComissao, setDefinirComissao] = useState(null);
+const FormCadastroCoprodutor = ({ onSuccess, onClose }) => {
   const [state, setState] = useState({
     nomeFantasia: "",
     nome: "",
@@ -21,42 +21,44 @@ const FormCadastroCoprodutor = () => {
     nome_artistico: ""
   });
 
-  const [tags, setTags] = useState([]);
-  const [selectedTags, setSelectedTags] = useState([]);
-  const [showComissao, setShowComissao] = useState(false);
-
-  const navigate = useNavigate();
-
   const api = import.meta.env.VITE_API_FLOWSUITE;
 
   const { user } = useAuth();
 
-  useEffect(() => {
-    setDefinirComissao("none");
-
-    const fetchTags = async () => {
-      try {
-        const response_tag = await axios.get(`${api}tag/list`, {
-          headers: {
-            Accept: "application/json",
-            Authorization: "Bearer " + localStorage.getItem("accessToken")
-          }
-        });
-
-        setTags(response_tag.data);
-      } catch (error) {
-        console.error("Erro na requisição:", error.response?.data || error.message);
-      }
-    };
-
-    fetchTags();
-  }, []);
-
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    navigate("/cadastro/listar-coprodutor");
-    console.log("submitted");
-    console.log(event);
+    try {
+      const payload = {
+        nome_fantasia: nomeFantasia,
+        nome: nome,
+        nome_artistico: nome_artistico,
+        identificador: identificador_lancamento,
+        cnpj: cnpj,
+        cpf: cpf
+      };
+
+      const response_coprodutor = await axios.post(`${api}coprodutor/create`, payload, {
+        headers: {
+          Accept: "application/json",
+          Authorization: "Bearer " + localStorage.getItem("accessToken")
+        }
+      });
+
+      Swal.fire({
+        title: "",
+        text: "Coprodutor cadastrado com sucesso",
+        icon: "success"
+      });
+
+      if (onSuccess) onSuccess(); // chama a função para atualizar lista
+      if (onClose) onClose();
+    } catch (error) {
+      Swal.fire({
+        title: "",
+        text: "Erro ao cadastrar o Coprodutor",
+        icon: "error"
+      });
+    }
   };
 
   const handleChange = (event) => {
@@ -65,29 +67,6 @@ const FormCadastroCoprodutor = () => {
   };
 
   const { nomeFantasia, nome, identificador_lancamento, cnpj, cpf, nome_artistico } = state;
-
-  const handleChangeComissao = (event) => {
-    if (event.target.checked) {
-      setDefinirComissao("flex");
-    } else {
-      setDefinirComissao("none");
-    }
-  };
-
-  const handleTagChange = (event, tag) => {
-    const isChecked = event.target.checked;
-
-    if (tag.tag === "Vendedor") {
-      setShowComissao(isChecked);
-      setDefinirComissao(isChecked ? "block" : "none");
-    }
-
-    if (isChecked) {
-      setSelectedTags((prev) => [...prev, tag.id_tag]);
-    } else {
-      setSelectedTags((prev) => prev.filter((id) => id !== tag.id_tag));
-    }
-  };
 
   return (
     <div>
@@ -121,7 +100,6 @@ const FormCadastroCoprodutor = () => {
                 name="cnpj"
                 value={cnpj}
                 onChange={handleChange}
-                required
                 label="CNPJ"
               />
             </Stack>
@@ -154,7 +132,6 @@ const FormCadastroCoprodutor = () => {
                 name="cpf"
                 value={cpf}
                 onChange={handleChange}
-                required
                 label="CPF"
               />
             </Stack>

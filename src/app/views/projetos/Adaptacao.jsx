@@ -7,6 +7,7 @@ import PlanilhaCustosOrcamento from "./orcamento/PlanilhaCustosOrcamento";
 import FormCadastroProjeto from "./FormCadastroProjeto";
 import UploaDocumentosPlanilha from "./uploaDocumentosPlanilha";
 import dayjs from "dayjs";
+import Swal from "sweetalert2";
 
 const Container = styled("div")(({ theme }) => ({
   margin: "30px",
@@ -18,21 +19,21 @@ const Container = styled("div")(({ theme }) => ({
 }));
 
 const categorias = [
-  { id: "001", nome: "PRÉ-PRODUÇÃO" },
-  { id: "002", nome: "PRODUÇÃO" },
-  { id: "003", nome: "CENOGRAFIA" },
-  { id: "004", nome: "TRANSPORTES" },
-  { id: "005", nome: "EQUIPE DE FILMAGEM" },
-  { id: "006", nome: "ELENCO" },
-  { id: "007", nome: "ALIMENTAÇÃO" },
-  { id: "008", nome: "HOTEL" },
-  { id: "009", nome: "PASSAGENS AÉREAS" },
-  { id: "010", nome: "EQUIPAMENTO DE FILMAGEM" },
-  { id: "011", nome: "ILUMINAÇÃO" },
-  { id: "012", nome: "PRODUÇÃO DE SOM" },
-  { id: "013", nome: "FINALIZAÇÃO" },
-  { id: "014", nome: "OUTROS" },
-  { id: "015", nome: "OUTROS FORA DA TAXA" }
+  { id: "1", nome: "PRÉ-PRODUÇÃO" },
+  { id: "2", nome: "PRODUÇÃO" },
+  { id: "3", nome: "CENOGRAFIA" },
+  { id: "4", nome: "TRANSPORTES" },
+  { id: "5", nome: "EQUIPE DE FILMAGEM" },
+  { id: "6", nome: "ELENCO" },
+  { id: "7", nome: "ALIMENTAÇÃO" },
+  { id: "8", nome: "HOTEL" },
+  { id: "9", nome: "PASSAGENS AÉREAS" },
+  { id: "10", nome: "EQUIPAMENTO DE FILMAGEM" },
+  { id: "11", nome: "ILUMINAÇÃO" },
+  { id: "12", nome: "PRODUÇÃO DE SOM" },
+  { id: "13", nome: "FINALIZAÇÃO" },
+  { id: "14", nome: "OUTROS" },
+  { id: "15", nome: "OUTROS FORA DA TAXA" }
 ];
 
 export default function Adaptacao() {
@@ -40,78 +41,18 @@ export default function Adaptacao() {
 
   // Estados globais
   const [formCadastro, setFormCadastro] = useState({});
+
   const [planilhaCustos, setPlanilhaCustos] = useState({
     itensPorCategoria: categorias.reduce((acc, cat) => {
-      acc[cat.id] = [{ descricao: "", qtd: 1, valorUnit: 0, dias: 1, unid: "un", obs: "" }];
+      acc[cat.id] = [{ descricao: "", qtd: 0, valorUnit: 0, dias: 0, unid: "0", obs: "" }];
       return acc;
     }, {}),
     totais: { taxaImplantacao: 0.0, condicaoComercial: 0.0, impostos: 0.0 }
   });
+
   const [documentos, setDocumentos] = useState([]);
 
-  const [planilha, setPlanilha] = useState([]);
-
-  const [formValues, setFormValues] = useState({
-    titulo: "",
-    centro_custo_id: "",
-    empresa_id: "",
-    cliente_id: "",
-    agencia_id: "",
-    coprodutor_id: "",
-    diretor_id: "",
-    tipo_job_id: "",
-    validadeOrcamento: null,
-    imposto: "",
-    taxa_impulsionamento: "",
-    comissao_comercial: "",
-    total_geral: "",
-    total_planilha: ""
-  });
-
-  const handleChangeValues = (newValues) => {
-    setFormValues(newValues);
-  };
-
   const navigate = useNavigate();
-
-  const handleChange = (event, newValue) => setTab(newValue);
-
-  // Função para montar JSON no formato do backend
-  const montarPayload = () => {
-    const itens = [];
-    Object.entries(planilhaCustos.itensPorCategoria).forEach(([catId, lista]) => {
-      lista.forEach((item) => {
-        if (item.descricao) {
-          itens.push({
-            nome_custo_orcamento_id: parseInt(catId, 10),
-            descricao: item.descricao,
-            quantidade: item.qtd,
-            valor_unitario: item.valorUnit,
-            dias: item.dias,
-            unidade: item.unid,
-            total: item.qtd * item.valorUnit * item.dias,
-            observacao: item.obs
-          });
-        }
-      });
-    });
-
-    const totalPlanilha = itens.reduce((acc, i) => acc + i.total, 0);
-    const valorTaxa = (totalPlanilha * planilhaCustos.totais.taxaImplantacao) / 100;
-    const valorImpostos = (totalPlanilha * planilhaCustos.totais.impostos) / 100;
-    const totalGeral =
-      totalPlanilha + valorTaxa + valorImpostos + Number(planilhaCustos.totais.condicaoComercial);
-
-    return {
-      ...formCadastro,
-      planilha_custo: itens,
-      imposto: planilhaCustos.totais.impostos,
-      taxa_impulsionamento: planilhaCustos.totais.taxaImplantacao,
-      comissao_comercial: planilhaCustos.totais.condicaoComercial,
-      total_geral: totalGeral,
-      total_planilha: totalPlanilha
-    };
-  };
 
   const api = import.meta.env.VITE_API_FLOWSUITE;
 
@@ -122,35 +63,44 @@ export default function Adaptacao() {
         return isNaN(n) ? null : n;
       };
 
+      const itens = Object.entries(planilhaCustos.itensPorCategoria)
+        .filter(([_, v]) => Array.isArray(v))
+        .flatMap(([categoriaId, arr]) =>
+          arr
+            .map((item) => ({
+              nome_custo_orcamento_id: safeNumber(categoriaId),
+              descricao: item.descricao,
+              quantidade: safeNumber(item.qtd),
+              valor_unitario: safeNumber(item.valorUnit),
+              dias: safeNumber(item.dias),
+              unidade: item.unid,
+              total: safeNumber(item.qtd) * safeNumber(item.valorUnit) * safeNumber(item.dias) || 0,
+              observacao: item.obs
+            }))
+            // 🔥 só entra no payload se tiver valor significativo
+            .filter((item) => item.total > 0)
+        );
+
       const payload = {
-        titulo: formValues.titulo,
-        centro_custo_id: safeNumber(formValues.centro_custo_id),
-        empresa_id: safeNumber(formValues.empresa_id),
-        cliente_id: safeNumber(formValues.cliente_id),
-        agencia_id: safeNumber(formValues.agencia_id),
-        coprodutor_id: formValues.coprodutor_id ? safeNumber(formValues.coprodutor_id) : null,
-        diretor_id: formValues.diretor_id ? safeNumber(formValues.diretor_id) : null,
-        tipo_job_id: formValues.tipo_job_id ? safeNumber(formValues.tipo_job_id) : null,
+        titulo: formCadastro.titulo,
+        centro_custo_id: safeNumber(formCadastro.centroCustoId?.id),
+        empresa_id: safeNumber(formCadastro.empresaId?.id),
+        cliente_id: safeNumber(formCadastro.clienteId?.id),
+        agencia_id: safeNumber(formCadastro.agenciaId?.id),
+        coprodutor_id: formCadastro.coprodutorId ? safeNumber(formCadastro.coprodutorId.id) : null,
+        diretor_id: formCadastro.diretorId ? safeNumber(formCadastro.diretorId.id) : null,
+        tipo_job_id: formCadastro.tipoJobId ? safeNumber(formCadastro.tipoJobId.id) : null,
         validade_orcamento:
-          formValues.validadeOrcamento && dayjs(formValues.validadeOrcamento).isValid()
-            ? dayjs(formValues.validadeOrcamento).format("YYYY-MM-DD")
+          formCadastro.validadeOrcamento && dayjs(formCadastro.validadeOrcamento).isValid()
+            ? dayjs(formCadastro.validadeOrcamento).format("YYYY-MM-DD")
             : null,
 
-        planilha_custo: planilha.map((item) => ({
-          nome_custo_orcamento_id: safeNumber(item.nome_custo_orcamento_id),
-          descricao: item.descricao || null,
-          quantidade: safeNumber(item.quantidade),
-          valor_unitario: safeNumber(item.valor_unitario),
-          dias: safeNumber(item.dias),
-          unidade: item.unidade || null,
-          total: safeNumber(item.total),
-          observacao: item.observacao || null
-        })),
-        imposto: safeNumber(formValues.imposto),
-        taxa_impulsionamento: safeNumber(formValues.taxa_impulsionamento),
-        comissao_comercial: safeNumber(formValues.comissao_comercial),
-        total_geral: safeNumber(formValues.total_geral),
-        total_planilha: safeNumber(formValues.total_planilha)
+        planilha_custo: itens,
+        imposto: safeNumber(planilhaCustos.totais.impostos),
+        taxa_impulsionamento: safeNumber(planilhaCustos.totais.taxaImplantacao),
+        comissao_comercial: safeNumber(planilhaCustos.totais.condicaoComercial),
+        total_geral: safeNumber(planilhaCustos.totais.total_geral),
+        total_planilha: safeNumber(planilhaCustos.totais.total_planilha)
       };
 
       const formData = new FormData();
@@ -167,28 +117,23 @@ export default function Adaptacao() {
         }
       });
 
-      // ✅ limpa os campos após salvar
-      setFormValues({
-        titulo: "",
-        centro_custo_id: "",
-        empresa_id: "",
-        cliente_id: "",
-        agencia_id: "",
-        coprodutor_id: "",
-        diretor_id: "",
-        tipo_job_id: "",
-        validadeOrcamento: null,
-        imposto: "",
-        taxa_impulsionamento: "",
-        comissao_comercial: "",
-        total_geral: "",
-        total_planilha: ""
-      });
-      setPlanilha([]);
+      setFormCadastro({});
+      setPlanilhaCustos([]);
       setDocumentos([]);
 
-      alert("Orçamento criado com sucesso!");
+      Swal.fire({
+        title: "",
+        text: "Orçamento criado com sucesso!",
+        icon: "success"
+      });
+
+      navigate("/projetos/listar-projetos");
     } catch (error) {
+      Swal.fire({
+        title: "",
+        text: "Erro ao criar o Orçamento!",
+        icon: "error"
+      });
       console.error("❌ Erro no envio:", error);
     }
   };
@@ -197,13 +142,7 @@ export default function Adaptacao() {
     navigate("/projetos/listar-projetos");
 
     setFormCadastro({});
-    setPlanilhaCustos({
-      itensPorCategoria: categorias.reduce((acc, cat) => {
-        acc[cat.id] = [{ descricao: "", qtd: 1, valorUnit: 0, dias: 1, unid: "un", obs: "" }];
-        return acc;
-      }, {}),
-      totais: { taxaImplantacao: 0.0, condicaoComercial: 0.0, impostos: 0.0 }
-    });
+    setPlanilhaCustos([]);
     setDocumentos([]);
   };
 

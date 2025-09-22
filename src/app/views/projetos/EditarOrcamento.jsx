@@ -57,6 +57,7 @@ export default function EditarOrcamento() {
   const [planilha, setPlanilha] = useState([]);
 
   const [formValues, setFormValues] = useState({
+    numerOrcamento: 0,
     titulo: "",
     centro_custo_id: "",
     empresa_id: "",
@@ -174,6 +175,7 @@ export default function EditarOrcamento() {
 
       // ✅ limpa os campos após salvar
       setFormValues({
+        numerOrcamento: "",
         titulo: "",
         centro_custo_id: "",
         empresa_id: "",
@@ -237,6 +239,7 @@ export default function EditarOrcamento() {
         const data = response.data;
         setFormValues((prev) => ({
           ...prev,
+          numerOrcamento: data.numero_orcamento,
           titulo: data.titulo,
           centro_custo_id: data.centro_custo_id,
           empresa_id: data.empresa_id,

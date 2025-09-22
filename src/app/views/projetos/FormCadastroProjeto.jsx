@@ -16,7 +16,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import FormCadastroCoprodutor from "../cadastro/FormCadastroCoprodutor";
 import FormCadastroDiretor from "../cadastro/FormCadastroDiretor";
-
+import dayjs from "dayjs";
 import axios from "axios";
 import useAuth from "app/hooks/useAuth";
 
@@ -24,11 +24,6 @@ const AutoComplete = styled(Autocomplete)({
   width: 300,
   marginBottom: "16px"
 });
-
-const suggestions = [
-  { id_centro_custo: 1, label: "PUBLICIDADE" },
-  { id_centro_custo: 2, label: "MARKETING" }
-];
 
 const FormCadastroProjeto = ({ values, onChange }) => {
   const [state, setState] = useState({
@@ -56,6 +51,50 @@ const FormCadastroProjeto = ({ values, onChange }) => {
   const api = import.meta.env.VITE_API_FLOWSUITE;
 
   const { user } = useAuth();
+
+  const coprodutores = async () => {
+    try {
+      const response_coprodutores = await axios.get(`${api}coprodutor`, {
+        headers: {
+          Accept: "application/json",
+          Authorization: "Bearer " + localStorage.getItem("accessToken")
+        }
+      });
+
+      const listaCoprodutores = response_coprodutores.data.map((item) => ({
+        label: item.nome,
+        id: item.id_coprodutor,
+        original: item
+      }));
+
+      setListaCoprodutor(listaCoprodutores);
+    } catch (error) {
+      console.error("Erro na requisição:", error.response?.data || error.message);
+    }
+  };
+
+  const diretores = async () => {
+    try {
+      const diretor_response = await axios.get(`${api}diretor`, {
+        headers: {
+          Accept: "application/json",
+          Authorization: "Bearer " + localStorage.getItem("accessToken")
+        }
+      });
+
+      const listaDiretores = diretor_response.data.map((item) => ({
+        label: item.nome,
+        id: item.id_diretor,
+        nome_interno: item.nome_interno,
+        identificador_lancamento: item.identificador_lancamento,
+        original: item
+      }));
+
+      setListaDiretores(listaDiretores);
+    } catch (error) {
+      console.error("Erro na requisição:", error.response?.data || error.message);
+    }
+  };
 
   useEffect(() => {
     const listarCadastro = async () => {
@@ -91,50 +130,6 @@ const FormCadastroProjeto = ({ values, onChange }) => {
           ...prevState,
           numerOrcamento: response_number_orcamento.data.number_orc
         }));
-      } catch (error) {
-        console.error("Erro na requisição:", error.response?.data || error.message);
-      }
-    };
-
-    const coprodutores = async () => {
-      try {
-        const response_coprodutores = await axios.get(`${api}coprodutor`, {
-          headers: {
-            Accept: "application/json",
-            Authorization: "Bearer " + localStorage.getItem("accessToken")
-          }
-        });
-
-        const listaCoprodutores = response_coprodutores.data.map((item) => ({
-          label: item.nome,
-          id: item.id_coprodutor,
-          original: item
-        }));
-
-        setListaCoprodutor(listaCoprodutores);
-      } catch (error) {
-        console.error("Erro na requisição:", error.response?.data || error.message);
-      }
-    };
-
-    const diretores = async () => {
-      try {
-        const diretor_response = await axios.get(`${api}diretor`, {
-          headers: {
-            Accept: "application/json",
-            Authorization: "Bearer " + localStorage.getItem("accessToken")
-          }
-        });
-
-        const listaDiretores = diretor_response.data.map((item) => ({
-          label: item.nome,
-          id: item.id_diretor,
-          nome_interno: item.nome_interno,
-          identificador_lancamento: item.identificador_lancamento,
-          original: item
-        }));
-
-        setListaDiretores(listaDiretores);
       } catch (error) {
         console.error("Erro na requisição:", error.response?.data || error.message);
       }
@@ -309,12 +304,13 @@ const FormCadastroProjeto = ({ values, onChange }) => {
                 </Box>
               </Box>
 
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
                 <DatePicker
                   label="Validade Orçamento"
-                  value={values.validadeOrcamento || null}
+                  value={values.validadeOrcamento ? dayjs(values.validadeOrcamento) : null}
                   onChange={(newValue) => onChange({ ...values, validadeOrcamento: newValue })}
                   slotProps={{ textField: { fullWidth: true } }}
+                  format="DD/MM/YYYY"
                 />
               </LocalizationProvider>
             </Stack>
@@ -334,7 +330,7 @@ const FormCadastroProjeto = ({ values, onChange }) => {
           </Box>
         </Box>
         <DialogContent>
-          <FormCadastroCoprodutor />
+          <FormCadastroCoprodutor onSuccess={coprodutores} onClose={handleCloseCoprodutor} />
         </DialogContent>
       </Dialog>
 
@@ -350,7 +346,7 @@ const FormCadastroProjeto = ({ values, onChange }) => {
           </Box>
         </Box>
         <DialogContent>
-          <FormCadastroDiretor />
+          <FormCadastroDiretor onSuccess={diretores} onClose={handleCloseDiretor} />
         </DialogContent>
       </Dialog>
     </div>
