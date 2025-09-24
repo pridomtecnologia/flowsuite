@@ -117,7 +117,7 @@ export default function JwtLogin() {
                       size="small"
                       type="email"
                       name="email"
-                      label="Email"
+                      label="E-mail"
                       variant="outlined"
                       onBlur={handleBlur}
                       value={values.email}
@@ -132,7 +132,7 @@ export default function JwtLogin() {
                       size="small"
                       name="password"
                       type="password"
-                      label="Password"
+                      label="Senha"
                       variant="outlined"
                       onBlur={handleBlur}
                       value={values.password}
@@ -152,15 +152,15 @@ export default function JwtLogin() {
                           sx={{ padding: 0 }}
                         />
 
-                        <Paragraph>Remember Me</Paragraph>
+                        <Paragraph>Manter conectado</Paragraph>
                       </FlexBox>
 
-                      <NavLink
+                      {/* <NavLink
                         to="/session/forgot-password"
                         style={{ color: theme.palette.primary.main }}
                       >
                         Forgot password?
-                      </NavLink>
+                      </NavLink> */}
                     </FlexBox>
 
                     <LoadingButton
@@ -173,7 +173,7 @@ export default function JwtLogin() {
                       Login
                     </LoadingButton>
 
-                    <Paragraph>
+                    {/* <Paragraph>
                       Don't have an account?
                       <NavLink
                         to="/session/signup"
@@ -181,7 +181,7 @@ export default function JwtLogin() {
                       >
                         Register
                       </NavLink>
-                    </Paragraph>
+                    </Paragraph> */}
                   </form>
                 )}
               </Formik>

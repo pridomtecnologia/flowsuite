@@ -16,6 +16,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import FormCadastroCoprodutor from "../cadastro/FormCadastroCoprodutor";
 import FormCadastroDiretor from "../cadastro/FormCadastroDiretor";
+import dayjs from "dayjs";
 
 import axios from "axios";
 import useAuth from "app/hooks/useAuth";
@@ -187,11 +188,14 @@ const FormCadastroProjetoUpdate = ({ values, onChange }) => {
                 type="text"
                 name="numerOrcamento"
                 label="Número do Orçamento"
-                disabled={statusProjeto == 2 || statusProjeto == 3 ? true : false}
-                value={values.numerOrcamento}
+                disabled="true"
+                value={values.numerOrcamento || ""}
                 onChange={handleChange}
                 InputProps={{
                   readOnly: true
+                }}
+                sx={{
+                  background: statusProjeto == 2 || statusProjeto == 3 ? "#d3d3d3" : ""
                 }}
               />
 
@@ -299,7 +303,9 @@ const FormCadastroProjetoUpdate = ({ values, onChange }) => {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   label="Validade Orçamento"
-                  value={values.validadeOrcamento || null}
+                  value={
+                    values.validadeOrcamento ? dayjs(values.validadeOrcamento, "DD-MM-YYYY") : null
+                  }
                   onChange={(newValue) => onChange({ ...values, validadeOrcamento: newValue })}
                   slotProps={{ textField: { fullWidth: true } }}
                 />

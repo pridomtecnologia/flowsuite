@@ -87,6 +87,8 @@ export const AuthProvider = ({ children }) => {
 
       setSession(response_autenticacao.data.access_token);
 
+      localStorage.setItem("user", JSON.stringify(user));
+
       dispatch({ type: "LOGIN", payload: { user } });
     } catch (error) {
       alert(error.response.data.detail.message);
@@ -109,16 +111,14 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     (async () => {
       try {
-        const accessToken = window.localStorage.getItem("accessToken");
+        const accessToken = localStorage.getItem("accessToken");
+        const storedUser = localStorage.getItem("user");
 
-        if (accessToken && isValidToken(accessToken)) {
+        if (accessToken) {
           setSession(accessToken);
-          const response = await axios.get("/api/auth/profile");
-          const { user } = response.data;
-
           dispatch({
             type: "INIT",
-            payload: { isAuthenticated: true, user }
+            payload: { isAuthenticated: true, user: JSON.parse(storedUser) }
           });
         } else {
           dispatch({
@@ -128,7 +128,6 @@ export const AuthProvider = ({ children }) => {
         }
       } catch (err) {
         console.log(err);
-
         dispatch({
           type: "INIT",
           payload: { isAuthenticated: false, user: null }

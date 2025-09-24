@@ -96,7 +96,7 @@ const FormCadastro = () => {
     let tipoComissaoId = tipoComissao;
 
     if (tipoComissao == "") {
-      tipoComissaoId = 0;
+      tipoComissaoId = 0.0;
     }
 
     const payload = {

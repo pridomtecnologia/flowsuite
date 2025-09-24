@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Box, Tab, Tabs, styled, Button, IconButton, Icon } from "@mui/material";
 import { Breadcrumb } from "app/components";
 import axios from "axios";
-import PlanilhaCustosOrcamento from "./orcamento/PlanilhaCustosOrcamento";
+import PlanilhaCustosOrcamento, { initialValues } from "./orcamento/PlanilhaCustosOrcamento";
 import FormCadastroProjeto from "./FormCadastroProjeto";
 import UploaDocumentosPlanilha from "./uploaDocumentosPlanilha";
 import dayjs from "dayjs";
@@ -42,13 +42,7 @@ export default function Adaptacao() {
   // Estados globais
   const [formCadastro, setFormCadastro] = useState({});
 
-  const [planilhaCustos, setPlanilhaCustos] = useState({
-    itensPorCategoria: categorias.reduce((acc, cat) => {
-      acc[cat.id] = [{ descricao: "", qtd: 0, valorUnit: 0, dias: 0, unid: "0", obs: "" }];
-      return acc;
-    }, {}),
-    totais: { taxaImplantacao: 0.0, condicaoComercial: 0.0, impostos: 0.0 }
-  });
+  const [planilhaCustos, setPlanilhaCustos] = useState(initialValues);
 
   const [documentos, setDocumentos] = useState([]);
 
@@ -152,7 +146,6 @@ export default function Adaptacao() {
         <Breadcrumb routeSegments={[{ name: "Cadastrar Projeto" }]} />
       </Box>
 
-      {/* Botão de salvar */}
       <Box sx={{ mb: 2, display: "flex", gap: "5px" }}>
         <Box>
           <Button variant="contained" color="primary" onClick={handleVoltar}>

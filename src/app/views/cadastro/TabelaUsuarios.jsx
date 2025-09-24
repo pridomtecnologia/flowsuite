@@ -12,8 +12,7 @@ import {
   IconButton,
   TablePagination,
   Snackbar,
-  Alert,
-  Typography
+  Alert
 } from "@mui/material";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -130,28 +129,30 @@ export default function TabelaUsuarios() {
                 .map((subscriber, index) => (
                   <TableRow key={index}>
                     <TableCell align="center">
-                      <Typography
-                        sx={{
+                      <span
+                        style={{
                           background:
                             subscriber.situacao_cadastro == "Ativo" ? "#8fa5c7ff" : "#a3a3a3ff",
-                          padding: "2px 5px",
+                          padding: "7px 10px",
                           color: "#252323ff",
-                          fontWeight: "bold"
+                          fontWeight: "bold",
+                          borderRadius: "50px"
                         }}
                       >
                         {subscriber.situacao_cadastro}
-                      </Typography>
+                      </span>
                     </TableCell>
                     <TableCell align="center">
                       {subscriber.tags.split(" ").map((word, i) => (
                         <span
                           key={i}
                           style={{
-                            background: i % 2 === 0 ? "#8fa5c7ff" : "#a3a3a3ff",
+                            background: i % 2 === 0 ? "#ced3dbff" : "",
                             margin: "1px",
-                            padding: "2px 5px",
+                            padding: "4px 7px",
                             color: "#302f2fff",
-                            fontWeight: "bold"
+                            fontWeight: "bold",
+                            borderRadius: "50px"
                           }}
                         >
                           {word}
