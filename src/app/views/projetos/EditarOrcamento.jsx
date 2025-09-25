@@ -1,6 +1,22 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Box, Tab, Tabs, styled, Button, IconButton, Icon } from "@mui/material";
+import {
+  Box,
+  Tab,
+  Tabs,
+  styled,
+  Button,
+  IconButton,
+  Icon,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
+  Grid,
+  TextField,
+  Paper,
+  Link
+} from "@mui/material";
 import { Breadcrumb } from "app/components";
 import axios from "axios";
 import FormCadastroProjetoUpdate from "./FormCadastroProjetoUpdate";
@@ -8,6 +24,8 @@ import EditarPlanilhaCustosOrcamento from "./EditarPlanilhaCustosOrcamento";
 import EditarUploaDocumentosPlanilha from "./EditarUploaDocumentosPlanilha";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
+
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const Container = styled("div")(({ theme }) => ({
   margin: "30px",
