@@ -52,28 +52,48 @@ export default function Adaptacao() {
 
   const handleSalvar = async () => {
     try {
+      if (
+        Object.keys(formCadastro).length == 0 ||
+        formCadastro.titulo == undefined ||
+        formCadastro.titulo == "" ||
+        formCadastro.centroCustoId == null ||
+        formCadastro.empresaId == null ||
+        formCadastro.clienteId == null ||
+        formCadastro.agenciaId == null ||
+        formCadastro.coprodutorId == null ||
+        formCadastro.diretorId == null ||
+        formCadastro.tipoJobId == null ||
+        formCadastro.validadeOrcamento == null
+      ) {
+        Swal.fire({
+          title: "Atenção",
+          text: "Obrigatório preencher todos os campos da identificação do projeto",
+          icon: "warning",
+          confirmButtonText: "Fechar"
+        });
+
+        return;
+      }
+
       const safeNumber = (val) => {
         const n = Number(val);
         return isNaN(n) ? null : n;
       };
 
-      const itens = Object.entries(planilhaCustos.itensPorCategoria)
-        .filter(([_, v]) => Array.isArray(v))
-        .flatMap(([categoriaId, arr]) =>
-          arr
-            .map((item) => ({
-              nome_custo_orcamento_id: safeNumber(categoriaId),
-              descricao: item.descricao,
-              quantidade: safeNumber(item.qtd),
-              valor_unitario: safeNumber(item.valorUnit),
-              dias: safeNumber(item.dias),
-              unidade: item.unid,
-              total: safeNumber(item.qtd) * safeNumber(item.valorUnit) * safeNumber(item.dias) || 0,
-              observacao: item.obs
-            }))
-            // 🔥 só entra no payload se tiver valor significativo
-            .filter((item) => item.total > 0)
-        );
+      const itens = Object.values(planilhaCustos.itensPorCategoria).flatMap((arr) =>
+        arr
+          .map((item) => ({
+            nome_custo_orcamento_id: safeNumber(item.nome_custo_projeto_id),
+            descricao: item.descricao,
+            quantidade: safeNumber(item.qtd),
+            valor_unitario: safeNumber(item.valorUnit),
+            dias: safeNumber(item.dias),
+            unidade: item.unid,
+            total: safeNumber(item.qtd) * safeNumber(item.valorUnit) * safeNumber(item.dias) || 0,
+            observacao: item.obs
+          }))
+          .filter((item) => item.total > 0)
+      );
 
       const payload = {
         titulo: formCadastro.titulo,
@@ -93,10 +113,12 @@ export default function Adaptacao() {
         imposto: safeNumber(planilhaCustos.totais.impostos),
         taxa_impulsionamento: safeNumber(planilhaCustos.totais.taxaImplantacao),
         comissao_comercial: safeNumber(planilhaCustos.totais.condicaoComercial),
-        total_geral: safeNumber(planilhaCustos.totais.total_geral),
+        total_geral: planilhaCustos.totais.total_geral,
         total_planilha: safeNumber(planilhaCustos.totais.total_planilha)
       };
 
+      // console.log(planilhaCustos);
+      // return;
       const formData = new FormData();
       formData.append("projeto_json", JSON.stringify(payload));
 
@@ -125,10 +147,10 @@ export default function Adaptacao() {
     } catch (error) {
       Swal.fire({
         title: "",
-        text: "Erro ao criar o Orçamento!",
+        text: error.response.data.detail,
         icon: "error"
       });
-      console.error("❌ Erro no envio:", error);
+      console.error("❌ Erro no envio:", error.response.data.detail);
     }
   };
 

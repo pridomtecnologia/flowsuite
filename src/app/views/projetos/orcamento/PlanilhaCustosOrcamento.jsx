@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useCallback } from "react";
 import {
   Accordion,
   AccordionSummary,
@@ -10,7 +10,7 @@ import {
   Link
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import React from "react";
+import itensFixosPorCategoria from "../../../data/itensFixosPorCategoria.json";
 
 // Categorias fixas
 const categorias = [
@@ -32,214 +32,23 @@ const categorias = [
 ];
 
 // Valores padrão para cada item
-const defaultItem = { qtd: 1, valorUnit: 0, dias: 1, unid: "0", obs: "" };
+const defaultItem = { qtd: 1, valorUnit: 0, dias: 1, unid: "0", obs: "", nome_custo_projeto_id: 0 };
 
-// Itens fixos por categoria
-const itensFixosPorCategoria = {
-  1: [
-    "Pesquisa",
-    "Roteirista",
-    "Shooting Board",
-    "Tradução",
-    "Impressão / Xerox",
-    "Estudo Parte Teste de VT 1",
-    "Estudo Parte Teste de VT 2",
-    "Operador de câmera Teste VT 1",
-    "Operador de câmera Teste VT 2",
-    "Câmera Teste de VT",
-    "Luz para Teste de VT",
-    "Maquiador",
-    "Camareira de Teste - VT",
-    "Direção TVT",
-    "Editor",
-    "Ajudante para TVT 1",
-    "Ajudante para TVT 2",
-    "Cache Presença",
-    "HD para TVT",
-    "Verba Alimentação",
-    "Verba Pre Produção",
-    "Telefones",
-    "Xerox",
-    "Outros",
-    "Transf. Borderô"
-  ],
-  2: [
-    "Taxa de Locações - PJ 1",
-    "Taxa de Locações - PF 2",
-    "Impostos / Locações - PF",
-    "Base para filmagem 1",
-    "Base para filmagem 2",
-    "Gratificações",
-    "Policiamento",
-    "Verba Objeto 1",
-    "Verba Objeto 2",
-    "Verba Figurino1",
-    "Verba Figurino2",
-    "Lavanderia",
-    "Compra de produto para Filmagem",
-    "Aluguel de Veículos para a Cena",
-    "Envelopamento do carro dourado",
-    "Seguro de carros",
-    "Animais",
-    "Alimentos p filmagem",
-    "Teleprompter",
-    "Banheiro Químico",
-    "Camarim",
-    "Play Back",
-    "Caixa de Produção 1",
-    "Caixa de Produção 2",
-    "Mapas Meteorologicos",
-    "Caminhão Pipa",
-    "Ambulancia",
-    "Verba de Produção",
-    "Outros",
-    "Transf. Borderô"
-  ],
-  3: [
-    "Estúdio - Diárias Filmagens",
-    "Estúdio - Diárias Preparação e pré light",
-    "Material Construção",
-    "Aderecista",
-    "Cenotecnico",
-    "Pintor",
-    "Tinta",
-    "Ar Condicionado",
-    "Bombeiro para montagem de cenário",
-    "Outros Gastos com Cenografia",
-    "Transf. Borderô"
-  ],
-  4: [
-    "Carros de de Pre Produção",
-    "Carros de de Produção",
-    "Carros de de Prod. Figurino",
-    "Carros de Pre Prod. de Figurino",
-    "Carros de Pre Prod de Objetos",
-    "Carros de Prod de Objetos",
-    "Carros de Prod de Locação",
-    "Carros Alimentação",
-    "Carros de Filmagem",
-    "Carros de Camera",
-    "Carro de Agencia / Cliente",
-    "Carro de Diretor",
-    "Onibus",
-    "Pick-up",
-    "Caminhão",
-    "Taxi Estacionamento Pedagio",
-    "Guincho",
-    "Aluguel de Carros",
-    "Motoboy",
-    "Combustível",
-    "Currier",
-    "Outros",
-    "Transf. Borderô"
-  ],
-  5: [
-    "Diretor de Fotografia",
-    "Operador de Steady",
-    "1º Asst. Câmera 1",
-    "2º Asst. Câmera 1",
-    "Vídeo Assist 1",
-    "Logger 1",
-    "Assistente de Elétrica",
-    "Diretor de Produção 1",
-    "Luz de Estúdio Produção 1",
-    "2º Assist. Produção",
-    "Rádio",
-    "Produtor de Arte",
-    "Assistente de Arte",
-    "Produtor de Elétrica",
-    "Produtor de Maquinária",
-    "Gaffer",
-    "Maquinista",
-    "Assistente de Maquinista",
-    "Dir. Maquiador",
-    "Cabelereiro",
-    "Maquiador",
-    "Especialista em Maquiagem",
-    "Técnico de Efeitos Especiais",
-    "Eletricista",
-    "Assistente de Elétrica 2",
-    "Assistente de Produção 2",
-    "Motorista",
-    "Assistente de Motorista",
-    "Produtor de Locação",
-    "Assistente de Locação",
-    "Coordenador de Produção",
-    "Assistente de Coordenação",
-    "Auxiliar de Produção",
-    "Auxiliar de Serviços Gerais",
-    "Segurança"
-  ],
-  6: [
-    "Ator Principal 1",
-    "Ator Principal 2",
-    "Atores Coadjuvantes 1",
-    "Modelo 1",
-    "Modelo 2",
-    "Crianças 1",
-    "Figuração Especial",
-    "Outros Gastos com Elenco",
-    "Transf. Borderô"
-  ],
-  7: [
-    "Alimentação de Pre / Pós Prod.",
-    "Alimentação de Filmagem 1",
-    "Alimentação de Filmagem 2",
-    "Verba de Manutenção Filmagem",
-    "Cache de Manutenção",
-    "Transf. Borderô"
-  ],
-  8: [
-    "Hotel Pré-pesquisa",
-    "Hotel Equipe",
-    "Hotel Cliente",
-    "Hotel Agencia",
-    "Hotel Celebridade",
-    "Pernoitem Equipe",
-    "Transf. Borderô"
-  ],
-  9: [
-    "Agencia",
-    "Cliente",
-    "Equipe - Filmagem",
-    "Excesso de Bagagem",
-    "Outras despesas de passagens",
-    "Transf. Borderô"
-  ],
-  10: [
-    "Câmera 1",
-    "Acessórios de Camera",
-    "Lentes 1",
-    "Motion Control",
-    "Travelling",
-    "Rádios",
-    "Transf. Borderô"
-  ],
-  11: ["Luz 1", "Gerador Grande", "Gerador Pq", "Estrutura de Iluminação", "Transf. Borderô"],
-  12: ["Trilha Sonora", "Locução", "Estúdio de Som", "Transf. Borderô"],
-  13: [
-    "Edição",
-    "Motion",
-    "Correção de Cor",
-    "Montador",
-    "Stock Shot",
-    "Cópia de Trabalho",
-    "Transf. Borderô"
-  ],
-  14: ["Condecine", "Sindicine", "Seguro", "Sated", "Assessoria Jurídica", "Testagem COVID-19"],
-  15: ["Fora Taxa 1", "Fora Taxa 2", "Fora Taxa 3"]
-};
+const createDefaultItem = (catId, descricao = "") => ({
+  qtd: 1,
+  valorUnit: 0,
+  dias: 1,
+  unid: "0",
+  obs: "",
+  descricao,
+  nome_custo_projeto_id: Number(catId) // << aqui vai o id da categoria
+});
 
-// Estado inicial de itens por categoria
+// Estado inicial de itens por categoria (começa vazio para lazy load)
 export const initialItensPorCategoria = categorias.reduce((acc, cat) => {
-  if (itensFixosPorCategoria[cat.id]) {
-    acc[cat.id] = itensFixosPorCategoria[cat.id].map((descricao) => ({
-      ...defaultItem,
-      descricao
-    }));
-  } else {
-    acc[cat.id] = [];
-  }
+  acc[cat.id] = itensFixosPorCategoria[cat.id]
+    ? itensFixosPorCategoria[cat.id].map((descricao) => createDefaultItem(cat.id, descricao))
+    : [];
   return acc;
 }, {});
 
@@ -255,67 +64,94 @@ export const initialValues = {
   }
 };
 
+// estilo reutilizável para inputs leves
+const inputStyle = {
+  width: "100%",
+  padding: "6px 8px",
+  borderRadius: 4,
+  border: "1px solid rgba(0,0,0,0.23)",
+  boxSizing: "border-box",
+  fontSize: 14,
+  background: "white"
+};
+
+const parsePercent = (value) => {
+  if (!value) return 0;
+  const num = Number(String(value).replace(",", "."));
+  if (isNaN(num)) return 0;
+
+  // Se for menor que 1, trata como fração (0.05 = 5%)
+  // Se for maior ou igual a 1, trata como inteiro normal (5 = 5%)
+  return num < 1 ? num * 100 : num;
+};
+
 // Linha de item otimizada
 const ItemRow = React.memo(function ItemRow({ catId, index, item, handleItemChange }) {
   return (
     <Grid container spacing={1} sx={{ mb: 1 }}>
       <Grid item xs={3.5}>
-        <TextField
-          fullWidth
-          size="small"
+        <input
+          aria-label={`descricao-${catId}-${index}`}
+          style={inputStyle}
           value={item.descricao}
           onChange={(e) => handleItemChange(catId, index, "descricao", e.target.value)}
         />
       </Grid>
+
       <Grid item xs={1.2}>
-        <TextField
-          fullWidth
-          size="small"
+        <input
+          aria-label={`qtd-${catId}-${index}`}
+          style={inputStyle}
           type="number"
           value={item.qtd}
           onChange={(e) => handleItemChange(catId, index, "qtd", e.target.value)}
         />
       </Grid>
+
       <Grid item xs={1.2}>
-        <TextField
-          fullWidth
-          size="small"
+        <input
+          aria-label={`valorUnit-${catId}-${index}`}
+          style={inputStyle}
           type="number"
+          step="0.01"
           value={item.valorUnit}
           onChange={(e) => handleItemChange(catId, index, "valorUnit", e.target.value)}
         />
       </Grid>
+
       <Grid item xs={1.2}>
-        <TextField
-          fullWidth
-          size="small"
+        <input
+          aria-label={`dias-${catId}-${index}`}
+          style={inputStyle}
           type="number"
           value={item.dias}
           onChange={(e) => handleItemChange(catId, index, "dias", e.target.value)}
         />
       </Grid>
+
       <Grid item xs={1.2}>
-        <TextField
-          fullWidth
-          size="small"
+        <input
+          aria-label={`unid-${catId}-${index}`}
+          style={inputStyle}
           type="number"
           value={item.unid}
           onChange={(e) => handleItemChange(catId, index, "unid", e.target.value)}
         />
       </Grid>
+
       <Grid item xs={1.6}>
-        <TextField
-          fullWidth
-          size="small"
-          disabled
-          sx={{ bgcolor: "#e0e0e06b" }}
+        <input
+          aria-label={`total-${catId}-${index}`}
+          style={{ ...inputStyle, background: "#e0e0e06b" }}
+          readOnly
           value={`R$ ${(item.total || 0).toFixed(2)}`}
         />
       </Grid>
+
       <Grid item xs={2.1}>
-        <TextField
-          fullWidth
-          size="small"
+        <input
+          aria-label={`obs-${catId}-${index}`}
+          style={inputStyle}
           value={item.obs}
           onChange={(e) => handleItemChange(catId, index, "obs", e.target.value)}
         />
@@ -327,65 +163,101 @@ const ItemRow = React.memo(function ItemRow({ catId, index, item, handleItemChan
 export default function PlanilhaCustosOrcamento({ values, onChange }) {
   const { itensPorCategoria, totais } = values;
 
-  // adicionar item
-  const handleAddItem = (catId) => {
-    onChange((prev) => ({
-      ...prev,
-      itensPorCategoria: {
-        ...prev.itensPorCategoria,
-        [catId]: [...prev.itensPorCategoria[catId], { ...defaultItem, descricao: "" }]
-      }
-    }));
-  };
-
-  // mudar valor de item
-  const handleItemChange = (catId, index, field, value) => {
-    onChange((prev) => {
-      const novosItens = [...prev.itensPorCategoria[catId]];
-      let item = { ...novosItens[index] };
-
-      item[field] =
-        field === "descricao" || field === "obs" || field === "unid" ? value : Number(value);
-
-      item.total = (item.qtd || 0) * (item.valorUnit || 0) * (item.dias || 0);
-      novosItens[index] = item;
-
-      return {
+  const handleAddItem = useCallback(
+    (catId) => {
+      onChange((prev) => ({
         ...prev,
-        itensPorCategoria: { ...prev.itensPorCategoria, [catId]: novosItens }
-      };
-    });
-  };
+        itensPorCategoria: {
+          ...prev.itensPorCategoria,
+          [catId]: [
+            ...prev.itensPorCategoria[catId],
+            createDefaultItem(catId),
+            { ...defaultItem, descricao: "" }
+          ]
+        }
+      }));
+    },
+    [onChange]
+  );
 
-  // mudar totais
-  const handleTotaisChange = (field, rawValue) => {
-    const value = rawValue.replace(",", ".");
-    onChange((prev) => ({
-      ...prev,
-      totais: {
-        ...prev.totais,
-        [field]: value === "" ? 0 : parseFloat(value)
-      }
-    }));
-  };
+  const handleItemChange = useCallback(
+    (catId, index, field, value) => {
+      onChange((prev) => {
+        const novosItens = [...prev.itensPorCategoria[catId]];
+        const item = { ...novosItens[index] };
 
-  // cálculos otimizados
+        if (["descricao", "obs", "unid"].includes(field)) {
+          item[field] = value;
+        } else {
+          item[field] = Number(value === "" ? 0 : value);
+        }
+
+        const qtd = Number(item.qtd || 0);
+        const valorUnit = Number(item.valorUnit || 0);
+        const dias = Number(item.dias || 0);
+        item.total = qtd * valorUnit * dias;
+
+        novosItens[index] = item;
+
+        return {
+          ...prev,
+          itensPorCategoria: { ...prev.itensPorCategoria, [catId]: novosItens }
+        };
+      });
+    },
+    [onChange]
+  );
+
+  const handleTotaisChange = useCallback(
+    (field, rawValue) => {
+      const value = String(rawValue).replace(",", ".");
+      onChange((prev) => ({
+        ...prev,
+        totais: {
+          ...prev.totais,
+          [field]: value === "" ? 0 : parseFloat(value)
+        }
+      }));
+    },
+    [onChange]
+  );
+
   const totalPlanilha = useMemo(() => {
-    return Object.values(itensPorCategoria).reduce(
-      (accCat, itens) =>
+    return Object.values(itensPorCategoria).reduce((accCat, itens) => {
+      return (
         accCat +
-        itens.reduce((accItem, item) => accItem + item.qtd * item.valorUnit * item.dias, 0),
-      0
-    );
+        itens.reduce((accItem, item) => {
+          const qtd = Number(item.qtd || 0);
+          const v = Number(item.valorUnit || 0);
+          const d = Number(item.dias || 0);
+          return accItem + qtd * v * d;
+        }, 0)
+      );
+    }, 0);
   }, [itensPorCategoria]);
 
+  const formatCurrency = (value) =>
+    `${value.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })}`;
+
   const totalGeral = useMemo(() => {
-    const valorTaxa = (totalPlanilha * Number(totais.taxaImplantacao)) / 100;
-    const valorImpostos = (totalPlanilha * Number(totais.impostos)) / 100;
-    return totalPlanilha + valorTaxa + valorImpostos + Number(totais.condicaoComercial);
+    const percImpulsionamento = parseFloat(totais.taxaImplantacao) || 0;
+    const percComissao = parseFloat(totais.condicaoComercial) || 0;
+    const percImpostos = parseFloat(totais.impostos) || 0;
+
+    const valorImpulsionamento = totalPlanilha * (percImpulsionamento / 100);
+    const valorComissao = totalPlanilha * (percComissao / 100);
+
+    const subtotal = totalPlanilha + valorImpulsionamento + valorComissao;
+    const valorImpostos = subtotal * (percImpostos / 100);
+
+    const valorTotalGeral = subtotal + valorImpostos;
+
+    return valorTotalGeral;
   }, [totalPlanilha, totais]);
 
-  // atualizar totais sempre que mudar
   useEffect(() => {
     onChange((prev) => ({
       ...prev,
@@ -402,7 +274,27 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
       {/* Esquerda */}
       <Grid item xs={9}>
         {categorias.map((cat) => (
-          <Accordion key={cat.id}>
+          <Accordion
+            key={cat.id}
+            onChange={(_, expanded) => {
+              if (
+                expanded &&
+                itensPorCategoria[cat.id].length === 0 &&
+                itensFixosPorCategoria[cat.id]
+              ) {
+                onChange((prev) => ({
+                  ...prev,
+                  itensPorCategoria: {
+                    ...prev.itensPorCategoria,
+                    [cat.id]: itensFixosPorCategoria[cat.id].map((descricao) => ({
+                      ...defaultItem,
+                      descricao
+                    }))
+                  }
+                }));
+              }
+            }}
+          >
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography>{`${cat.id} - ${cat.nome}`}</Typography>
             </AccordionSummary>
@@ -432,7 +324,6 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
                 </Grid>
               </Grid>
 
-              {/* Linhas */}
               {itensPorCategoria[cat.id].map((item, index) => (
                 <ItemRow
                   key={index}
@@ -479,7 +370,7 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
           <TextField
             fullWidth
             size="small"
-            label="Comissão Comercial (R$)"
+            label="Comissão Comercial (%)"
             type="number"
             inputProps={{ step: "0.01" }}
             value={totais.condicaoComercial === 0 ? "" : totais.condicaoComercial}
@@ -499,7 +390,7 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
           />
 
           <Paper sx={{ mt: 3, p: 1, bgcolor: "primary.main", color: "white" }}>
-            <Typography variant="p">TOTAL GERAL: R$ {totalGeral.toFixed(2)}</Typography>
+            <Typography variant="body1">TOTAL GERAL: R$ {formatCurrency(totalGeral)}</Typography>
           </Paper>
         </Paper>
       </Grid>
