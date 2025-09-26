@@ -592,7 +592,7 @@ const FormEditarCadastro = () => {
           <Box>
             <Button color="primary" variant="contained" type="submit" sx={{ mt: 2 }}>
               <Icon>send</Icon>
-              <Span sx={{ pl: 1, textTransform: "capitalize" }}>Cadastrar</Span>
+              <Span sx={{ pl: 1, textTransform: "capitalize" }}>Atualizar</Span>
             </Button>
           </Box>
         </Box>

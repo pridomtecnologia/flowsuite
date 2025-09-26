@@ -101,7 +101,12 @@ export default function TabelaUsuarios() {
 
         setListCadastrado(response_list_cadastro.data);
       } catch (error) {
-        alert(error.response.data.detail.message);
+        Swal.fire({
+          title: "Atenção",
+          text: error.response.data.detail.message,
+          icon: "warning",
+          confirmButtonText: "Fechar"
+        });
       }
     };
 
@@ -133,7 +138,7 @@ export default function TabelaUsuarios() {
                         style={{
                           background:
                             subscriber.situacao_cadastro == "Ativo" ? "#8fa5c7ff" : "#a3a3a3ff",
-                          padding: "7px 10px",
+                          padding: "4px 15px",
                           color: "#252323ff",
                           fontWeight: "bold",
                           borderRadius: "50px"
@@ -143,21 +148,24 @@ export default function TabelaUsuarios() {
                       </span>
                     </TableCell>
                     <TableCell align="center">
-                      {subscriber.tags.split(" ").map((word, i) => (
-                        <span
-                          key={i}
-                          style={{
-                            background: i % 2 === 0 ? "#ced3dbff" : "",
-                            margin: "1px",
-                            padding: "4px 7px",
-                            color: "#302f2fff",
-                            fontWeight: "bold",
-                            borderRadius: "50px"
-                          }}
-                        >
-                          {word}
-                        </span>
-                      ))}
+                      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                        {subscriber.tags.split(" - ").map((word, i) => (
+                          <span
+                            key={i}
+                            style={{
+                              background: i % 2 === 0 ? "#3678e267" : "#e29f3667",
+                              padding: "2px 2px",
+                              margin: "2px",
+                              color: "#302f2fff",
+                              fontWeight: "bold",
+                              borderRadius: "50px",
+                              display: "inline-block"
+                            }}
+                          >
+                            {word}
+                          </span>
+                        ))}
+                      </div>
                     </TableCell>
                     <TableCell align="center">{subscriber.razao_social}</TableCell>
                     <TableCell align="center">{subscriber.documento}</TableCell>
