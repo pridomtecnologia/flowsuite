@@ -1,22 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  Box,
-  Tab,
-  Tabs,
-  styled,
-  Button,
-  IconButton,
-  Icon,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Typography,
-  Grid,
-  TextField,
-  Paper,
-  Link
-} from "@mui/material";
+import { Box, Tab, Tabs, styled, Button, IconButton, Icon } from "@mui/material";
 import { Breadcrumb } from "app/components";
 import axios from "axios";
 import FormCadastroProjetoUpdate from "./FormCadastroProjetoUpdate";
@@ -24,8 +8,6 @@ import EditarPlanilhaCustosOrcamento from "./EditarPlanilhaCustosOrcamento";
 import EditarUploaDocumentosPlanilha from "./EditarUploaDocumentosPlanilha";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
-
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const Container = styled("div")(({ theme }) => ({
   margin: "30px",
@@ -251,15 +233,24 @@ export default function EditarOrcamento() {
   return (
     <Container>
       <Box className="breadcrumb">
-        <Breadcrumb routeSegments={[{ name: "Cadastrar Projeto" }]} />
+        <Breadcrumb routeSegments={[{ name: "Atualizar Projeto" }]} />
       </Box>
 
-      <Box sx={{ mb: 2, display: "flex", gap: "5px" }}>
+      <Box
+        sx={{
+          mb: 2,
+          display: "flex",
+          gap: "5px",
+          background: "#FFFFFF",
+          borderRadius: 1,
+          boxShadow: "0px 0px 5px 0px #0000001f",
+          padding: "5px"
+        }}
+      >
         <Box>
-          <Button variant="contained" color="primary" onClick={handleVoltar}>
-            <IconButton color="white">
-              {" "}
-              <Icon color="white">arrow_back</Icon>{" "}
+          <Button sx={{ color: "red" }} onClick={handleVoltar}>
+            <IconButton sx={{ color: "red" }}>
+              <Icon color="white">arrow_back</Icon>
             </IconButton>
             Voltar
           </Button>
@@ -268,13 +259,15 @@ export default function EditarOrcamento() {
         {/* transformar em job */}
         <Box>
           <Button
-            variant="contained"
             title="Transformar em JOB"
-            sx={{ display: statusProjeto == 2 || statusProjeto == 3 ? "none" : "flex" }}
+            sx={{
+              display: statusProjeto == 2 || statusProjeto == 3 ? "none" : "flex",
+              color: "green"
+            }}
             onClick={handleTransformaJob}
           >
             {" "}
-            <IconButton color="white">
+            <IconButton sx={{ color: "green" }}>
               {" "}
               <Icon color="white">swap_horiz</Icon>{" "}
             </IconButton>{" "}
@@ -285,37 +278,47 @@ export default function EditarOrcamento() {
         {/* Atualizar projeto */}
         <Box>
           <Button
-            variant="contained"
-            color="primary"
             onClick={handleAtualizarOrcamento}
-            sx={{ display: statusProjeto == 2 || statusProjeto == 3 ? "none" : "flex" }}
+            sx={{
+              display: statusProjeto == 2 || statusProjeto == 3 ? "none" : "flex",
+              color: "blue"
+            }}
           >
-            <IconButton color="white">
+            <IconButton sx={{ color: "blue" }}>
               {" "}
-              <Icon color="white">save</Icon>{" "}
+              <Icon sx={{ color: "blue" }}>save</Icon>{" "}
             </IconButton>
             Atualizar Projeto
           </Button>
         </Box>
       </Box>
 
-      <Tabs value={tab} onChange={(e, newValue) => setTab(newValue)}>
-        <Tab label="Identificação" />
-        <Tab label="Planilha de Custos" />
-        <Tab label="Pasta de Documentos" />
-      </Tabs>
+      <Box
+        sx={{
+          background: "#FFFFFF",
+          borderRadius: 1,
+          boxShadow: "0px 0px 5px 0px #0000001f",
+          padding: 3
+        }}
+      >
+        <Tabs value={tab} onChange={(e, newValue) => setTab(newValue)}>
+          <Tab label="Identificação" />
+          <Tab label="Planilha de Custos" />
+          <Tab label="Pasta de Documentos" />
+        </Tabs>
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}></Box>
+        <Box sx={{ mt: 3 }}>
+          {tab === 0 && (
+            <FormCadastroProjetoUpdate values={formCadastro} onChange={setFormCadastro} />
+          )}
 
-      <Box>
-        {tab === 0 && (
-          <FormCadastroProjetoUpdate values={formCadastro} onChange={setFormCadastro} />
-        )}
-
-        {tab === 1 && (
-          <EditarPlanilhaCustosOrcamento values={planilhaCustos} onChange={setPlanilhaCustos} />
-        )}
-        {tab === 2 && (
-          <EditarUploaDocumentosPlanilha arquivos={documentos} setArquivos={setDocumentos} />
-        )}
+          {tab === 1 && (
+            <EditarPlanilhaCustosOrcamento values={planilhaCustos} onChange={setPlanilhaCustos} />
+          )}
+          {tab === 2 && (
+            <EditarUploaDocumentosPlanilha arquivos={documentos} setArquivos={setDocumentos} />
+          )}
+        </Box>
       </Box>
     </Container>
   );

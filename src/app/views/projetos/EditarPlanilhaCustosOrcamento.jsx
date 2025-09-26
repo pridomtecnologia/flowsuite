@@ -107,7 +107,10 @@ export default function EditarPlanilhaCustosOrcamento({ values, onChange }) {
       <Grid item xs={9}>
         {categorias.map((cat) => (
           <Accordion key={cat.id}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              sx={{ mt: 1, color: "#6c7216ff", border: "0.5px solid #6c721681", borderRadius: 2 }}
+            >
               <Typography>{`${cat.id} - ${cat.nome}`}</Typography>
             </AccordionSummary>
             <AccordionDetails>

@@ -20,11 +20,7 @@ export default function CadastrarProjeto() {
         <Breadcrumb routeSegments={[{ name: "Cadastrar Projeto" }]} />
       </Box>
 
-      <Stack spacing={3}>
-        <SimpleCard title="">
-          <Adaptacao />
-        </SimpleCard>
-      </Stack>
+      <Adaptacao />
     </Container>
   );
 }

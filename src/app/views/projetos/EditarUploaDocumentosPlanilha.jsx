@@ -26,35 +26,31 @@ export default function EditarUploaDocumentosPlanilha({ arquivos, setArquivos })
 
   return (
     <Box sx={{ mt: 2 }}>
-      <Typography variant="h6" gutterBottom>
-        Envie o documento
-      </Typography>
+      {/* <Typography variant="p" gutterBottom>
+        Anexar Documentos
+      </Typography> */}
 
       <Button variant="contained" component="label" startIcon={<UploadFileIcon />} sx={{ mb: 2 }}>
-        Selecionar Arquivos
+        Selecionar Documentos
         <input hidden type="file" multiple onChange={handleUpload} />
       </Button>
 
       {arquivos.length > 0 && (
-        <Paper sx={{ p: 2 }}>
-          <List>
-            {arquivos.map((file, index) => (
-              <ListItem
-                key={index}
-                secondaryAction={
-                  <IconButton edge="end" color="error" onClick={() => handleRemove(index)}>
-                    <DeleteIcon />
-                  </IconButton>
-                }
-              >
-                <ListItemText
-                  primary={file.name}
-                  secondary={`${(file.size / 1024).toFixed(1)} KB`}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Paper>
+        <List>
+          {arquivos.map((file, index) => (
+            <ListItem
+              sx={{ border: "0.5px solid #6c721681", borderRadius: 2, mb: 1 }}
+              key={index}
+              secondaryAction={
+                <IconButton edge="end" color="error" onClick={() => handleRemove(index)}>
+                  <DeleteIcon />
+                </IconButton>
+              }
+            >
+              <ListItemText primary={file.name} secondary={`${(file.size / 1024).toFixed(1)} KB`} />
+            </ListItem>
+          ))}
+        </List>
       )}
     </Box>
   );

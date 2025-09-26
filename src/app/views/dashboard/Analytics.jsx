@@ -47,7 +47,7 @@ export default function Analytics() {
           <Grid size={{ md: 8, xs: 12 }}>
             <StatCards />
             {/* <TopSellingTable /> */}
-            <StatCards2 />
+            {/* <StatCards2 /> */}
 
             {/* <H4>Ongoing Projects</H4> */}
             {/* <RowCards /> */}
@@ -63,8 +63,6 @@ export default function Analytics() {
                 color={[palette.primary.dark, palette.primary.main, palette.primary.light]}
               />
             </Card>
-
-            {/* <Campaigns /> */}
           </Grid>
         </Grid>
       </ContentBox>

@@ -238,7 +238,10 @@ const FormCadastroProjeto = ({ values, onChange }) => {
                   />
                 </Box>
                 <Box>
-                  <IconButton sx={{ cursor: "pointer" }} onClick={handleOpenCoprodutor}>
+                  <IconButton
+                    sx={{ cursor: "pointer", color: "blue" }}
+                    onClick={handleOpenCoprodutor}
+                  >
                     <Icon title="Adicionar Coprodutor">person_add</Icon>
                   </IconButton>
                 </Box>
@@ -298,7 +301,7 @@ const FormCadastroProjeto = ({ values, onChange }) => {
                 </Box>
 
                 <Box>
-                  <IconButton sx={{ cursor: "pointer" }} onClick={handleOpenDiretor}>
+                  <IconButton sx={{ cursor: "pointer", color: "blue" }} onClick={handleOpenDiretor}>
                     <Icon title="Adicionar Diretor">person_add</Icon>
                   </IconButton>
                 </Box>

@@ -41,7 +41,7 @@ const createDefaultItem = (catId, descricao = "") => ({
   unid: "0",
   obs: "",
   descricao,
-  nome_custo_projeto_id: Number(catId) // << aqui vai o id da categoria
+  nome_custo_projeto_id: Number(catId)
 });
 
 // Estado inicial de itens por categoria (começa vazio para lazy load)
@@ -295,10 +295,14 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
               }
             }}
           >
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              sx={{ mt: 1, color: "#6c7216ff", border: "0.5px solid #6c721681", borderRadius: 2 }}
+            >
               <Typography>{`${cat.id} - ${cat.nome}`}</Typography>
             </AccordionSummary>
-            <AccordionDetails>
+
+            <AccordionDetails sx={{ borderRadius: 2 }}>
               {/* Cabeçalho */}
               <Grid container spacing={1} sx={{ mb: 1 }}>
                 <Grid item xs={3.5}>

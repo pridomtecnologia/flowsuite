@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Tab, Tabs, styled, Button, IconButton, Icon } from "@mui/material";
-import { Breadcrumb } from "app/components";
 import axios from "axios";
 import PlanilhaCustosOrcamento, { initialValues } from "./orcamento/PlanilhaCustosOrcamento";
 import FormCadastroProjeto from "./FormCadastroProjeto";
@@ -10,10 +9,10 @@ import dayjs from "dayjs";
 import Swal from "sweetalert2";
 
 const Container = styled("div")(({ theme }) => ({
-  margin: "30px",
   [theme.breakpoints.down("sm")]: { margin: "16px" },
   "& .breadcrumb": {
     marginBottom: "30px",
+
     [theme.breakpoints.down("sm")]: { marginBottom: "16px" }
   }
 }));
@@ -164,43 +163,66 @@ export default function Adaptacao() {
 
   return (
     <Container>
-      <Box className="breadcrumb">
-        <Breadcrumb routeSegments={[{ name: "Cadastrar Projeto" }]} />
-      </Box>
-
-      <Box sx={{ mb: 2, display: "flex", gap: "5px" }}>
+      <Box
+        sx={{
+          mb: 2,
+          display: "flex",
+          gap: "5px",
+          background: "#FFFFFF",
+          borderRadius: 1,
+          boxShadow: "0px 0px 5px 0px #0000001f",
+          padding: "5px"
+        }}
+      >
         <Box>
-          <Button variant="contained" color="primary" onClick={handleVoltar}>
-            <IconButton color="white">
-              {" "}
-              <Icon color="white">arrow_back</Icon>{" "}
+          <Button sx={{ color: "red" }} onClick={handleVoltar}>
+            <IconButton sx={{ color: "red" }}>
+              <Icon color="white">arrow_back</Icon>
             </IconButton>
             Voltar
           </Button>
         </Box>
+
+        {/* Atualizar projeto */}
         <Box>
-          <Button variant="contained" color="primary" onClick={handleSalvar}>
-            <IconButton color="white">
+          <Button
+            onClick={handleSalvar}
+            sx={{
+              color: "blue"
+            }}
+          >
+            <IconButton sx={{ color: "blue" }}>
               {" "}
-              <Icon color="white">save</Icon>{" "}
+              <Icon sx={{ color: "blue" }}>save</Icon>{" "}
             </IconButton>
             Salvar Projeto
           </Button>
         </Box>
       </Box>
 
-      <Tabs value={tab} onChange={(e, newValue) => setTab(newValue)}>
-        <Tab label="Identificação" />
-        <Tab label="Planilha de Custos" />
-        <Tab label="Pasta de Documentos" />
-      </Tabs>
-
-      <Box>
-        {tab === 0 && <FormCadastroProjeto values={formCadastro} onChange={setFormCadastro} />}
-        {tab === 1 && (
-          <PlanilhaCustosOrcamento values={planilhaCustos} onChange={setPlanilhaCustos} />
-        )}
-        {tab === 2 && <UploaDocumentosPlanilha arquivos={documentos} setArquivos={setDocumentos} />}
+      <Box
+        sx={{
+          background: "#FFFFFF",
+          borderRadius: 1,
+          boxShadow: "0px 0px 5px 0px #0000001f",
+          padding: 3
+        }}
+      >
+        <Tabs value={tab} onChange={(e, newValue) => setTab(newValue)}>
+          <Tab label="Identificação" />
+          <Tab label="Planilha de Custos" />
+          <Tab label="Pasta de Documentos" />
+        </Tabs>
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}></Box>
+        <Box sx={{ mt: 3 }}>
+          {tab === 0 && <FormCadastroProjeto values={formCadastro} onChange={setFormCadastro} />}
+          {tab === 1 && (
+            <PlanilhaCustosOrcamento values={planilhaCustos} onChange={setPlanilhaCustos} />
+          )}
+          {tab === 2 && (
+            <UploaDocumentosPlanilha arquivos={documentos} setArquivos={setDocumentos} />
+          )}
+        </Box>
       </Box>
     </Container>
   );
