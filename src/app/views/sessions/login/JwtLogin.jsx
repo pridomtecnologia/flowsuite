@@ -13,6 +13,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 
 import useAuth from "app/hooks/useAuth";
 import { Paragraph } from "app/components/Typography";
+import Swal from "sweetalert2";
 
 // STYLED COMPONENTS
 const FlexBox = styled(Box)(() => ({
@@ -77,7 +78,7 @@ export default function JwtLogin() {
       await login(values.email, values.password);
       navigate("/");
     } catch (e) {
-      console.error(e);
+      alert("Erro ao efetuar login, verifique suas credenciais.");
     }
   };
 

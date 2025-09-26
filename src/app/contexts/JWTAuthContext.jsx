@@ -65,34 +65,30 @@ export const AuthProvider = ({ children }) => {
   const api = import.meta.env.VITE_API_FLOWSUITE;
 
   const login = async (email, password) => {
-    try {
-      const params = new URLSearchParams();
+    const params = new URLSearchParams();
 
-      params.append("username", email);
-      params.append("password", password);
+    params.append("username", email);
+    params.append("password", password);
 
-      const response_autenticacao = await axios.post(`${api}user/login`, params, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        }
-      });
+    const response_autenticacao = await axios.post(`${api}user/login`, params, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    });
 
-      const user = {
-        name: response_autenticacao.data.name,
-        email: response_autenticacao.data.email,
-        exp: response_autenticacao.data.exp,
-        id_user: response_autenticacao.data.id_user,
-        permissions: response_autenticacao.data.permissions
-      };
+    const user = {
+      name: response_autenticacao.data.name,
+      email: response_autenticacao.data.email,
+      exp: response_autenticacao.data.exp,
+      id_user: response_autenticacao.data.id_user,
+      permissions: response_autenticacao.data.permissions
+    };
 
-      setSession(response_autenticacao.data.access_token);
+    setSession(response_autenticacao.data.access_token);
 
-      localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("user", JSON.stringify(user));
 
-      dispatch({ type: "LOGIN", payload: { user } });
-    } catch (error) {
-      alert(error.response.data.detail.message);
-    }
+    dispatch({ type: "LOGIN", payload: { user } });
   };
 
   const register = async (email, username, password) => {
