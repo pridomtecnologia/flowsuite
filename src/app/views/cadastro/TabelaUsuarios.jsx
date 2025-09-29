@@ -137,7 +137,7 @@ export default function TabelaUsuarios() {
                       <span
                         style={{
                           background:
-                            subscriber.situacao_cadastro == "Ativo" ? "#8fa5c7ff" : "#a3a3a3ff",
+                            subscriber.situacao_cadastro == "Ativo" ? "#5CCB5F" : "#FF2C2C",
                           padding: "4px 15px",
                           color: "#252323ff",
                           fontWeight: "bold",
@@ -148,24 +148,22 @@ export default function TabelaUsuarios() {
                       </span>
                     </TableCell>
                     <TableCell align="center">
-                      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                        {subscriber.tags.split(" - ").map((word, i) => (
-                          <span
-                            key={i}
-                            style={{
-                              background: i % 2 === 0 ? "#3678e267" : "#e29f3667",
-                              padding: "2px 2px",
-                              margin: "2px",
-                              color: "#302f2fff",
-                              fontWeight: "bold",
-                              borderRadius: "50px",
-                              display: "inline-block"
-                            }}
-                          >
-                            {word}
-                          </span>
-                        ))}
-                      </div>
+                      {subscriber.tags.split(" - ").map((word, i) => (
+                        <span
+                          key={i}
+                          style={{
+                            background: i % 2 === 0 ? "#0000ff7e" : "#e29f3667",
+                            padding: "4px 10px",
+                            margin: "2px",
+                            color: i % 2 === 0 ? "#ffffff" : "#000000",
+                            fontWeight: "bold",
+                            borderRadius: "50px",
+                            display: "inline-block"
+                          }}
+                        >
+                          {word}
+                        </span>
+                      ))}
                     </TableCell>
                     <TableCell align="center">{subscriber.razao_social}</TableCell>
                     <TableCell align="center">{subscriber.documento}</TableCell>

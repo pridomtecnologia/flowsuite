@@ -177,7 +177,7 @@ const FormEditarCadastro = () => {
       inscricao_estadual: state.inscricaoEstadual,
       inscricao_municipal: state.inscricaoMunicipal,
       web_site: state.webSite,
-      comissao: state.comissao,
+      comissao: String(state.comissao),
       tipo_comissao: tipoComissaoId,
       address: [
         {

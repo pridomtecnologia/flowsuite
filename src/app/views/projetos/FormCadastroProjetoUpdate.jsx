@@ -9,7 +9,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import Icon from "@mui/material/Icon";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -17,59 +17,48 @@ import DialogContent from "@mui/material/DialogContent";
 import FormCadastroCoprodutor from "../cadastro/FormCadastroCoprodutor";
 import FormCadastroDiretor from "../cadastro/FormCadastroDiretor";
 import dayjs from "dayjs";
-
 import axios from "axios";
 import useAuth from "app/hooks/useAuth";
+import Swal from "sweetalert2";
 
 const AutoComplete = styled(Autocomplete)({
   width: 300,
   marginBottom: "16px"
 });
 
-const FormCadastroProjetoUpdate = ({ values, onChange }) => {
-  const [state, setState] = useState({
-    numerOrcamento: "",
-    empresaId: "",
-    centroCustoId: "",
-    agenciaId: "",
-    clienteId: "",
-    titulo: "",
-    coprodutorId: "",
-    diretorId: "",
-    tipoJobId: "",
-    validadeOrcamento: ""
-  });
+const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange }) => {
   const [open, setOpen] = useState(false);
   const [openDiretor, setOpenDiretor] = useState(false);
+  const [openCentroCusto, setOpenCentroCusto] = useState(false);
 
   const [listaCadastro, setListaCadastro] = useState([]);
   const [listaCoprodutor, setListaCoprodutor] = useState([]);
-  const [statusProjeto, setStatusProjeto] = useState(0);
   const [listaDiretores, setListaDiretores] = useState([]);
   const [listaCentroCusto, setListaCentroCusto] = useState([]);
 
+  const [nameCentroCusto, setNameCentroCusto] = useState(null);
+
   const navigate = useNavigate();
-
   const api = import.meta.env.VITE_API_FLOWSUITE;
-
   const { user } = useAuth();
 
+  // --- Listagens ---
   const coprodutores = async () => {
     try {
-      const response_coprodutores = await axios.get(`${api}coprodutor`, {
+      const { data } = await axios.get(`${api}coprodutor`, {
         headers: {
           Accept: "application/json",
           Authorization: "Bearer " + localStorage.getItem("accessToken")
         }
       });
 
-      const listaCoprodutores = response_coprodutores.data.map((item) => ({
-        label: item.nome,
-        id: item.id_coprodutor,
-        original: item
-      }));
-
-      setListaCoprodutor(listaCoprodutores);
+      setListaCoprodutor(
+        data.map((item) => ({
+          label: item.nome,
+          id: item.id_coprodutor,
+          original: item
+        }))
+      );
     } catch (error) {
       console.error("Erro na requisição:", error.response?.data || error.message);
     }
@@ -77,22 +66,43 @@ const FormCadastroProjetoUpdate = ({ values, onChange }) => {
 
   const diretores = async () => {
     try {
-      const diretor_response = await axios.get(`${api}diretor`, {
+      const { data } = await axios.get(`${api}diretor`, {
         headers: {
           Accept: "application/json",
           Authorization: "Bearer " + localStorage.getItem("accessToken")
         }
       });
 
-      const listaDiretores = diretor_response.data.map((item) => ({
-        label: item.nome,
-        id: item.id_diretor,
-        nome_interno: item.nome_interno,
-        identificador_lancamento: item.identificador_lancamento,
-        original: item
-      }));
+      setListaDiretores(
+        data.map((item) => ({
+          label: item.nome,
+          id: item.id_diretor,
+          nome_interno: item.nome_interno,
+          identificador_lancamento: item.identificador_lancamento,
+          original: item
+        }))
+      );
+    } catch (error) {
+      console.error("Erro na requisição:", error.response?.data || error.message);
+    }
+  };
 
-      setListaDiretores(listaDiretores);
+  const centro_custo = async () => {
+    try {
+      const { data } = await axios.get(`${api}centro-de-custo`, {
+        headers: {
+          Accept: "application/json",
+          Authorization: "Bearer " + localStorage.getItem("accessToken")
+        }
+      });
+
+      setListaCentroCusto(
+        data.map((item) => ({
+          label: item.centro_custo,
+          id: item.id_centro_custo,
+          original: item
+        }))
+      );
     } catch (error) {
       console.error("Erro na requisição:", error.response?.data || error.message);
     }
@@ -101,46 +111,42 @@ const FormCadastroProjetoUpdate = ({ values, onChange }) => {
   useEffect(() => {
     const listarCadastro = async () => {
       try {
-        const response_cadastro = await axios.get(`${api}cadastro/list`, {
+        const { data } = await axios.get(`${api}cadastro/list`, {
           headers: {
             Accept: "application/json",
             Authorization: "Bearer " + localStorage.getItem("accessToken")
           }
         });
-        const listaFormatada = response_cadastro.data.map((item) => ({
-          label: item.nome_fantasia, // ou razao_social, se preferir
-          id: item.id_cadastro,
-          original: item // se quiser guardar o objeto todo
-        }));
 
-        setListaCadastro(listaFormatada);
+        setListaCadastro(
+          data.map((item) => ({
+            label: item.nome_fantasia,
+            id: item.id_cadastro,
+            original: item
+          }))
+        );
       } catch (error) {
         console.error("Erro na requisição:", error.response?.data || error.message);
       }
     };
 
-    const centro_custo = async () => {
+    const numeroOrcamento = async () => {
       try {
-        const response_centro_custo = await axios.get(`${api}centro-de-custo`, {
+        const { data } = await axios.get(`${api}projetos/next_orc_number`, {
           headers: {
             Accept: "application/json",
             Authorization: "Bearer " + localStorage.getItem("accessToken")
           }
         });
 
-        const listaCentroCusto = response_centro_custo.data.map((item) => ({
-          label: item.centro_custo,
-          id: item.id_centro_custo,
-          original: item
-        }));
-
-        setListaCentroCusto(listaCentroCusto);
+        onChange({ ...values, numerOrcamento: data.number_orc });
       } catch (error) {
         console.error("Erro na requisição:", error.response?.data || error.message);
       }
     };
 
     listarCadastro();
+    numeroOrcamento();
     coprodutores();
     diretores();
     centro_custo();
@@ -149,34 +155,68 @@ const FormCadastroProjetoUpdate = ({ values, onChange }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     navigate("/projetos/listar-projetos");
-    console.log("submitted");
-    console.log(event);
   };
 
   const handleChange = (event) => {
-    event.persist();
-    setState({ ...state, [event.target.name]: event.target.value });
-    onChange({ ...values, [e.target.name]: e.target.value });
+    const { name, value } = event.target;
+    onChange({ ...values, [name]: value });
   };
-
-  const {
-    numerOrcamento,
-    empresaId,
-    clienteId,
-    centroCustoId,
-    agenciaId,
-    titulo,
-    coprodutorId,
-    diretorId,
-    tipoJobId,
-    validadeOrcamento
-  } = state;
 
   const handleOpenCoprodutor = () => setOpen(true);
   const handleCloseCoprodutor = () => setOpen(false);
 
   const handleOpenDiretor = () => setOpenDiretor(true);
   const handleCloseDiretor = () => setOpenDiretor(false);
+
+  const handleOpenCentroCusto = () => {
+    setNameCentroCusto(null);
+    setOpenCentroCusto(true);
+  };
+
+  const handleCloseCentroCusto = () => {
+    setNameCentroCusto(null);
+    setOpenCentroCusto(false);
+  };
+
+  const handleSaveCentroCusto = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(
+        `${api}centro-de-custo/create`,
+        { centro_custo: nameCentroCusto },
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: "Bearer " + localStorage.getItem("accessToken")
+          }
+        }
+      );
+
+      centro_custo();
+      handleCloseCentroCusto();
+
+      Swal.fire({
+        text: "Centro de custo cadastrado com sucesso",
+        icon: "success"
+      });
+    } catch (error) {
+      console.error("Erro ao criar centro de custo:", error.response?.data || error.message);
+    }
+  };
+
+  const handleAutoCompleteChange = (fieldName, newVal) => {
+    onChange({
+      ...values,
+      [fieldName]: newVal
+    });
+
+    if (onIdChange) {
+      onIdChange({
+        ...idForm,
+        [`${fieldName.toLowerCase()}`]: newVal?.id || null
+      });
+    }
+  };
 
   return (
     <div>
@@ -188,67 +228,57 @@ const FormCadastroProjetoUpdate = ({ values, onChange }) => {
                 type="text"
                 name="numerOrcamento"
                 label="Número do Orçamento"
-                disabled="true"
-                value={values.numerOrcamento || ""}
+                variant="outlined"
+                value={values.numerOrcamento ? String(values.numerOrcamento) : ""}
                 onChange={handleChange}
-                InputProps={{
-                  readOnly: true
-                }}
-                sx={{
-                  background: statusProjeto == 2 || statusProjeto == 3 ? "#d3d3d3" : ""
-                }}
               />
 
-              <AutoComplete
-                options={listaCentroCusto}
-                value={values.centroCustoId || null}
-                disabled={statusProjeto == 2 || statusProjeto == 3 ? true : true}
-                onChange={(e, newVal) => onChange({ ...values, centroCustoId: newVal })}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Centro de Custo"
-                    sx={{
-                      background: statusProjeto == 2 || statusProjeto == 3 ? "#d3d3d3" : ""
-                    }}
-                  />
-                )}
-              />
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <AutoComplete
+                  required
+                  options={listaCentroCusto}
+                  value={values.centroCustoId || null}
+                  onChange={(e, newVal) => handleAutoCompleteChange("centro_custo_id", newVal)}
+                  renderInput={(params) => <TextField {...params} label="Centro de Custo *" />}
+                />
+                <IconButton
+                  sx={{ cursor: "pointer", color: "blue" }}
+                  onClick={handleOpenCentroCusto}
+                >
+                  <Icon>person_add</Icon>
+                </IconButton>
+              </Box>
 
               <AutoComplete
                 required
                 options={listaCadastro}
                 value={values.clienteId || null}
-                onChange={(e, newVal) => onChange({ ...values, clienteId: newVal })}
-                renderInput={(params) => <TextField {...params} label="Cliente" />}
+                onChange={(e, newVal) => handleAutoCompleteChange("cliente_id", newVal)}
+                renderInput={(params) => <TextField {...params} label="Cliente *" />}
               />
 
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Box>
-                  <AutoComplete
-                    required
-                    options={listaCoprodutor}
-                    value={values.coprodutorId || null}
-                    onChange={(e, newVal) => onChange({ ...values, coprodutorId: newVal })}
-                    renderInput={(params) => <TextField {...params} label="Coprodutor" />}
-                  />
-                </Box>
-                <Box>
-                  <IconButton
-                    sx={{ cursor: "pointer", color: "blue" }}
-                    onClick={handleOpenCoprodutor}
-                  >
-                    <Icon title="Adicionar Coprodutor">person_add</Icon>
-                  </IconButton>
-                </Box>
+                <AutoComplete
+                  required
+                  options={listaCoprodutor}
+                  value={values.coprodutorId || null}
+                  onChange={(e, newVal) => handleAutoCompleteChange("coprodutor_id", newVal)}
+                  renderInput={(params) => <TextField {...params} label="Coprodutor *" />}
+                />
+                <IconButton
+                  sx={{ cursor: "pointer", color: "blue" }}
+                  onClick={handleOpenCoprodutor}
+                >
+                  <Icon>person_add</Icon>
+                </IconButton>
               </Box>
 
               <AutoComplete
                 required
                 options={listaCentroCusto}
                 value={values.tipoJobId || null}
-                onChange={(e, newVal) => onChange({ ...values, tipoJobId: newVal })}
-                renderInput={(params) => <TextField {...params} label="Tipo de Job" />}
+                onChange={(e, newVal) => handleAutoCompleteChange("tipo_job_id", newVal)}
+                renderInput={(params) => <TextField {...params} label="Tipo de Job *" />}
               />
             </Stack>
           </Grid>
@@ -260,7 +290,7 @@ const FormCadastroProjetoUpdate = ({ values, onChange }) => {
                 type="text"
                 name="titulo"
                 value={values.titulo || ""}
-                onChange={(e) => onChange({ ...values, titulo: e.target.value })}
+                onChange={handleChange}
                 label="Título do Projeto"
               />
 
@@ -268,49 +298,37 @@ const FormCadastroProjetoUpdate = ({ values, onChange }) => {
                 required
                 options={listaCadastro}
                 value={values.empresaId || null}
-                onChange={(e, newVal) => onChange({ ...values, empresaId: newVal })}
-                renderInput={(params) => <TextField {...params} label="Empresa" />}
+                onChange={(e, newVal) => handleAutoCompleteChange("empresa_id", newVal)}
+                renderInput={(params) => <TextField {...params} label="Empresa *" />}
               />
 
               <AutoComplete
                 required
                 options={listaCadastro}
                 value={values.agenciaId || null}
-                onChange={(e, newVal) => onChange({ ...values, agenciaId: newVal })}
-                renderInput={(params) => <TextField {...params} label="Agência" />}
+                onChange={(e, newVal) => handleAutoCompleteChange("agencia_id", newVal)}
+                renderInput={(params) => <TextField {...params} label="Agência *" />}
               />
 
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1
-                }}
-              >
-                <Box>
-                  <AutoComplete
-                    options={listaDiretores}
-                    value={values.diretorId || null}
-                    onChange={(e, newVal) => onChange({ ...values, diretorId: newVal })}
-                    renderInput={(params) => <TextField {...params} label="Diretor" />}
-                  />
-                </Box>
-
-                <Box>
-                  <IconButton sx={{ cursor: "pointer", color: "blue" }} onClick={handleOpenDiretor}>
-                    <Icon title="Adicionar Diretor">person_add</Icon>
-                  </IconButton>
-                </Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <AutoComplete
+                  options={listaDiretores}
+                  value={values.diretorId || null}
+                  onChange={(e, newVal) => handleAutoCompleteChange("diretor_id", newVal)}
+                  renderInput={(params) => <TextField {...params} label="Diretor *" />}
+                />
+                <IconButton sx={{ cursor: "pointer", color: "blue" }} onClick={handleOpenDiretor}>
+                  <Icon>person_add</Icon>
+                </IconButton>
               </Box>
 
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
                 <DatePicker
-                  label="Validade Orçamento"
-                  value={
-                    values.validadeOrcamento ? dayjs(values.validadeOrcamento, "DD-MM-YYYY") : null
-                  }
+                  label="Validade Orçamento *"
+                  value={values.validadeOrcamento ? dayjs(values.validadeOrcamento) : null}
                   onChange={(newValue) => onChange({ ...values, validadeOrcamento: newValue })}
                   slotProps={{ textField: { fullWidth: true } }}
+                  format="DD/MM/YYYY"
                 />
               </LocalizationProvider>
             </Stack>
@@ -318,35 +336,39 @@ const FormCadastroProjetoUpdate = ({ values, onChange }) => {
         </Grid>
       </form>
 
+      {/* Dialogs */}
       <Dialog open={open} onClose={handleCloseCoprodutor} fullWidth maxWidth="sm">
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2 }}>
-          <Box>
-            <DialogTitle>Novo Coprodutor</DialogTitle>
-          </Box>
-          <Box>
-            <IconButton sx={{ cursor: "pointer" }} onClick={handleCloseCoprodutor}>
-              <Icon title="Fechar">cancel</Icon>
-            </IconButton>
-          </Box>
-        </Box>
+        <DialogTitle>Novo Coprodutor</DialogTitle>
         <DialogContent>
           <FormCadastroCoprodutor onSuccess={coprodutores} onClose={handleCloseCoprodutor} />
         </DialogContent>
       </Dialog>
 
       <Dialog open={openDiretor} onClose={handleCloseDiretor} fullWidth maxWidth="sm">
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 1 }}>
-          <Box>
-            <DialogTitle>Novo Diretor</DialogTitle>
-          </Box>
-          <Box>
-            <IconButton sx={{ cursor: "pointer" }} onClick={handleCloseDiretor}>
-              <Icon title="Fechar">cancel</Icon>
-            </IconButton>
-          </Box>
-        </Box>
+        <DialogTitle>Novo Diretor</DialogTitle>
         <DialogContent>
           <FormCadastroDiretor onSuccess={diretores} onClose={handleCloseDiretor} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={openCentroCusto} onClose={handleCloseCentroCusto} fullWidth maxWidth="sm">
+        <DialogTitle>Novo Centro de Custo</DialogTitle>
+        <DialogContent>
+          <form onSubmit={handleSaveCentroCusto}>
+            <TextField
+              required
+              type="text"
+              name="nameCentroCusto"
+              label="Centro de Custo"
+              onChange={(e) => setNameCentroCusto(e.target.value)}
+              fullWidth
+            />
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Button variant="contained" sx={{ mt: 2 }} type="submit">
+                Salvar
+              </Button>
+            </Box>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

@@ -80,18 +80,16 @@ export default function Adaptacao() {
       };
 
       const itens = Object.values(planilhaCustos.itensPorCategoria).flatMap((arr) =>
-        arr
-          .map((item) => ({
-            nome_custo_orcamento_id: safeNumber(item.nome_custo_projeto_id),
-            descricao: item.descricao,
-            quantidade: safeNumber(item.qtd),
-            valor_unitario: safeNumber(item.valorUnit),
-            dias: safeNumber(item.dias),
-            unidade: item.unid,
-            total: safeNumber(item.qtd) * safeNumber(item.valorUnit) * safeNumber(item.dias) || 0,
-            observacao: item.obs
-          }))
-          .filter((item) => item.total > 0)
+        arr.map((item) => ({
+          nome_custo_orcamento_id: safeNumber(item.nome_custo_projeto_id),
+          descricao: item.descricao,
+          quantidade: safeNumber(item.qtd),
+          valor_unitario: safeNumber(item.valorUnit),
+          dias: safeNumber(item.dias),
+          unidade: item.unid,
+          total: safeNumber(item.qtd) * safeNumber(item.valorUnit) * safeNumber(item.dias) || 0,
+          observacao: item.obs
+        }))
       );
 
       const payload = {
@@ -116,8 +114,6 @@ export default function Adaptacao() {
         total_planilha: safeNumber(planilhaCustos.totais.total_planilha)
       };
 
-      // console.log(planilhaCustos);
-      // return;
       const formData = new FormData();
       formData.append("projeto_json", JSON.stringify(payload));
 
