@@ -115,7 +115,7 @@ const FormCadastro = () => {
       inscricao_estadual: state.inscricaoEstadual,
       inscricao_municipal: state.inscricaoMunicipal,
       web_site: state.webSite,
-      comissao: state.comissao,
+      comissao: String(state.comissao),
       tipo_comissao: parseInt(tipoComissaoId),
       address: [
         {
@@ -130,6 +130,8 @@ const FormCadastro = () => {
       ]
     };
 
+    // console.log("Payload enviado:", payload);
+    // return;
     try {
       const response_cadastro = await axios.post(`${api}cadastro/create`, payload, {
         headers: {
@@ -154,7 +156,7 @@ const FormCadastro = () => {
         icon: "error",
         confirmButtonText: "Fechar"
       });
-      console.error("Erro ao enviar cadastro:", error.response?.data || error.message);
+      // console.error("Erro ao enviar cadastro:", error.response?.data || error.message);
     }
   };
 

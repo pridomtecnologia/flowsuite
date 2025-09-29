@@ -44,7 +44,7 @@ const createDefaultItem = (catId, descricao = "") => ({
   nome_custo_projeto_id: Number(catId)
 });
 
-// Estado inicial de itens por categoria (começa vazio para lazy load)
+// Estado inicial de itens por categoria
 export const initialItensPorCategoria = categorias.reduce((acc, cat) => {
   acc[cat.id] = itensFixosPorCategoria[cat.id]
     ? itensFixosPorCategoria[cat.id].map((descricao) => createDefaultItem(cat.id, descricao))
@@ -73,16 +73,6 @@ const inputStyle = {
   boxSizing: "border-box",
   fontSize: 14,
   background: "white"
-};
-
-const parsePercent = (value) => {
-  if (!value) return 0;
-  const num = Number(String(value).replace(",", "."));
-  if (isNaN(num)) return 0;
-
-  // Se for menor que 1, trata como fração (0.05 = 5%)
-  // Se for maior ou igual a 1, trata como inteiro normal (5 = 5%)
-  return num < 1 ? num * 100 : num;
 };
 
 // Linha de item otimizada
@@ -169,11 +159,7 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
         ...prev,
         itensPorCategoria: {
           ...prev.itensPorCategoria,
-          [catId]: [
-            ...prev.itensPorCategoria[catId],
-            createDefaultItem(catId),
-            { ...defaultItem, descricao: "" }
-          ]
+          [catId]: [...prev.itensPorCategoria[catId], createDefaultItem(catId, "")]
         }
       }));
     },

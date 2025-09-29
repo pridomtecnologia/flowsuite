@@ -8,6 +8,7 @@ import EditarPlanilhaCustosOrcamento from "./EditarPlanilhaCustosOrcamento";
 import EditarUploaDocumentosPlanilha from "./EditarUploaDocumentosPlanilha";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
+import itensFixosPorCategoria from "../../data/itensFixosPorCategoria.json";
 
 const Container = styled("div")(({ theme }) => ({
   margin: "30px",
@@ -45,6 +46,7 @@ export default function EditarOrcamento() {
   const [totalGeralPlanilha, seTotalGeralPlanilha] = useState(0);
   // Estados globais
   const [formCadastro, setFormCadastro] = useState({});
+  const [idFormCadastro, setIdFormCadastro] = useState({});
 
   const [planilhaCustos, setPlanilhaCustos] = useState({
     itensPorCategoria: categorias.reduce((acc, cat) => {
@@ -68,43 +70,51 @@ export default function EditarOrcamento() {
 
   const handleAtualizarOrcamento = async () => {
     try {
+      const projetoId = id || id_job;
+
+      if (!projetoId) {
+        Swal.fire({
+          title: "Erro",
+          text: "ID do projeto não encontrado para atualização",
+          icon: "error",
+          confirmButtonText: "Fechar"
+        });
+        return;
+      }
+
       const safeNumber = (val) => {
+        if (val === null || val === undefined || val === "") return null;
         const n = Number(val);
         return isNaN(n) ? null : n;
       };
 
-      const itens = Object.entries(planilhaCustos.itensPorCategoria)
-        .filter(([_, v]) => Array.isArray(v))
-        .flatMap(([categoriaId, arr]) =>
-          arr
-            .map((item) => ({
-              nome_custo_orcamento_id: safeNumber(categoriaId),
-              descricao: item.descricao,
-              quantidade: safeNumber(item.qtd),
-              valor_unitario: safeNumber(item.valorUnit),
-              dias: safeNumber(item.dias),
-              unidade: item.unid,
-              total: safeNumber(item.qtd) * safeNumber(item.valorUnit) * safeNumber(item.dias) || 0,
-              observacao: item.obs
-            }))
-            // 🔥 só entra no payload se tiver valor significativo
-            .filter((item) => item.total > 0)
-        );
+      const itens = Object.entries(planilhaCustos.itensPorCategoria).flatMap(([categoriaId, arr]) =>
+        arr.map((item) => ({
+          nome_custo_orcamento_id: safeNumber(categoriaId), // 🔥 Usar o ID da categoria
+          descricao: item.descricao || "",
+          quantidade: safeNumber(item.qtd),
+          valor_unitario: safeNumber(item.valorUnit),
+          dias: safeNumber(item.dias),
+          unidade: item.unid || "0",
+          total: safeNumber(item.qtd) * safeNumber(item.valorUnit) * safeNumber(item.dias) || 0,
+          observacao: item.obs || ""
+        }))
+      );
 
+      // 🔥 CORREÇÃO: Garantir que os IDs obrigatórios não sejam null
       const payload = {
         titulo: formCadastro.titulo,
-        centro_custo_id: safeNumber(formCadastro.centroCustoId?.id),
-        empresa_id: safeNumber(formCadastro.empresaId?.id),
-        cliente_id: safeNumber(formCadastro.clienteId?.id),
-        agencia_id: safeNumber(formCadastro.agenciaId?.id),
-        coprodutor_id: formCadastro.coprodutorId ? safeNumber(formCadastro.coprodutorId.id) : null,
-        diretor_id: formCadastro.diretorId ? safeNumber(formCadastro.diretorId.id) : null,
-        tipo_job_id: formCadastro.tipoJobId ? safeNumber(formCadastro.tipoJobId.id) : null,
+        centro_custo_id: safeNumber(idFormCadastro.centro_custo_id),
+        empresa_id: safeNumber(idFormCadastro.empresa_id),
+        cliente_id: safeNumber(idFormCadastro.cliente_id),
+        agencia_id: safeNumber(idFormCadastro.agencia_id),
+        coprodutor_id: idFormCadastro.coprodutor_id,
+        diretor_id: idFormCadastro.diretor_id,
+        tipo_job_id: idFormCadastro.tipo_job_id,
         validade_orcamento:
           formCadastro.validadeOrcamento && dayjs(formCadastro.validadeOrcamento).isValid()
             ? dayjs(formCadastro.validadeOrcamento).format("YYYY-MM-DD")
             : null,
-
         planilha_custo: itens,
         imposto: safeNumber(planilhaCustos.totais.impostos),
         taxa_impulsionamento: safeNumber(planilhaCustos.totais.taxaImplantacao),
@@ -113,38 +123,40 @@ export default function EditarOrcamento() {
         total_planilha: safeNumber(planilhaCustos.totais.total_planilha)
       };
 
-      const formData = new FormData();
-      formData.append("projeto_json", JSON.stringify(payload));
-
-      documentos.forEach((file) => {
-        formData.append("arquivos", file);
-      });
-
-      await axios.post(`${api}projetos/create`, formData, {
+      console.log("Payload enviado:", payload); // 🔥 Para debug
+      // return;
+      // 🔥 CHAMADA PARA ATUALIZAR O PROJETO
+      await axios.put(`${api}projetos/atualizar/${projetoId}`, payload, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
           Authorization: "Bearer " + localStorage.getItem("accessToken")
         }
       });
 
-      setFormCadastro({});
-      setPlanilhaCustos([]);
-      setDocumentos([]);
-
       Swal.fire({
-        title: "",
+        title: "Sucesso",
         text: "Orçamento atualizado com sucesso!",
-        icon: "success"
+        icon: "success",
+        confirmButtonText: "Fechar"
       });
 
       navigate("/projetos/listar-projetos");
     } catch (error) {
+      console.error("❌ Erro ao atualizar orçamento:", error);
+
+      let errorMessage = "Erro ao atualizar o Orçamento!";
+      if (error.response?.data?.detail) {
+        errorMessage = JSON.stringify(error.response.data.detail);
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       Swal.fire({
-        title: "",
-        text: "Erro ao criar o Orçamento!",
-        icon: "error"
+        title: "Erro",
+        text: errorMessage,
+        icon: "error",
+        confirmButtonText: "Fechar"
       });
-      console.error("❌ Erro no envio:", error);
     }
   };
 
@@ -154,6 +166,30 @@ export default function EditarOrcamento() {
     setFormCadastro({});
     setPlanilhaCustos([]);
     setDocumentos([]);
+  };
+
+  const initialValues = {
+    itensPorCategoria: categorias.reduce((acc, cat) => {
+      acc[cat.id] = itensFixosPorCategoria[cat.id]
+        ? itensFixosPorCategoria[cat.id].map((descricao) => ({
+            descricao: descricao,
+            qtd: 1,
+            valorUnit: 0,
+            dias: 1,
+            unid: "0",
+            obs: "",
+            total: 0
+          }))
+        : [];
+      return acc;
+    }, {}),
+    totais: {
+      taxaImplantacao: 0,
+      condicaoComercial: 0,
+      impostos: 0,
+      total_geral: 0,
+      total_planilha: 0
+    }
   };
 
   useEffect(() => {
@@ -176,6 +212,10 @@ export default function EditarOrcamento() {
 
         const data = response.data;
 
+        const dataValidade = data.validade_orcamento_projeto
+          ? dayjs(data.validade_orcamento_projeto, "DD-MM-YYYY")
+          : null;
+
         setFormCadastro({
           numerOrcamento: data.numero_orcamento,
           titulo: data.titulo,
@@ -186,33 +226,98 @@ export default function EditarOrcamento() {
           coprodutorId: data.coprodutor,
           diretorId: data.diretor,
           tipoJobId: data.tipo_job,
-          validadeOrcamento: data.validade_orcamento_projeto
+          validadeOrcamento: dataValidade
         });
 
-        setPlanilhaCustos((prev) => ({
-          ...prev,
-          totais: {
-            ...prev.totais,
-            impostos: data.imposto,
-            taxaImplantacao: data.taxa_impulsionamento,
-            condicaoComercial: data.comissao_comercial,
-            total_geral: data.total_geral,
-            total_planilha: data.total_planilha
-          }
-        }));
+        setIdFormCadastro({
+          centro_custo_id: data.id_centro_custo,
+          empresa_id: data.id_empresa,
+          cliente_id: data.id_cliente,
+          agencia_id: data.id_agencia,
+          coprodutor_id: data.id_coprodutor,
+          diretor_id: data.id_diretor,
+          tipo_job_id: data.id_tipo_job,
+          validadeOrcamento: dataValidade
+        });
+
+        if (data.planilha_custos && data.planilha_custos.length > 0) {
+          const itensOrganizados = organizarItensPorCategoria(data.planilha_custos);
+
+          setPlanilhaCustos((prev) => ({
+            itensPorCategoria: itensOrganizados,
+            totais: {
+              taxaImplantacao: data.taxa_impulsionamento || 0,
+              condicaoComercial: data.comissao_comercial || 0,
+              impostos: data.imposto || 0,
+              total_geral: data.total_geral || 0,
+              total_planilha: data.total_planilha || 0
+            }
+          }));
+        } else {
+          // Se não houver dados, usar a estrutura inicial como no cadastro
+          setPlanilhaCustos(initialValues);
+        }
 
         seTotalGeralPlanilha(data.total_geral);
-
         setStatusProjeto(data.id_status_projeto);
         seTransformarJob(data.id_projeto);
       } catch (error) {
-        // console.error("Erro ao buscar orçamento:", error);
-        // alert(error);
+        console.error("Erro ao buscar orçamento:", error);
       }
     };
 
+    const listArquivos = async () => {
+      const responseArquivos = await axios.get(`${api}projetos/${id}/arquivos`, {
+        headers: {
+          accept: "application/json",
+          Authorization: "Bearer " + localStorage.getItem("accessToken")
+        }
+      });
+      setDocumentos(responseArquivos.data);
+    };
+
     listProjetOrcamento();
-  }, [id, api]);
+    listArquivos();
+  }, [id, id_job, api]);
+
+  const organizarItensPorCategoria = (planilhaCustos) => {
+    const itensOrganizados = categorias.reduce((acc, cat) => {
+      acc[cat.id] = [];
+      return acc;
+    }, {});
+
+    planilhaCustos.forEach((item) => {
+      const categoriaId = item.nome_custo_orcamento_id.toString();
+
+      if (itensOrganizados[categoriaId]) {
+        itensOrganizados[categoriaId].push({
+          descricao: item.descricao || "",
+          qtd: item.quantidade || 1,
+          valorUnit: item.valor_unitario || 0,
+          dias: item.dias || 1,
+          unid: item.unidade || "0",
+          obs: item.observacao || "",
+          total: item.total || 0
+        });
+      }
+    });
+
+    categorias.forEach((cat) => {
+      if (itensOrganizados[cat.id].length === 0 && itensFixosPorCategoria[cat.id]) {
+        itensOrganizados[cat.id] = itensFixosPorCategoria[cat.id].map((descricao) => ({
+          descricao: descricao,
+          qtd: 1,
+          valorUnit: 0,
+          dias: 1,
+          unid: "0",
+          obs: "",
+          total: 0
+        }));
+      }
+    });
+
+    return itensOrganizados;
+  };
 
   const handleTransformaJob = async () => {
     try {
@@ -306,17 +411,28 @@ export default function EditarOrcamento() {
           <Tab label="Planilha de Custos" />
           <Tab label="Pasta de Documentos" />
         </Tabs>
+
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}></Box>
+
         <Box sx={{ mt: 3 }}>
           {tab === 0 && (
-            <FormCadastroProjetoUpdate values={formCadastro} onChange={setFormCadastro} />
+            <FormCadastroProjetoUpdate
+              values={formCadastro}
+              onChange={setFormCadastro}
+              idForm={idFormCadastro}
+              onIdChange={setIdFormCadastro}
+            />
           )}
 
           {tab === 1 && (
             <EditarPlanilhaCustosOrcamento values={planilhaCustos} onChange={setPlanilhaCustos} />
           )}
           {tab === 2 && (
-            <EditarUploaDocumentosPlanilha arquivos={documentos} setArquivos={setDocumentos} />
+            <EditarUploaDocumentosPlanilha
+              arquivos={documentos}
+              setArquivos={setDocumentos}
+              id={id} // 🔥 Passe o id do projeto
+            />
           )}
         </Box>
       </Box>

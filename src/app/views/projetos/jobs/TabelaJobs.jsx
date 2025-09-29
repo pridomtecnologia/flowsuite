@@ -125,7 +125,24 @@ export default function TabelaJobs() {
                         currency: "BRL"
                       }).format(listar_orcamento.total_geral)}
                     </TableCell>
-                    <TableCell align="center">{listar_orcamento.status_projeto}</TableCell>
+                    <TableCell align="center">
+                      <span
+                        style={{
+                          background:
+                            listar_orcamento.status_projeto === "Em Andamento"
+                              ? "#0000ff7e"
+                              : listar_orcamento.status_projeto === "Aprovado"
+                              ? "#5CCB5F"
+                              : "#FF2C2C",
+                          padding: "4px 15px",
+                          color: "#ffffff",
+                          fontWeight: "bold",
+                          borderRadius: "50px"
+                        }}
+                      >
+                        {listar_orcamento.status_projeto}
+                      </span>
+                    </TableCell>
                     <TableCell align="center" sx={{ display: "flex", justifyContent: "center" }}>
                       <IconButton
                         onClick={() =>

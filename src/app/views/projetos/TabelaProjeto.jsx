@@ -13,6 +13,7 @@ import {
   TablePagination
 } from "@mui/material";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 // STYLED COMPONENT
 const StyledTable = styled(Table)(() => ({
@@ -82,9 +83,18 @@ export default function TabelaProjeto() {
 
       setListOrcamentoCadastrado((prev) => prev.filter((item) => item.id_projeto !== id_projeto));
 
-      // setOpen(true);
+      Swal.fire({
+        title: "",
+        text: "Orçamento excluído com sucesso!",
+        icon: "success"
+      });
     } catch (error) {
-      console.error("Erro ao enviar cadastro:", error.response?.data || error.message);
+      Swal.fire({
+        title: "",
+        text: "Erro ao excluir orçamento!",
+        icon: "error"
+      });
+      // console.error("Erro ao enviar cadastro:", error.response?.data || error.message);
     }
   };
 
@@ -137,7 +147,22 @@ export default function TabelaProjeto() {
                         currency: "BRL"
                       }).format(listar_orcamento.total_orcamento)}
                     </TableCell>
-                    <TableCell align="center">{listar_orcamento.status_projeto}</TableCell>
+                    <TableCell align="center">
+                      <span
+                        style={{
+                          background:
+                            listar_orcamento.status_projeto == "Em Andamento"
+                              ? "#0000ff7e"
+                              : "#FF2C2C",
+                          padding: "4px 15px",
+                          color: "#ffffff",
+                          fontWeight: "bold",
+                          borderRadius: "50px"
+                        }}
+                      >
+                        {listar_orcamento.status_projeto}
+                      </span>
+                    </TableCell>
                     <TableCell align="center" sx={{ display: "flex", justifyContent: "center" }}>
                       <IconButton
                         onClick={() => handleEditarOrcamento(listar_orcamento.id_projeto)}
