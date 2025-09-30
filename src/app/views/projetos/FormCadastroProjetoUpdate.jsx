@@ -26,7 +26,7 @@ const AutoComplete = styled(Autocomplete)({
   marginBottom: "16px"
 });
 
-const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange }) => {
+const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange, statusProjeto }) => {
   const [open, setOpen] = useState(false);
   const [openDiretor, setOpenDiretor] = useState(false);
   const [openCentroCusto, setOpenCentroCusto] = useState(false);
@@ -231,6 +231,11 @@ const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange }) => 
                 variant="outlined"
                 value={values.numerOrcamento ? String(values.numerOrcamento) : ""}
                 onChange={handleChange}
+                disabled={statusProjeto == 2 || statusProjeto == 3}
+                sx={{
+                  backgroundColor:
+                    statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                }}
               />
 
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -240,9 +245,18 @@ const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange }) => 
                   value={values.centroCustoId || null}
                   onChange={(e, newVal) => handleAutoCompleteChange("centro_custo_id", newVal)}
                   renderInput={(params) => <TextField {...params} label="Centro de Custo *" />}
+                  sx={{
+                    backgroundColor:
+                      statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                  }}
+                  disabled={statusProjeto == 2 || statusProjeto == 3}
                 />
                 <IconButton
-                  sx={{ cursor: "pointer", color: "blue" }}
+                  sx={{
+                    cursor: "pointer",
+                    color: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "blue"
+                  }}
+                  disabled={statusProjeto == 2 || statusProjeto == 3}
                   onClick={handleOpenCentroCusto}
                 >
                   <Icon>person_add</Icon>
@@ -255,6 +269,11 @@ const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange }) => 
                 value={values.clienteId || null}
                 onChange={(e, newVal) => handleAutoCompleteChange("cliente_id", newVal)}
                 renderInput={(params) => <TextField {...params} label="Cliente *" />}
+                sx={{
+                  backgroundColor:
+                    statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                }}
+                disabled={statusProjeto == 2 || statusProjeto == 3}
               />
 
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -264,9 +283,18 @@ const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange }) => 
                   value={values.coprodutorId || null}
                   onChange={(e, newVal) => handleAutoCompleteChange("coprodutor_id", newVal)}
                   renderInput={(params) => <TextField {...params} label="Coprodutor *" />}
+                  sx={{
+                    backgroundColor:
+                      statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                  }}
+                  disabled={statusProjeto == 2 || statusProjeto == 3}
                 />
                 <IconButton
-                  sx={{ cursor: "pointer", color: "blue" }}
+                  sx={{
+                    cursor: "pointer",
+                    color: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "blue"
+                  }}
+                  disabled={statusProjeto == 2 || statusProjeto == 3}
                   onClick={handleOpenCoprodutor}
                 >
                   <Icon>person_add</Icon>
@@ -279,6 +307,11 @@ const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange }) => 
                 value={values.tipoJobId || null}
                 onChange={(e, newVal) => handleAutoCompleteChange("tipo_job_id", newVal)}
                 renderInput={(params) => <TextField {...params} label="Tipo de Job *" />}
+                sx={{
+                  backgroundColor:
+                    statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                }}
+                disabled={statusProjeto == 2 || statusProjeto == 3}
               />
             </Stack>
           </Grid>
@@ -292,6 +325,11 @@ const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange }) => 
                 value={values.titulo || ""}
                 onChange={handleChange}
                 label="Título do Projeto"
+                sx={{
+                  backgroundColor:
+                    statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                }}
+                disabled={statusProjeto == 2 || statusProjeto == 3}
               />
 
               <AutoComplete
@@ -300,6 +338,11 @@ const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange }) => 
                 value={values.empresaId || null}
                 onChange={(e, newVal) => handleAutoCompleteChange("empresa_id", newVal)}
                 renderInput={(params) => <TextField {...params} label="Empresa *" />}
+                sx={{
+                  backgroundColor:
+                    statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                }}
+                disabled={statusProjeto == 2 || statusProjeto == 3}
               />
 
               <AutoComplete
@@ -308,6 +351,11 @@ const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange }) => 
                 value={values.agenciaId || null}
                 onChange={(e, newVal) => handleAutoCompleteChange("agencia_id", newVal)}
                 renderInput={(params) => <TextField {...params} label="Agência *" />}
+                sx={{
+                  backgroundColor:
+                    statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                }}
+                disabled={statusProjeto == 2 || statusProjeto == 3}
               />
 
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -316,8 +364,20 @@ const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange }) => 
                   value={values.diretorId || null}
                   onChange={(e, newVal) => handleAutoCompleteChange("diretor_id", newVal)}
                   renderInput={(params) => <TextField {...params} label="Diretor *" />}
+                  sx={{
+                    backgroundColor:
+                      statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                  }}
+                  disabled={statusProjeto == 2 || statusProjeto == 3}
                 />
-                <IconButton sx={{ cursor: "pointer", color: "blue" }} onClick={handleOpenDiretor}>
+                <IconButton
+                  sx={{
+                    cursor: "pointer",
+                    color: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "blue"
+                  }}
+                  disabled={statusProjeto == 2 || statusProjeto == 3}
+                  onClick={handleOpenDiretor}
+                >
                   <Icon>person_add</Icon>
                 </IconButton>
               </Box>
@@ -329,6 +389,11 @@ const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange }) => 
                   onChange={(newValue) => onChange({ ...values, validadeOrcamento: newValue })}
                   slotProps={{ textField: { fullWidth: true } }}
                   format="DD/MM/YYYY"
+                  sx={{
+                    backgroundColor:
+                      statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                  }}
+                  disabled={statusProjeto == 2 || statusProjeto == 3}
                 />
               </LocalizationProvider>
             </Stack>

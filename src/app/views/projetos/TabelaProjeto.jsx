@@ -153,6 +153,8 @@ export default function TabelaProjeto() {
                           background:
                             listar_orcamento.status_projeto == "Em Andamento"
                               ? "#0000ff7e"
+                              : listar_orcamento.status_projeto === "Aprovado"
+                              ? "#5CCB5F"
                               : "#FF2C2C",
                           padding: "4px 15px",
                           color: "#ffffff",

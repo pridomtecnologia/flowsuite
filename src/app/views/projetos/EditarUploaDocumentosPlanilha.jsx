@@ -6,7 +6,12 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import axios from "axios";
 import Swal from "sweetalert2";
 
-export default function EditarUploaDocumentosPlanilha({ arquivos, setArquivos, id }) {
+export default function EditarUploaDocumentosPlanilha({
+  arquivos,
+  setArquivos,
+  id,
+  statusProjeto
+}) {
   // 🔥 Adicione o id como prop
   const api = import.meta.env.VITE_API_FLOWSUITE;
 
@@ -108,7 +113,16 @@ export default function EditarUploaDocumentosPlanilha({ arquivos, setArquivos, i
     <Box sx={{ mt: 2 }}>
       <Button variant="contained" component="label" startIcon={<UploadFileIcon />} sx={{ mb: 2 }}>
         Selecionar Documentos
-        <input hidden type="file" multiple onChange={handleUpload} />
+        <input
+          hidden
+          type="file"
+          multiple
+          onChange={handleUpload}
+          style={{
+            background: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "blue"
+          }}
+          disabled={statusProjeto == 2 || statusProjeto == 3}
+        />
       </Button>
 
       {arquivos.length > 0 && (
@@ -119,13 +133,27 @@ export default function EditarUploaDocumentosPlanilha({ arquivos, setArquivos, i
               sx={{ border: "0.5px solid #6c721681", borderRadius: 2, mb: 1 }}
               secondaryAction={
                 <>
-                  <IconButton edge="end" color="primary" onClick={() => handleVisualizar(file)}>
+                  <IconButton
+                    edge="end"
+                    color="primary"
+                    sx={{
+                      backgroundColor:
+                        statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                    }}
+                    disabled={statusProjeto == 2 || statusProjeto == 3}
+                    onClick={() => handleVisualizar(file)}
+                  >
                     <VisibilityIcon />
                   </IconButton>
                   <IconButton
                     edge="end"
                     color="error"
-                    onClick={() => handleRemoveArquivo(file, index)} // 🔥 Passa o index
+                    onClick={() => handleRemoveArquivo(file, index)}
+                    sx={{
+                      backgroundColor:
+                        statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                    }}
+                    disabled={statusProjeto == 2 || statusProjeto == 3}
                   >
                     <DeleteIcon />
                   </IconButton>

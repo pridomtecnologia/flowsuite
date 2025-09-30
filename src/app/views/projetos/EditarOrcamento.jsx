@@ -38,7 +38,7 @@ const categorias = [
 ];
 
 export default function EditarOrcamento() {
-  const { id, id_job } = useParams();
+  const { id, id_job, job } = useParams();
 
   const [tab, setTab] = useState(0);
   const [statusProjeto, setStatusProjeto] = useState(0);
@@ -161,7 +161,11 @@ export default function EditarOrcamento() {
   };
 
   const handleVoltar = async () => {
-    navigate("/projetos/listar-projetos");
+    if (job == 1) {
+      navigate("/projetos/listar-projetos");
+    } else {
+      navigate("/projetos/jobs/listar-jobs");
+    }
 
     setFormCadastro({});
     setPlanilhaCustos([]);
@@ -421,17 +425,23 @@ export default function EditarOrcamento() {
               onChange={setFormCadastro}
               idForm={idFormCadastro}
               onIdChange={setIdFormCadastro}
+              statusProjeto={statusProjeto}
             />
           )}
 
           {tab === 1 && (
-            <EditarPlanilhaCustosOrcamento values={planilhaCustos} onChange={setPlanilhaCustos} />
+            <EditarPlanilhaCustosOrcamento
+              values={planilhaCustos}
+              onChange={setPlanilhaCustos}
+              statusProjeto={statusProjeto}
+            />
           )}
           {tab === 2 && (
             <EditarUploaDocumentosPlanilha
               arquivos={documentos}
               setArquivos={setDocumentos}
-              id={id} // 🔥 Passe o id do projeto
+              id={id}
+              statusProjeto={statusProjeto}
             />
           )}
         </Box>
