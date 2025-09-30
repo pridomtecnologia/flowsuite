@@ -129,9 +129,9 @@ export default function TabelaJobs() {
                       <span
                         style={{
                           background:
-                            listar_orcamento.status_projeto === "Em Andamento"
+                            listar_orcamento.status_job === "Em Andamento"
                               ? "#0000ff7e"
-                              : listar_orcamento.status_projeto === "Aprovado"
+                              : listar_orcamento.status_job === "Aprovado"
                               ? "#5CCB5F"
                               : "#FF2C2C",
                           padding: "4px 15px",
@@ -140,7 +140,7 @@ export default function TabelaJobs() {
                           borderRadius: "50px"
                         }}
                       >
-                        {listar_orcamento.status_projeto}
+                        {listar_orcamento.status_job}
                       </span>
                     </TableCell>
                     <TableCell align="center" sx={{ display: "flex", justifyContent: "center" }}>

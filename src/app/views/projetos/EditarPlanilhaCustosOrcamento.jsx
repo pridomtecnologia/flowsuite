@@ -41,52 +41,78 @@ const inputStyle = {
 };
 
 // Componente de linha otimizado
-const ItemRow = React.memo(function ItemRow({ catId, index, item, handleItemChange }) {
+const ItemRow = React.memo(function ItemRow({
+  catId,
+  index,
+  item,
+  handleItemChange,
+  statusProjeto
+}) {
   const total = (item.qtd || 0) * (item.valorUnit || 0) * (item.dias || 1);
 
   return (
     <Grid container spacing={1} sx={{ mb: 1 }}>
       <Grid item xs={3.5}>
         <input
-          style={inputStyle}
+          style={{
+            ...inputStyle,
+            background: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "white"
+          }}
           value={item.descricao || ""}
           onChange={(e) => handleItemChange(catId, index, "descricao", e.target.value)}
+          disabled={statusProjeto == 2 || statusProjeto == 3}
         />
       </Grid>
 
       <Grid item xs={1.2}>
         <input
-          style={inputStyle}
+          style={{
+            ...inputStyle,
+            background: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "white"
+          }}
           type="number"
           value={item.qtd || 1}
           onChange={(e) => handleItemChange(catId, index, "qtd", Number(e.target.value))}
+          disabled={statusProjeto == 2 || statusProjeto == 3}
         />
       </Grid>
 
       <Grid item xs={1.2}>
         <input
-          style={inputStyle}
+          style={{
+            ...inputStyle,
+            background: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "white"
+          }}
           type="number"
           step="0.01"
           value={item.valorUnit || 0}
           onChange={(e) => handleItemChange(catId, index, "valorUnit", Number(e.target.value))}
+          disabled={statusProjeto == 2 || statusProjeto == 3}
         />
       </Grid>
 
       <Grid item xs={1.2}>
         <input
-          style={inputStyle}
+          style={{
+            ...inputStyle,
+            background: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "white"
+          }}
           type="number"
           value={item.dias || 1}
           onChange={(e) => handleItemChange(catId, index, "dias", Number(e.target.value))}
+          disabled={statusProjeto == 2 || statusProjeto == 3}
         />
       </Grid>
 
       <Grid item xs={1.2}>
         <input
-          style={inputStyle}
+          style={{
+            ...inputStyle,
+            background: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "white"
+          }}
           value={item.unid || "0"}
           onChange={(e) => handleItemChange(catId, index, "unid", e.target.value)}
+          disabled={statusProjeto == 2 || statusProjeto == 3}
         />
       </Grid>
 
@@ -95,21 +121,26 @@ const ItemRow = React.memo(function ItemRow({ catId, index, item, handleItemChan
           style={{ ...inputStyle, background: "#e0e0e06b" }}
           readOnly
           value={`R$ ${total.toFixed(2)}`}
+          disabled={statusProjeto == 2 || statusProjeto == 3}
         />
       </Grid>
 
       <Grid item xs={2.1}>
         <input
-          style={inputStyle}
+          style={{
+            ...inputStyle,
+            background: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "white"
+          }}
           value={item.obs || ""}
           onChange={(e) => handleItemChange(catId, index, "obs", e.target.value)}
+          disabled={statusProjeto == 2 || statusProjeto == 3}
         />
       </Grid>
     </Grid>
   );
 });
 
-export default function EditarPlanilhaCustosOrcamento({ values, onChange }) {
+export default function EditarPlanilhaCustosOrcamento({ values, onChange, statusProjeto }) {
   const { itensPorCategoria, totais } = values;
 
   useEffect(() => {
@@ -291,6 +322,7 @@ export default function EditarPlanilhaCustosOrcamento({ values, onChange }) {
                   index={index}
                   item={item}
                   handleItemChange={handleItemChange}
+                  statusProjeto={statusProjeto}
                 />
               ))}
 
@@ -298,7 +330,12 @@ export default function EditarPlanilhaCustosOrcamento({ values, onChange }) {
                 component="button"
                 variant="body2"
                 onClick={() => handleAddItem(cat.id)}
-                sx={{ mt: 1, display: "block" }}
+                sx={{
+                  mt: 1,
+                  display: "block",
+                  color: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "blue"
+                }}
+                disabled={statusProjeto == 2 || statusProjeto == 3}
               >
                 + Adicionar Item
               </Link>
@@ -327,7 +364,11 @@ export default function EditarPlanilhaCustosOrcamento({ values, onChange }) {
             type="number"
             value={totais.taxaImplantacao || 0}
             onChange={(e) => handleTotaisChange("taxaImplantacao", e.target.value)}
-            sx={{ mb: 2 }}
+            sx={{
+              mb: 2,
+              backgroundColor: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+            }}
+            disabled={statusProjeto == 2 || statusProjeto == 3}
           />
 
           <TextField
@@ -337,7 +378,11 @@ export default function EditarPlanilhaCustosOrcamento({ values, onChange }) {
             type="number"
             value={totais.condicaoComercial || 0}
             onChange={(e) => handleTotaisChange("condicaoComercial", e.target.value)}
-            sx={{ mb: 2 }}
+            sx={{
+              mb: 2,
+              backgroundColor: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+            }}
+            disabled={statusProjeto == 2 || statusProjeto == 3}
           />
 
           <TextField
@@ -347,7 +392,11 @@ export default function EditarPlanilhaCustosOrcamento({ values, onChange }) {
             type="number"
             value={totais.impostos || 0}
             onChange={(e) => handleTotaisChange("impostos", e.target.value)}
-            sx={{ mb: 2 }}
+            sx={{
+              mb: 2,
+              backgroundColor: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+            }}
+            disabled={statusProjeto == 2 || statusProjeto == 3}
           />
 
           <Paper sx={{ p: 2, bgcolor: "primary.main", color: "white" }}>
