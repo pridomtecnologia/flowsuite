@@ -110,8 +110,9 @@ const ItemRow = React.memo(function ItemRow({
             ...inputStyle,
             background: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "white"
           }}
-          value={item.unid || "0"}
-          onChange={(e) => handleItemChange(catId, index, "unid", e.target.value)}
+          type="number"
+          value={item.unid || 0}
+          onChange={(e) => handleItemChange(catId, index, "unid", Number(e.target.value))}
           disabled={statusProjeto == 2 || statusProjeto == 3}
         />
       </Grid>
