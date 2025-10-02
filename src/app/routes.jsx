@@ -11,6 +11,7 @@ import materialRoutes from "app/views/material-kit/MaterialRoutes";
 
 // DASHBOARD PAGE
 const Analytics = Loadable(lazy(() => import("app/views/dashboard/Analytics")));
+
 // cadastro
 const AppListarUsuarios = Loadable(lazy(() => import("app/views/cadastro/AppListarUsuarios")));
 const Cadastrar = Loadable(lazy(() => import("app/views/cadastro/Cadastrar")));
@@ -19,6 +20,8 @@ const ListarDiretor = Loadable(lazy(() => import("app/views/cadastro/ListarDiret
 const CadastrarCoprodutor = Loadable(lazy(() => import("app/views/cadastro/CadastrarCoprodutor")));
 const CadastrarDiretor = Loadable(lazy(() => import("app/views/cadastro/CadastrarDiretor")));
 const EditarCadastro = Loadable(lazy(() => import("app/views/cadastro/EditarCadastro")));
+const ListarTags = Loadable(lazy(() => import("app/views/cadastro/ListarTags")));
+const CadastrarTags = Loadable(lazy(() => import("app/views/cadastro/CadastrarTags")));
 
 // ´projetos
 const AppListarProjetos = Loadable(lazy(() => import("app/views/projetos/AppListarProjetos")));
@@ -31,7 +34,6 @@ const CadastrarOrcamento = Loadable(
   lazy(() => import("app/views/projetos/orcamento/CadastrarOrcamento"))
 );
 const AppListarJobs = Loadable(lazy(() => import("app/views/projetos/jobs/AppListarJobs")));
-// const VisualizarJobs = Loadable(lazy(() => import("app/views/projetos/jobs/VisualizarJobs")));
 
 const routes = [
   { path: "/", element: <Navigate to="dashboard" /> },
@@ -58,6 +60,8 @@ const routes = [
       { path: "/cadastro/coprodutor", element: <CadastrarCoprodutor />, auth: authRoles.admin },
       { path: "/cadastro/diretor", element: <CadastrarDiretor />, auth: authRoles.admin },
       { path: "/cadastro/editar/:id", element: <EditarCadastro />, auth: authRoles.admin },
+      { path: "/cadastro/listar-tags", element: <ListarTags />, auth: authRoles.admin },
+      { path: "/cadastro/tags", element: <CadastrarTags />, auth: authRoles.admin },
       // projetos
       {
         path: "/projetos/listar-projetos",

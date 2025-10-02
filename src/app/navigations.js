@@ -2,14 +2,12 @@ const navigations = [
   { name: "Dashboard", path: "/dashboard", icon: "dashboard" },
 
   { label: "CADASTRAR", type: "label" },
-  { name: "Cadastros Gerais", path: "/cadastro/listar-cadastrados", icon: "person" },
-  // { name: "Diretor", path: "/cadastro/listar-diretor", icon: "person" },
-  // { name: "Coprodutor", path: "/cadastro/listar-coprodutor", icon: "person" },
-  // { name: "Centro de Custo", path: "/cadastro/listar-centro-custo", icon: "add" },
+  { name: "Cadastros Gerais", path: "/cadastro/listar-cadastrados", icon: "add_box" },
+  { name: "Tags", path: "/cadastro/listar-tags", icon: "add_box" },
 
   { label: "PROJETOS", type: "label" },
-  { name: "Criar Orçamento", path: "/projetos/listar-projetos", icon: "add" },
-  { name: "Projetos (JOBs)", path: "/projetos/jobs/listar-jobs", icon: "visibility" }
+  { name: "Criar Orçamento", path: "/projetos/listar-projetos", icon: "add_box" },
+  { name: "Projetos (JOBs)", path: "/projetos/jobs/listar-jobs", icon: "add_box" }
 
   // { label: "PAGES", type: "label" },
   // {
