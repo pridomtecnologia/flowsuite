@@ -1,14 +1,47 @@
 const navigations = [
-  { name: "Dashboard", path: "/dashboard", icon: "dashboard" },
-
-  { label: "CADASTRAR", type: "label" },
-  { name: "Cadastros Gerais", path: "/cadastro/listar-cadastrados", icon: "add_box" },
-  { name: "Tags", path: "/cadastro/listar-tags", icon: "add_box" },
-
-  { label: "PROJETOS", type: "label" },
-  { name: "Criar Orçamento", path: "/projetos/listar-projetos", icon: "add_box" },
-  { name: "Projetos (JOBs)", path: "/projetos/jobs/listar-jobs", icon: "add_box" }
-
+  {
+    name: "Dashboards",
+    icon: "dashboard",
+    children: [
+      {
+        name: "Projetos",
+        path: "/dashboard"
+      }
+    ]
+  },
+  { name: "Cadastros", path: "/cadastro/listar-cadastrados", icon: "person" },
+  // {
+  //   name: "Financeiro",
+  //   icon: "attach_money",
+  //   children: [
+  //     {
+  //       name: "Contas a Pagar",
+  //       path: "/financeiro/contas-pagar"
+  //     },
+  //     {
+  //       name: "Contas a Receber",
+  //       path: "/financeiro/contas-receber"
+  //     }
+  //   ]
+  // },
+  {
+    name: "Projetos",
+    icon: "folder",
+    children: [
+      {
+        name: "Orçamento",
+        path: "/projetos/listar-projetos"
+      },
+      {
+        name: "Projetos (JOBs)",
+        path: "/projetos/jobs/listar-jobs"
+      }
+      // {
+      //   name: "Fechamento de Projeto",
+      //   path: "/projetos/fechamento"
+      // }
+    ]
+  }
   // { label: "PAGES", type: "label" },
   // {
   //   name: "Session/Auth",

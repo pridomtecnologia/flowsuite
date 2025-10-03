@@ -45,7 +45,8 @@ const SidebarNavRoot = styled("div", {
 const NavListBox = styled("div")({
   height: "100%",
   display: "flex",
-  flexDirection: "column"
+  flexDirection: "column",
+  backgroundColor: "#2C3E50"
 });
 
 const Layout1Sidenav = () => {
