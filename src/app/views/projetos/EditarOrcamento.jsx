@@ -90,7 +90,7 @@ export default function EditarOrcamento() {
 
       const itens = Object.entries(planilhaCustos.itensPorCategoria).flatMap(([categoriaId, arr]) =>
         arr.map((item) => ({
-          nome_custo_orcamento_id: safeNumber(categoriaId), // 🔥 Usar o ID da categoria
+          nome_custo_orcamento_id: safeNumber(categoriaId),
           descricao: item.descricao || "",
           quantidade: safeNumber(item.qtd),
           valor_unitario: safeNumber(item.valorUnit),
@@ -101,7 +101,6 @@ export default function EditarOrcamento() {
         }))
       );
 
-      // 🔥 CORREÇÃO: Garantir que os IDs obrigatórios não sejam null
       const payload = {
         titulo: formCadastro.titulo,
         centro_custo_id: safeNumber(idFormCadastro.centro_custo_id),
@@ -123,12 +122,24 @@ export default function EditarOrcamento() {
         total_planilha: safeNumber(planilhaCustos.totais.total_planilha)
       };
 
-      console.log("Payload enviado:", payload); // 🔥 Para debug
-      // return;
-      // 🔥 CHAMADA PARA ATUALIZAR O PROJETO
       await axios.put(`${api}projetos/atualizar/${projetoId}`, payload, {
         headers: {
           "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("accessToken")
+        }
+      });
+
+      const formData = new FormData();
+
+      documentos.forEach((file) => {
+        if (file instanceof File) {
+          formData.append("arquivos", file);
+        }
+      });
+
+      await axios.post(`${api}projetos/create/arquivo/${projetoId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
           Authorization: "Bearer " + localStorage.getItem("accessToken")
         }
       });
@@ -142,8 +153,6 @@ export default function EditarOrcamento() {
 
       navigate("/projetos/listar-projetos");
     } catch (error) {
-      console.error("❌ Erro ao atualizar orçamento:", error);
-
       let errorMessage = "Erro ao atualizar o Orçamento!";
       if (error.response?.data?.detail) {
         errorMessage = JSON.stringify(error.response.data.detail);
@@ -436,6 +445,7 @@ export default function EditarOrcamento() {
               statusProjeto={statusProjeto}
             />
           )}
+
           {tab === 2 && (
             <EditarUploaDocumentosPlanilha
               arquivos={documentos}

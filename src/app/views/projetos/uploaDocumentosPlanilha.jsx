@@ -16,7 +16,11 @@ export default function UploaDocumentosPlanilha({ arquivos, setArquivos }) {
   const handleUpload = (event) => {
     if (event.target.files) {
       const novosArquivos = Array.from(event.target.files);
-      setArquivos([...arquivos, ...novosArquivos]);
+      const arquivosFiltrados = novosArquivos.filter((novo) => {
+        return !arquivos.some((existente) => existente.nome_arquivo == novo.name);
+      });
+
+      setArquivos([...arquivos, ...arquivosFiltrados]);
     }
   };
 
