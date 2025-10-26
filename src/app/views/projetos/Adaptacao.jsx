@@ -92,6 +92,18 @@ export default function Adaptacao() {
         }))
       );
 
+      const normalizarNumero = (valor) => {
+        if (valor === null || valor === undefined || valor === "") return null;
+
+        if (typeof valor === "string") {
+          // remove separadores de milhar e converte vírgula decimal para ponto
+          valor = valor.replace(/\./g, "").replace(",", ".");
+        }
+
+        const n = Number(valor);
+        return isNaN(n) ? null : n;
+      };
+
       const payload = {
         titulo: formCadastro.titulo,
         centro_custo_id: safeNumber(formCadastro.centroCustoId?.id),
@@ -110,8 +122,12 @@ export default function Adaptacao() {
         imposto: safeNumber(planilhaCustos.totais.impostos),
         taxa_impulsionamento: safeNumber(planilhaCustos.totais.taxaImplantacao),
         comissao_comercial: safeNumber(planilhaCustos.totais.condicaoComercial),
-        total_geral: planilhaCustos.totais.total_geral,
-        total_planilha: safeNumber(planilhaCustos.totais.total_planilha)
+        custo_com_honorarios: safeNumber(planilhaCustos.totais.custoProducaoComHonorarios),
+        custo_sem_honorarios: safeNumber(planilhaCustos.totais.custoProducaoSemHonorarios),
+        taxa_producao: safeNumber(planilhaCustos.totais.taxaProducao),
+        taxa_liquidez: safeNumber(planilhaCustos.totais.taxaLiquidez),
+        total_geral: normalizarNumero(planilhaCustos.totais.total_geral),
+        total_planilha: normalizarNumero(planilhaCustos.totais.total_planilha)
       };
 
       const formData = new FormData();

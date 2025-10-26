@@ -35,6 +35,20 @@ const navigations = [
       {
         name: "Projetos (JOBs)",
         path: "/projetos/jobs/listar-jobs"
+      },
+      {
+        name: "Fechamento de Projeto",
+        path: "/projetos/fechamento/listar-fechamento-orcamento"
+      }
+    ]
+  },
+  {
+    name: "Configuração",
+    icon: "settings",
+    children: [
+      {
+        name: "Cadastrar Tags",
+        path: "/cadastro/listar-tags"
       }
       // {
       //   name: "Fechamento de Projeto",
@@ -52,7 +66,7 @@ const navigations = [
   //     { name: "Forgot Password", iconText: "FP", path: "/session/forgot-password" },
   //     { name: "Error", iconText: "404", path: "/session/404" }
   //   ]
-  // },
+  // }
   // { label: "Components", type: "label" },
   // {
   //   name: "Components",

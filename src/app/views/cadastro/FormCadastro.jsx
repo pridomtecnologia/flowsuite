@@ -307,16 +307,6 @@ const FormCadastro = () => {
                       />
                     )}
                   </InputMask>
-
-                  {/* <TextField
-                    fullWidth
-                    type="text"
-                    name="documento"
-                    value={documento}
-                    label="Documento"
-                    required
-                    onChange={handleChange}
-                  /> */}
                 </Box>
               </Box>
 

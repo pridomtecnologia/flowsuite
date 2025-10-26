@@ -34,6 +34,12 @@ const CadastrarOrcamento = Loadable(
   lazy(() => import("app/views/projetos/orcamento/CadastrarOrcamento"))
 );
 const AppListarJobs = Loadable(lazy(() => import("app/views/projetos/jobs/AppListarJobs")));
+const ListarFechamentOrcamento = Loadable(
+  lazy(() => import("app/views/projetos/fechamento/ListarFechamentoOrcamento"))
+);
+const IncluirFechamentoProjeto = Loadable(
+  lazy(() => import("app/views/projetos/fechamento/IncluirFechamentoProjeto"))
+);
 
 const routes = [
   { path: "/", element: <Navigate to="dashboard" /> },
@@ -80,7 +86,17 @@ const routes = [
         auth: authRoles.admin
       },
       { path: "/projetos/jobs/listar-jobs", element: <AppListarJobs />, auth: authRoles.admin },
-      { path: "/projeto/:id/:job/:id_job", element: <EditarOrcamento />, auth: authRoles.admin }
+      { path: "/projeto/:id/:job/:id_job", element: <EditarOrcamento />, auth: authRoles.admin },
+      {
+        path: "/projetos/fechamento/listar-fechamento-orcamento",
+        element: <ListarFechamentOrcamento />,
+        auth: authRoles.admin
+      },
+      {
+        path: "/projetos/fechamento/incluir-fechamento-projeto",
+        element: <IncluirFechamentoProjeto />,
+        auth: authRoles.admin
+      }
     ]
   },
 

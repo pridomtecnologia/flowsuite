@@ -21,14 +21,17 @@ const categorias = [
   { id: "5", nome: "EQUIPE DE FILMAGEM" },
   { id: "6", nome: "ELENCO" },
   { id: "7", nome: "ALIMENTAÇÃO" },
-  { id: "8", nome: "HOTEL" },
+  { id: "8", nome: "HOSPEDAGENS" },
   { id: "9", nome: "PASSAGENS AÉREAS" },
-  { id: "10", nome: "EQUIPAMENTO DE FILMAGEM" },
-  { id: "11", nome: "ILUMINAÇÃO" },
-  { id: "12", nome: "PRODUÇÃO DE SOM" },
-  { id: "13", nome: "FINALIZAÇÃO" },
+  { id: "10", nome: "EQUIPAMENTO DE CÂMERA" },
+  { id: "11", nome: "EQUIPAMENTOS DE LUZ" },
+  { id: "12", nome: "FINALIZAÇÃO DE SOM/OUTROS" },
+  { id: "13", nome: "NEGATIVOS/FITAS" },
   { id: "14", nome: "OUTROS" },
-  { id: "15", nome: "OUTROS FORA DA TAXA" }
+  { id: "15", nome: "PÓS-PRODUÇÃO" },
+  { id: "16", nome: "ESTÚDIO E LOCAÇÕES" },
+  { id: "17", nome: "COMP.GRÁFICA/STOCK SHOT" },
+  { id: "18", nome: "ALUGUÉIS" }
 ];
 
 // Valores padrão para cada item
@@ -56,9 +59,13 @@ export const initialItensPorCategoria = categorias.reduce((acc, cat) => {
 export const initialValues = {
   itensPorCategoria: initialItensPorCategoria,
   totais: {
+    custoProducaoComHonorarios: 0,
+    custoProducaoSemHonorarios: 0,
     taxaImplantacao: 0,
     condicaoComercial: 0,
     impostos: 0,
+    taxaProducao: 0,
+    taxaLiquidez: 0,
     total_planilha: 0,
     total_geral: 0
   }
@@ -76,7 +83,13 @@ const inputStyle = {
 };
 
 // Linha de item otimizada
-const ItemRow = React.memo(function ItemRow({ catId, index, item, handleItemChange }) {
+const ItemRow = React.memo(function ItemRow({
+  catId,
+  index,
+  item,
+  handleItemChange,
+  formatCurrency
+}) {
   return (
     <Grid container spacing={1} sx={{ mb: 1 }}>
       <Grid item xs={3.5}>
@@ -134,7 +147,7 @@ const ItemRow = React.memo(function ItemRow({ catId, index, item, handleItemChan
           aria-label={`total-${catId}-${index}`}
           style={{ ...inputStyle, background: "#e0e0e06b" }}
           readOnly
-          value={`R$ ${(item.total || 0).toFixed(2)}`}
+          value={`R$ ${formatCurrency(item.total || 0)}`}
         />
       </Grid>
 
@@ -181,7 +194,13 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
         const qtd = Number(item.qtd || 0);
         const valorUnit = Number(item.valorUnit || 0);
         const dias = Number(item.dias || 0);
-        item.total = qtd * valorUnit * dias;
+        const unid = Number(item.unid || 0);
+
+        if (unid > 0) {
+          item.total = qtd * valorUnit * dias * unid;
+        } else {
+          item.total = qtd * valorUnit * dias;
+        }
 
         novosItens[index] = item;
 
@@ -216,7 +235,14 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
           const qtd = Number(item.qtd || 0);
           const v = Number(item.valorUnit || 0);
           const d = Number(item.dias || 0);
-          return accItem + qtd * v * d;
+          const u = Number(item.unid || 0);
+
+          let total = qtd * v * d;
+          if (u > 0) {
+            total = total * u;
+          }
+
+          return accItem + total;
         }, 0)
       );
     }, 0);
@@ -229,19 +255,43 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
     })}`;
 
   const totalGeral = useMemo(() => {
+    const valorBase = totalPlanilha;
+
+    const percCustoHonorarios = parseFloat(totais.custoProducaoComHonorarios) || 0;
     const percImpulsionamento = parseFloat(totais.taxaImplantacao) || 0;
     const percComissao = parseFloat(totais.condicaoComercial) || 0;
+    const percTaxaProducao = parseFloat(totais.taxaProducao) || 0;
+    const percTaxaLiquidez = parseFloat(totais.taxaLiquidez) || 0;
     const percImpostos = parseFloat(totais.impostos) || 0;
+    const percCustoSemHonorarios = parseFloat(totais.custoProducaoSemHonorarios) || 0;
 
-    const valorImpulsionamento = totalPlanilha * (percImpulsionamento / 100);
-    const valorComissao = totalPlanilha * (percComissao / 100);
+    const valorCustoHonorarios = valorBase * (percCustoHonorarios / 100);
 
-    const subtotal = totalPlanilha + valorImpulsionamento + valorComissao;
-    const valorImpostos = subtotal * (percImpostos / 100);
+    const valorImpulsionamento = valorBase * (percImpulsionamento / 100);
 
-    const valorTotalGeral = subtotal + valorImpostos;
+    const valorComissao = valorBase * (percComissao / 100);
 
-    return valorTotalGeral;
+    const subtotalParaTaxaProducao =
+      valorBase + valorCustoHonorarios + valorImpulsionamento + valorComissao;
+
+    const valorTaxaProducao = subtotalParaTaxaProducao * (percTaxaProducao / 100);
+
+    const valorTaxaLiquidez = subtotalParaTaxaProducao * (percTaxaLiquidez / 100);
+
+    const valorCustoSemHonorarios = valorBase * (percCustoSemHonorarios / 100);
+
+    const baseParaImpostos =
+      valorBase +
+      valorCustoHonorarios +
+      valorImpulsionamento +
+      valorComissao +
+      valorTaxaProducao +
+      valorTaxaLiquidez +
+      valorCustoSemHonorarios;
+
+    const totalGeral = baseParaImpostos / (1 - percImpostos / 100);
+
+    return totalGeral;
   }, [totalPlanilha, totais]);
 
   useEffect(() => {
@@ -254,6 +304,27 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
       }
     }));
   }, [totalPlanilha, totalGeral, onChange]);
+
+  const totaisPorCategoria = useMemo(() => {
+    const result = {};
+
+    Object.entries(itensPorCategoria).forEach(([catId, itens]) => {
+      result[catId] = itens.reduce((acc, item) => {
+        const qtd = Number(item.qtd || 0);
+        const valorUnit = Number(item.valorUnit || 0);
+        const dias = Number(item.dias || 0);
+        const unid = Number(item.unid || 0);
+
+        let total = qtd * valorUnit * dias;
+        if (unid > 0) {
+          total = total * unid;
+        }
+
+        return acc + total;
+      }, 0);
+    });
+    return result;
+  }, [itensPorCategoria]);
 
   return (
     <Grid container spacing={2}>
@@ -283,9 +354,16 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
           >
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
-              sx={{ mt: 1, color: "#6c7216ff", border: "0.5px solid #6c721681", borderRadius: 2 }}
+              sx={{
+                mt: 1,
+                color: "#6c7216ff",
+                border: "0.5px solid #6c721681",
+                borderRadius: 2
+              }}
             >
-              <Typography>{`${cat.id} - ${cat.nome}`}</Typography>
+              <Typography>{`${cat.id} - ${cat.nome} (R$ ${formatCurrency(
+                totaisPorCategoria[cat.id] || 0
+              )})`}</Typography>
             </AccordionSummary>
 
             <AccordionDetails sx={{ borderRadius: 2 }}>
@@ -321,6 +399,7 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
                   index={index}
                   item={item}
                   handleItemChange={handleItemChange}
+                  formatCurrency={formatCurrency}
                 />
               ))}
 
@@ -337,7 +416,7 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
         ))}
 
         <Paper sx={{ p: 2, mt: 2, mb: 2, bgcolor: "primary.dark", color: "white" }}>
-          <Typography variant="h6">TOTAL PLANILHA: R$ {totalPlanilha.toFixed(2)}</Typography>
+          <Typography variant="h6">TOTAL PLANILHA: R$ {formatCurrency(totalPlanilha)}</Typography>
         </Paper>
       </Grid>
 
@@ -345,6 +424,17 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
       <Grid item xs={3}>
         <Paper sx={{ p: 2 }}>
           <Typography variant="subtitle1">Valores</Typography>
+
+          <TextField
+            fullWidth
+            size="small"
+            label="Custo de Produção com Honorários (%)"
+            type="number"
+            inputProps={{ step: "0.01" }}
+            value={totais.custoProducaoComHonorarios === 0 ? "" : totais.custoProducaoComHonorarios}
+            onChange={(e) => handleTotaisChange("custoProducaoComHonorarios", e.target.value)}
+            sx={{ mt: 2 }}
+          />
 
           <TextField
             fullWidth
@@ -365,6 +455,39 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
             inputProps={{ step: "0.01" }}
             value={totais.condicaoComercial === 0 ? "" : totais.condicaoComercial}
             onChange={(e) => handleTotaisChange("condicaoComercial", e.target.value)}
+            sx={{ mt: 2 }}
+          />
+
+          <TextField
+            fullWidth
+            size="small"
+            label="Taxa de Produção (%)"
+            type="number"
+            inputProps={{ step: "0.01" }}
+            value={totais.taxaProducao === 0 ? "" : totais.taxaProducao}
+            onChange={(e) => handleTotaisChange("taxaProducao", e.target.value)}
+            sx={{ mt: 2 }}
+          />
+
+          <TextField
+            fullWidth
+            size="small"
+            label="Taxa de Liquidez (%)"
+            type="number"
+            inputProps={{ step: "0.01" }}
+            value={totais.taxaLiquidez === 0 ? "" : totais.taxaLiquidez}
+            onChange={(e) => handleTotaisChange("taxaLiquidez", e.target.value)}
+            sx={{ mt: 2 }}
+          />
+
+          <TextField
+            fullWidth
+            size="small"
+            label="Custo de Produção sem Honorários (%)"
+            type="number"
+            inputProps={{ step: "0.01" }}
+            value={totais.custoProducaoSemHonorarios === 0 ? "" : totais.custoProducaoSemHonorarios}
+            onChange={(e) => handleTotaisChange("custoProducaoSemHonorarios", e.target.value)}
             sx={{ mt: 2 }}
           />
 

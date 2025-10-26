@@ -101,6 +101,18 @@ export default function EditarOrcamento() {
         }))
       );
 
+      const normalizarNumero = (valor) => {
+        if (valor === null || valor === undefined || valor === "") return null;
+
+        if (typeof valor === "string") {
+          // remove separadores de milhar e converte vírgula decimal para ponto
+          valor = valor.replace(/\./g, "").replace(",", ".");
+        }
+
+        const n = Number(valor);
+        return isNaN(n) ? null : n;
+      };
+
       const payload = {
         titulo: formCadastro.titulo,
         centro_custo_id: safeNumber(idFormCadastro.centro_custo_id),
@@ -118,8 +130,12 @@ export default function EditarOrcamento() {
         imposto: safeNumber(planilhaCustos.totais.impostos),
         taxa_impulsionamento: safeNumber(planilhaCustos.totais.taxaImplantacao),
         comissao_comercial: safeNumber(planilhaCustos.totais.condicaoComercial),
-        total_geral: safeNumber(planilhaCustos.totais.total_geral),
-        total_planilha: safeNumber(planilhaCustos.totais.total_planilha)
+        custo_com_honorarios: safeNumber(planilhaCustos.totais.custoProducaoComHonorarios),
+        custo_sem_honorarios: safeNumber(planilhaCustos.totais.custoProducaoSemHonorarios),
+        taxa_producao: safeNumber(planilhaCustos.totais.taxaProducao),
+        taxa_liquidez: safeNumber(planilhaCustos.totais.taxaLiquidez),
+        total_geral: normalizarNumero(planilhaCustos.totais.total_geral),
+        total_planilha: normalizarNumero(planilhaCustos.totais.total_planilha)
       };
 
       await axios.put(`${api}projetos/atualizar/${projetoId}`, payload, {
@@ -197,11 +213,15 @@ export default function EditarOrcamento() {
       return acc;
     }, {}),
     totais: {
+      custoProducaoComHonorarios: 0,
+      custoProducaoSemHonorarios: 0,
       taxaImplantacao: 0,
       condicaoComercial: 0,
       impostos: 0,
-      total_geral: 0,
-      total_planilha: 0
+      taxaProducao: 0,
+      taxaLiquidez: 0,
+      total_planilha: 0,
+      total_geral: 0
     }
   };
 
@@ -224,7 +244,6 @@ export default function EditarOrcamento() {
         });
 
         const data = response.data;
-
         const dataValidade = data.validade_orcamento_projeto
           ? dayjs(data.validade_orcamento_projeto, "DD-MM-YYYY")
           : null;
@@ -261,6 +280,10 @@ export default function EditarOrcamento() {
             totais: {
               taxaImplantacao: data.taxa_impulsionamento || 0,
               condicaoComercial: data.comissao_comercial || 0,
+              custoProducaoComHonorarios: data.custo_com_honorarios || 0,
+              custoProducaoSemHonorarios: data.custo_sem_honorarios || 0,
+              taxaProducao: data.taxa_producao || 0,
+              taxaLiquidez: data.taxa_liquidez || 0,
               impostos: data.imposto || 0,
               total_geral: data.total_geral || 0,
               total_planilha: data.total_planilha || 0

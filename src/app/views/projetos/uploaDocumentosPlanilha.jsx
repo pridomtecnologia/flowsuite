@@ -1,14 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Button,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  IconButton,
-  Paper
-} from "@mui/material";
+import { Box, Button, List, ListItem, ListItemText, IconButton } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -30,10 +21,6 @@ export default function UploaDocumentosPlanilha({ arquivos, setArquivos }) {
 
   return (
     <Box sx={{ mt: 2 }}>
-      {/* <Typography variant="p" gutterBottom>
-        Anexar Documentos
-      </Typography> */}
-
       <Button variant="contained" component="label" startIcon={<UploadFileIcon />} sx={{ mb: 2 }}>
         Selecionar Documentos
         <input hidden type="file" multiple onChange={handleUpload} />
