@@ -11,6 +11,7 @@ import {
   Link
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import itensFixosPorCategoria from "../../data/itensFixosPorCategoria.json";
 
 const categorias = [
   { id: "1", nome: "PRÉ-PRODUÇÃO" },
@@ -20,14 +21,17 @@ const categorias = [
   { id: "5", nome: "EQUIPE DE FILMAGEM" },
   { id: "6", nome: "ELENCO" },
   { id: "7", nome: "ALIMENTAÇÃO" },
-  { id: "8", nome: "HOTEL" },
+  { id: "8", nome: "HOSPEDAGENS" },
   { id: "9", nome: "PASSAGENS AÉREAS" },
-  { id: "10", nome: "EQUIPAMENTO DE FILMAGEM" },
-  { id: "11", nome: "ILUMINAÇÃO" },
-  { id: "12", nome: "PRODUÇÃO DE SOM" },
-  { id: "13", nome: "FINALIZAÇÃO" },
+  { id: "10", nome: "EQUIPAMENTO DE CÂMERA" },
+  { id: "11", nome: "EQUIPAMENTOS DE LUZ" },
+  { id: "12", nome: "FINALIZAÇÃO DE SOM/OUTROS" },
+  { id: "13", nome: "NEGATIVOS/FITAS" },
   { id: "14", nome: "OUTROS" },
-  { id: "15", nome: "OUTROS FORA DA TAXA" }
+  { id: "15", nome: "PÓS-PRODUÇÃO" },
+  { id: "16", nome: "ESTÚDIO E LOCAÇÕES" },
+  { id: "17", nome: "COMP.GRÁFICA/STOCK SHOT" },
+  { id: "18", nome: "ALUGUÉIS" }
 ];
 
 const inputStyle = {
@@ -46,7 +50,8 @@ const ItemRow = React.memo(function ItemRow({
   index,
   item,
   handleItemChange,
-  statusProjeto
+  statusProjeto,
+  formatCurrency
 }) {
   const total = (item.qtd || 0) * (item.valorUnit || 0) * (item.dias || 1);
 
@@ -121,7 +126,7 @@ const ItemRow = React.memo(function ItemRow({
         <input
           style={{ ...inputStyle, background: "#e0e0e06b" }}
           readOnly
-          value={`R$ ${total.toFixed(2)}`}
+          value={`R$ ${formatCurrency(total)}`}
           disabled={statusProjeto == 2 || statusProjeto == 3}
         />
       </Grid>
@@ -194,22 +199,31 @@ export default function EditarPlanilhaCustosOrcamento({ values, onChange, status
   const handleItemChange = useCallback(
     (catId, index, field, value) => {
       onChange((prev) => {
-        const novosItens = [...(prev.itensPorCategoria[catId] || [])];
-        if (!novosItens[index]) {
-          novosItens[index] = { descricao: "", qtd: 1, valorUnit: 0, dias: 1, unid: "0", obs: "" };
+        const novosItens = [...prev.itensPorCategoria[catId]];
+        const item = { ...novosItens[index] };
+
+        if (["descricao", "obs", "unid"].includes(field)) {
+          item[field] = value;
+        } else {
+          item[field] = Number(value === "" ? 0 : value);
         }
 
-        novosItens[index] = {
-          ...novosItens[index],
-          [field]: value
-        };
+        const qtd = Number(item.qtd || 0);
+        const valorUnit = Number(item.valorUnit || 0);
+        const dias = Number(item.dias || 0);
+        const unid = Number(item.unid || 0);
+
+        if (unid > 0) {
+          item.total = qtd * valorUnit * dias * unid;
+        } else {
+          item.total = qtd * valorUnit * dias;
+        }
+
+        novosItens[index] = item;
 
         return {
           ...prev,
-          itensPorCategoria: {
-            ...prev.itensPorCategoria,
-            [catId]: novosItens
-          }
+          itensPorCategoria: { ...prev.itensPorCategoria, [catId]: novosItens }
         };
       });
     },
@@ -231,32 +245,63 @@ export default function EditarPlanilhaCustosOrcamento({ values, onChange, status
 
   const totalPlanilha = useMemo(() => {
     return Object.values(itensPorCategoria).reduce((accCat, itens) => {
-      if (!Array.isArray(itens)) return accCat;
-
       return (
         accCat +
         itens.reduce((accItem, item) => {
-          const qtd = Number(item?.qtd || 0);
-          const valorUnit = Number(item?.valorUnit || 0);
-          const dias = Number(item?.dias || 0);
-          return accItem + qtd * valorUnit * dias;
+          const qtd = Number(item.qtd || 0);
+          const v = Number(item.valorUnit || 0);
+          const d = Number(item.dias || 0);
+          const u = Number(item.unid || 0);
+
+          let total = qtd * v * d;
+          if (u > 0) {
+            total = total * u;
+          }
+
+          return accItem + total;
         }, 0)
       );
     }, 0);
   }, [itensPorCategoria]);
 
   const totalGeral = useMemo(() => {
+    const valorBase = totalPlanilha;
+
+    const percCustoHonorarios = parseFloat(totais.custoProducaoComHonorarios) || 0;
     const percImpulsionamento = parseFloat(totais.taxaImplantacao) || 0;
     const percComissao = parseFloat(totais.condicaoComercial) || 0;
+    const percTaxaProducao = parseFloat(totais.taxaProducao) || 0;
+    const percTaxaLiquidez = parseFloat(totais.taxaLiquidez) || 0;
     const percImpostos = parseFloat(totais.impostos) || 0;
+    const percCustoSemHonorarios = parseFloat(totais.custoProducaoSemHonorarios) || 0;
 
-    const valorImpulsionamento = totalPlanilha * (percImpulsionamento / 100);
-    const valorComissao = totalPlanilha * (percComissao / 100);
+    const valorCustoHonorarios = valorBase * (percCustoHonorarios / 100);
 
-    const subtotal = totalPlanilha + valorImpulsionamento + valorComissao;
-    const valorImpostos = subtotal * (percImpostos / 100);
+    const valorImpulsionamento = valorBase * (percImpulsionamento / 100);
 
-    return subtotal + valorImpostos;
+    const valorComissao = valorBase * (percComissao / 100);
+
+    const subtotalParaTaxaProducao =
+      valorBase + valorCustoHonorarios + valorImpulsionamento + valorComissao;
+
+    const valorTaxaProducao = subtotalParaTaxaProducao * (percTaxaProducao / 100);
+
+    const valorTaxaLiquidez = subtotalParaTaxaProducao * (percTaxaLiquidez / 100);
+
+    const valorCustoSemHonorarios = valorBase * (percCustoSemHonorarios / 100);
+
+    const baseParaImpostos =
+      valorBase +
+      valorCustoHonorarios +
+      valorImpulsionamento +
+      valorComissao +
+      valorTaxaProducao +
+      valorTaxaLiquidez +
+      valorCustoSemHonorarios;
+
+    const totalGeral = baseParaImpostos / (1 - percImpostos / 100);
+
+    return totalGeral;
   }, [totalPlanilha, totais]);
 
   useEffect(() => {
@@ -269,6 +314,27 @@ export default function EditarPlanilhaCustosOrcamento({ values, onChange, status
       }
     }));
   }, [totalPlanilha, totalGeral, onChange]);
+
+  const totaisPorCategoria = useMemo(() => {
+    const result = {};
+
+    Object.entries(itensPorCategoria).forEach(([catId, itens]) => {
+      result[catId] = itens.reduce((acc, item) => {
+        const qtd = Number(item.qtd || 0);
+        const valorUnit = Number(item.valorUnit || 0);
+        const dias = Number(item.dias || 0);
+        const unid = Number(item.unid || 0);
+
+        let total = qtd * valorUnit * dias;
+        if (unid > 0) {
+          total = total * unid;
+        }
+
+        return acc + total;
+      }, 0);
+    });
+    return result;
+  }, [itensPorCategoria]);
 
   const formatCurrency = (value) =>
     `${value.toLocaleString("pt-BR", {
@@ -284,9 +350,16 @@ export default function EditarPlanilhaCustosOrcamento({ values, onChange, status
           <Accordion key={cat.id}>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
-              sx={{ mt: 1, color: "#6c7216ff", border: "0.5px solid #6c721681", borderRadius: 2 }}
+              sx={{
+                mt: 1,
+                color: "#6c7216ff",
+                border: "0.5px solid #6c721681",
+                borderRadius: 2
+              }}
             >
-              <Typography>{`${cat.id} - ${cat.nome}`}</Typography>
+              <Typography>{`${cat.id} - ${cat.nome} (R$ ${formatCurrency(
+                totaisPorCategoria[cat.id] || 0
+              )})`}</Typography>
             </AccordionSummary>
 
             <AccordionDetails>
@@ -324,6 +397,7 @@ export default function EditarPlanilhaCustosOrcamento({ values, onChange, status
                   item={item}
                   handleItemChange={handleItemChange}
                   statusProjeto={statusProjeto}
+                  formatCurrency={formatCurrency}
                 />
               ))}
 
@@ -361,6 +435,21 @@ export default function EditarPlanilhaCustosOrcamento({ values, onChange, status
           <TextField
             fullWidth
             size="small"
+            label="Custo de Produção com Honorários (%)"
+            type="number"
+            inputProps={{ step: "0.01" }}
+            value={totais.custoProducaoComHonorarios === 0 ? "" : totais.custoProducaoComHonorarios}
+            onChange={(e) => handleTotaisChange("custoProducaoComHonorarios", e.target.value)}
+            sx={{
+              mb: 2,
+              backgroundColor: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+            }}
+            disabled={statusProjeto == 2 || statusProjeto == 3}
+          />
+
+          <TextField
+            fullWidth
+            size="small"
             label="Taxa de Impulsionamento (%)"
             type="number"
             value={totais.taxaImplantacao || 0}
@@ -379,6 +468,52 @@ export default function EditarPlanilhaCustosOrcamento({ values, onChange, status
             type="number"
             value={totais.condicaoComercial || 0}
             onChange={(e) => handleTotaisChange("condicaoComercial", e.target.value)}
+            sx={{
+              mb: 2,
+              backgroundColor: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+            }}
+            disabled={statusProjeto == 2 || statusProjeto == 3}
+          />
+
+          <TextField
+            fullWidth
+            size="small"
+            label="Taxa de Produção (%)"
+            type="number"
+            inputProps={{ step: "0.01" }}
+            value={totais.taxaProducao === 0 ? "" : totais.taxaProducao}
+            onChange={(e) => handleTotaisChange("taxaProducao", e.target.value)}
+            sx={{
+              mb: 2,
+              backgroundColor: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+            }}
+            disabled={statusProjeto == 2 || statusProjeto == 3}
+          />
+
+          <TextField
+            fullWidth
+            size="small"
+            label="Taxa de Liquidez (%)"
+            type="number"
+            inputProps={{ step: "0.01" }}
+            value={totais.taxaLiquidez === 0 ? "" : totais.taxaLiquidez}
+            onChange={(e) => handleTotaisChange("taxaLiquidez", e.target.value)}
+            sx={{
+              mb: 2,
+              backgroundColor: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+            }}
+            disabled={statusProjeto == 2 || statusProjeto == 3}
+          />
+
+          {/* ja corrigir */}
+          <TextField
+            fullWidth
+            size="small"
+            label="Custo de Produção sem Honorários (%)"
+            type="number"
+            inputProps={{ step: "0.01" }}
+            value={totais.custoProducaoSemHonorarios === 0 ? "" : totais.custoProducaoSemHonorarios}
+            onChange={(e) => handleTotaisChange("custoProducaoSemHonorarios", e.target.value)}
             sx={{
               mb: 2,
               backgroundColor: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"

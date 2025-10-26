@@ -104,7 +104,9 @@ export default function TabelaJobs() {
             <TableCell align="center">Número Orçamento</TableCell>
             <TableCell align="center">Projeto</TableCell>
             <TableCell align="center">Cliente</TableCell>
-            <TableCell align="center">Valor Geral</TableCell>
+            <TableCell align="center">Valor Orçado</TableCell>
+            <TableCell align="center">Valor Realizado</TableCell>
+            <TableCell align="center">Valor Líquido</TableCell>
             <TableCell align="center">Status Orçamento</TableCell>
             <TableCell align="center">Ação</TableCell>
           </TableRow>
@@ -125,6 +127,8 @@ export default function TabelaJobs() {
                         currency: "BRL"
                       }).format(listar_orcamento.total_geral)}
                     </TableCell>
+                    <TableCell align="center">-</TableCell>
+                    <TableCell align="center">-</TableCell>
                     <TableCell align="center">
                       <span
                         style={{
@@ -163,7 +167,10 @@ export default function TabelaJobs() {
             <TableRow>
               <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center">Sem registro</TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>

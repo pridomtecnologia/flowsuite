@@ -144,7 +144,6 @@ export default function EditarUploaDocumentosPlanilha({
                       backgroundColor:
                         statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
                     }}
-                    disabled={statusProjeto == 2 || statusProjeto == 3}
                     onClick={() => handleVisualizar(file)}
                   >
                     <VisibilityIcon />
