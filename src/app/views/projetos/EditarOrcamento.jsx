@@ -102,7 +102,7 @@ export default function EditarOrcamento() {
       );
 
       const normalizarNumero = (valor) => {
-        if (valor === null || valor === undefined || valor === "") return null;
+        if (valor === null || valor === undefined || valor === "") return 0;
 
         if (typeof valor === "string") {
           // remove separadores de milhar e converte vírgula decimal para ponto
@@ -127,15 +127,15 @@ export default function EditarOrcamento() {
             ? dayjs(formCadastro.validadeOrcamento).format("YYYY-MM-DD")
             : null,
         planilha_custo: itens,
-        imposto: safeNumber(planilhaCustos.totais.impostos) || 0,
-        taxa_impulsionamento: safeNumber(planilhaCustos.totais.taxaImplantacao) || 0,
-        comissao_comercial: safeNumber(planilhaCustos.totais.condicaoComercial) || 0,
-        custo_com_honorarios: safeNumber(planilhaCustos.totais.custoProducaoComHonorarios) || 0,
-        custo_sem_honorarios: safeNumber(planilhaCustos.totais.custoProducaoSemHonorarios) || 0,
-        taxa_producao: safeNumber(planilhaCustos.totais.taxaProducao) || 0,
-        taxa_liquidez: safeNumber(planilhaCustos.totais.taxaLiquidez) || 0,
-        total_geral: normalizarNumero(planilhaCustos.totais.total_geral) || 0,
-        total_planilha: normalizarNumero(planilhaCustos.totais.total_planilha) || 0
+        imposto: safeNumber(planilhaCustos.totais.impostos),
+        taxa_impulsionamento: safeNumber(planilhaCustos.totais.taxaImplantacao),
+        comissao_comercial: safeNumber(planilhaCustos.totais.condicaoComercial),
+        custo_com_honorarios: safeNumber(planilhaCustos.totais.custoProducaoComHonorarios),
+        custo_sem_honorarios: safeNumber(planilhaCustos.totais.custoProducaoSemHonorarios),
+        taxa_producao: safeNumber(planilhaCustos.totais.taxaProducao),
+        taxa_liquidez: safeNumber(planilhaCustos.totais.taxaLiquidez),
+        total_geral: normalizarNumero(planilhaCustos.totais.total_geral),
+        total_planilha: normalizarNumero(planilhaCustos.totais.total_planilha)
       };
 
       await axios.put(`${api}projetos/atualizar/${projetoId}`, payload, {
