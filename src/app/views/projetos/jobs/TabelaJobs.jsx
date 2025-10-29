@@ -127,8 +127,26 @@ export default function TabelaJobs() {
                         currency: "BRL"
                       }).format(listar_orcamento.total_geral)}
                     </TableCell>
-                    <TableCell align="center">-</TableCell>
-                    <TableCell align="center">-</TableCell>
+                    <TableCell align="center">
+                      {listar_orcamento.valor_realizado == null
+                        ? "-"
+                        : new Intl.NumberFormat("pt-BR", {
+                            style: "currency",
+                            currency: "BRL"
+                          }).format(listar_orcamento.valor_realizado)}
+                    </TableCell>
+                    <TableCell align="center">
+                      {listar_orcamento.valor_liquido == null
+                        ? "-"
+                        : (() => {
+                            const valor = listar_orcamento.valor_liquido;
+                            const formato = new Intl.NumberFormat("pt-BR", {
+                              style: "currency",
+                              currency: "BRL"
+                            }).format(Math.abs(valor));
+                            return valor < 0 ? `R$ -${formato.replace("R$", "").trim()}` : formato;
+                          })()}
+                    </TableCell>
                     <TableCell align="center">
                       <span
                         style={{

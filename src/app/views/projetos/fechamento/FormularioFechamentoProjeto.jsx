@@ -24,28 +24,22 @@ const AutoComplete = styled(Autocomplete)({
 });
 
 const FormularioFechamentoProjeto = ({ values, onChange }) => {
-  const [state, setState] = useState({
-    numerOrcamento: "",
-    empresaId: "",
-    centroCustoId: "",
-    agenciaId: "",
-    clienteId: "",
-    titulo: "",
-    coprodutorId: "",
-    diretorId: "",
-    tipoJobId: "",
-    validadeOrcamento: ""
-  });
-  const [open, setOpen] = useState(false);
   const [arquivos, setArquivos] = useState([]);
-  const [openCentroCusto, setOpenCentroCusto] = useState(false);
 
-  const [listaCadastro, setListaCadastro] = useState([]);
-  const [listaCoprodutor, setListaCoprodutor] = useState([]);
-  const [listaDiretores, setListaDiretores] = useState([]);
+  const [listaCadastro, setListaFornecedor] = useState([]);
+  const [listagemJob, setListagemJob] = useState([]);
   const [listaCentroCusto, setListaCentroCusto] = useState([]);
+  const [listaDescricaoPlanilha, setListaDescricaoPlanilha] = useState([]);
 
-  const [nameCentroCusto, setNameCentroCusto] = useState(null);
+  const [jobSelecionado, setJobSelecionado] = useState(null);
+  const [fornecedorSelecionado, setFornecedorSelecionado] = useState(null);
+  const [valor, setValor] = useState(null);
+  const [nomeServico, setNomeServico] = useState(null);
+  const [dataFaturamento, setDataFaturamento] = useState(null);
+  const [previsaoPagamento, setPrevisaoPagamento] = useState(null);
+  const [centroCustoSelecionado, setCentroCustoSelecionado] = useState(null);
+  const [descricaoPlanilhaSelecionada, setDescricaoPlanilhaSelecionada] = useState(null);
+  const [observacao, setObservacao] = useState(null);
 
   const navigate = useNavigate();
 
@@ -53,163 +47,125 @@ const FormularioFechamentoProjeto = ({ values, onChange }) => {
 
   const { user } = useAuth();
 
-  const coprodutores = async () => {
-    try {
-      const response_coprodutores = await axios.get(`${api}coprodutor`, {
-        headers: {
-          Accept: "application/json",
-          Authorization: "Bearer " + localStorage.getItem("accessToken")
-        }
-      });
-
-      const listaCoprodutores = response_coprodutores.data.map((item) => ({
-        label: item.nome,
-        id: item.id_coprodutor,
-        original: item
-      }));
-
-      setListaCoprodutor(listaCoprodutores);
-    } catch (error) {
-      console.error("Erro na requisição:", error.response?.data || error.message);
-    }
-  };
-
-  const diretores = async () => {
-    try {
-      const diretor_response = await axios.get(`${api}diretor`, {
-        headers: {
-          Accept: "application/json",
-          Authorization: "Bearer " + localStorage.getItem("accessToken")
-        }
-      });
-
-      const listaDiretores = diretor_response.data.map((item) => ({
-        label: item.nome,
-        id: item.id_diretor,
-        nome_interno: item.nome_interno,
-        identificador_lancamento: item.identificador_lancamento,
-        original: item
-      }));
-
-      setListaDiretores(listaDiretores);
-    } catch (error) {
-      console.error("Erro na requisição:", error.response?.data || error.message);
-    }
-  };
-
-  const centro_custo = async () => {
-    try {
-      const response_centro_custo = await axios.get(`${api}centro-de-custo`, {
-        headers: {
-          Accept: "application/json",
-          Authorization: "Bearer " + localStorage.getItem("accessToken")
-        }
-      });
-
-      const listaCentroCusto = response_centro_custo.data.map((item) => ({
-        label: item.centro_custo,
-        id: item.id_centro_custo,
-        original: item
-      }));
-
-      setListaCentroCusto(listaCentroCusto);
-    } catch (error) {
-      console.error("Erro na requisição:", error.response?.data || error.message);
-    }
-  };
-
   useEffect(() => {
-    const listarCadastro = async () => {
+    const listarfornecedor = async () => {
       try {
-        const response_cadastro = await axios.get(`${api}cadastro/list`, {
+        const response_fornecedor = await axios.get(`${api}cadastro/list-fornecedor`, {
           headers: {
             Accept: "application/json",
             Authorization: "Bearer " + localStorage.getItem("accessToken")
           }
         });
-        const listaFormatada = response_cadastro.data.map((item) => ({
-          label: item.nome_fantasia, // ou razao_social, se preferir
+
+        const listaFormatada = response_fornecedor.data.map((item) => ({
+          label: item.razao_social,
           id: item.id_cadastro,
-          original: item // se quiser guardar o objeto todo
+          original: item
         }));
 
-        setListaCadastro(listaFormatada);
+        setListaFornecedor(listaFormatada);
       } catch (error) {
         console.error("Erro na requisição:", error.response?.data || error.message);
       }
     };
 
-    const numeroOrcamento = async () => {
+    const listarJobsProjetos = async () => {
       try {
-        const response_number_orcamento = await axios.get(`${api}projetos/next_orc_number`, {
+        const response_list_job = await axios.get(`${api}projetos/listar-job-fechamento`, {
           headers: {
             Accept: "application/json",
             Authorization: "Bearer " + localStorage.getItem("accessToken")
           }
         });
 
-        setState((prevState) => ({
-          ...prevState,
-          numerOrcamento: response_number_orcamento.data.number_orc
+        const listaJobFormatada = response_list_job.data.map((item) => ({
+          label: `${item.numero_orcamento} - ${item.titulo}`,
+          id: item.id_projeto_job,
+          original: item
         }));
+
+        setListagemJob(listaJobFormatada);
       } catch (error) {
         console.error("Erro na requisição:", error.response?.data || error.message);
       }
     };
 
-    listarCadastro();
-    numeroOrcamento();
-    coprodutores();
-    diretores();
+    const centro_custo = async () => {
+      try {
+        const response_centro_custo = await axios.get(`${api}centro-de-custo`, {
+          headers: {
+            Accept: "application/json",
+            Authorization: "Bearer " + localStorage.getItem("accessToken")
+          }
+        });
+
+        const listaCentroCusto = response_centro_custo.data.map((item) => ({
+          label: item.centro_custo,
+          id: item.id_centro_custo,
+          original: item
+        }));
+
+        setListaCentroCusto(listaCentroCusto);
+      } catch (error) {
+        console.error("Erro na requisição:", error.response?.data || error.message);
+      }
+    };
+
+    listarfornecedor();
+    listarJobsProjetos();
     centro_custo();
   }, []);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    navigate("/projetos/listar-projetos");
-    console.log("submitted");
-    console.log(event);
-  };
-
-  const handleChange = (event) => {
-    event.persist();
-    setState({ ...state, [event.target.name]: event.target.value });
-    onChange({ ...values, [e.target.name]: e.target.value });
-  };
-
-  const handleCloseCentroCusto = () => {
-    setNameCentroCusto(null);
-    setOpenCentroCusto(false);
-  };
-
-  const handleSaveCentroCusto = async (e) => {
-    e.preventDefault();
 
     try {
-      const response = await axios.post(
-        `${api}centro-de-custo/create`,
-        {
-          centro_custo: nameCentroCusto
-        },
+      const payload = {
+        projeto_job_id: jobSelecionado,
+        fornecedor_id: fornecedorSelecionado.fornecedorId.id,
+        nome_servico: nomeServico.nomeServico,
+        descricao_planilha_custo_projeto_id: descricaoPlanilhaSelecionada,
+        valor: formatarValorNumero(valor),
+        data_faturamento: dayjs(dataFaturamento).format("YYYY-MM-DD"),
+        previsao_pagamento: dayjs(previsaoPagamento).format("YYYY-MM-DD"),
+        centro_custo_id: centroCustoSelecionado.centroCustoId.id,
+        observacao: observacao
+      };
+
+      const formData = new FormData();
+      formData.append("orcamento_json", JSON.stringify(payload));
+
+      arquivos.forEach((file) => {
+        formData.append("nota_fiscal", file);
+      });
+
+      const response_cadastro_fechamento_job = await axios.post(
+        `${api}projetos/fechamento-orcamento`,
+        formData,
         {
           headers: {
-            Accept: "application/json",
+            "Content-Type": "multipart/form-data",
             Authorization: "Bearer " + localStorage.getItem("accessToken")
           }
         }
       );
 
-      centro_custo();
-
-      handleCloseCentroCusto();
-
       Swal.fire({
         title: "",
-        text: "Centro de custo cadastrado com sucesso",
+        text: response_cadastro_fechamento_job.data.message,
         icon: "success"
       });
+
+      setTimeout(() => {
+        navigate("/projetos/fechamento/listar-fechamento-orcamento");
+      }, 1500);
     } catch (error) {
-      console.error("Erro ao criar centro de custo:", error.response?.data || error.message);
+      console.error(error);
+      Swal.fire({
+        title: "",
+        text: "Erro ao cadastrar o fechamento",
+        icon: "error"
+      });
     }
   };
 
@@ -228,9 +184,47 @@ const FormularioFechamentoProjeto = ({ values, onChange }) => {
     setArquivos(arquivos.filter((_, i) => i !== index));
   };
 
+  const handleVoltar = async () => {
+    navigate("/projetos/fechamento/listar-fechamento-orcamento");
+  };
+
+  const handleHandleJobSelecionado = async (jobSelecionado) => {
+    setJobSelecionado(jobSelecionado.projetoJob.id);
+
+    try {
+      const response_descricao_planilha = await axios.get(
+        `${api}projetos/listar-descricao-job-fechamento/${jobSelecionado.projetoJob.id}`,
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: "Bearer " + localStorage.getItem("accessToken")
+          }
+        }
+      );
+
+      const listarDescricaoProjetoJob = response_descricao_planilha.data.map((item) => ({
+        label: item.descricao,
+        id: item.id_planilha_custo_projeto,
+        original: item
+      }));
+
+      setListaDescricaoPlanilha(listarDescricaoProjetoJob);
+    } catch (error) {
+      console.error("Erro na requisição:", error.response?.data || error.message);
+    }
+  };
+
+  const handleHandleDescricaoPlanilhaSelecionado = async (descricaoSelecionada) => {
+    setDescricaoPlanilhaSelecionada(descricaoSelecionada.descricaoPlanilha.id);
+  };
+
+  const formatarValorNumero = (brazilianFormat) => {
+    return brazilianFormat.replace(/\./g, "").replace(",", ".");
+  };
+
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+      <form>
         <Grid container spacing={6}>
           <Grid size={{ md: 6, xs: 12 }} sx={{ mt: 2 }}>
             <Stack spacing={3}>
@@ -238,25 +232,43 @@ const FormularioFechamentoProjeto = ({ values, onChange }) => {
               <AutoComplete
                 required
                 sx={{ width: 474 }}
-                options={listaCadastro}
-                onChange={(e, newVal) => onChange({ ...values, empresaId: newVal })}
+                options={listagemJob}
+                onChange={(e, newVal) =>
+                  handleHandleJobSelecionado({ ...values, projetoJob: newVal })
+                }
                 renderInput={(params) => <TextField {...params} label="Projeto (JOB) *" />}
               />
 
               <TextField
                 required
                 sx={{ width: 474 }}
-                type="text"
-                name="titulo"
-                onChange={(e) => onChange({ ...values, titulo: e.target.value })}
+                type="number"
+                name="valor"
+                onChange={(e) => {
+                  let value = e.target.value;
+
+                  // remove tudo que não for número
+                  value = value.replace(/\D/g, "");
+
+                  // garante pelo menos duas casas decimais
+                  const numericValue = (Number(value) / 100).toFixed(2);
+
+                  // formata no padrão brasileiro
+                  const formatted = new Intl.NumberFormat("pt-BR", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  }).format(numericValue);
+
+                  setValor(formatted);
+                }}
                 label="Valor"
+                inputMode="decimal" // Teclado numérico em dispositivos móveis
               />
 
               <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
                 <DatePicker
                   label="Data de Faturamento *"
-                  // value={values.validadeOrcamento ? dayjs(values.validadeOrcamento) : null}
-                  onChange={(newValue) => onChange({ ...values, validadeOrcamento: newValue })}
+                  onChange={(newValue) => setDataFaturamento(newValue)}
                   sx={{ width: 474 }}
                   format="DD/MM/YYYY"
                 />
@@ -265,8 +277,10 @@ const FormularioFechamentoProjeto = ({ values, onChange }) => {
               <AutoComplete
                 required
                 sx={{ width: 474 }}
-                options={listaCadastro}
-                onChange={(e, newVal) => onChange({ ...values, empresaId: newVal })}
+                options={listaCentroCusto}
+                onChange={(e, newVal) =>
+                  setCentroCustoSelecionado({ ...values, centroCustoId: newVal })
+                }
                 renderInput={(params) => <TextField {...params} label="Centro de Custo" />}
               />
 
@@ -276,7 +290,7 @@ const FormularioFechamentoProjeto = ({ values, onChange }) => {
                 type="text"
                 name="observacao"
                 label="Observação"
-                onChange={handleChange}
+                onChange={(e) => setObservacao({ ...values, observacao: e.target.value })}
                 multiline
               />
             </Stack>
@@ -288,7 +302,9 @@ const FormularioFechamentoProjeto = ({ values, onChange }) => {
                 required
                 sx={{ width: 474 }}
                 options={listaCadastro}
-                onChange={(e, newVal) => onChange({ ...values, empresaId: newVal })}
+                onChange={(e, newVal) =>
+                  setFornecedorSelecionado({ ...values, fornecedorId: newVal })
+                }
                 renderInput={(params) => <TextField {...params} label="Fornecedor *" />}
               />
 
@@ -296,16 +312,15 @@ const FormularioFechamentoProjeto = ({ values, onChange }) => {
                 required
                 sx={{ width: 474 }}
                 type="text"
-                name="titulo"
-                onChange={(e) => onChange({ ...values, titulo: e.target.value })}
+                name="nomeServico"
+                onChange={(e) => setNomeServico({ ...values, nomeServico: e.target.value })}
                 label="Nome do Serviço"
               />
 
               <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
                 <DatePicker
                   label="Previsão de Pagamento *"
-                  // value={values.validadeOrcamento ? dayjs(values.validadeOrcamento) : null}
-                  onChange={(newValue) => onChange({ ...values, validadeOrcamento: newValue })}
+                  onChange={(newValue) => setPrevisaoPagamento(newValue)}
                   sx={{ width: 474 }}
                   format="DD/MM/YYYY"
                 />
@@ -314,8 +329,10 @@ const FormularioFechamentoProjeto = ({ values, onChange }) => {
               <AutoComplete
                 required
                 sx={{ width: 474 }}
-                options={listaCadastro}
-                onChange={(e, newVal) => onChange({ ...values, empresaId: newVal })}
+                options={listaDescricaoPlanilha}
+                onChange={(e, newVal) =>
+                  handleHandleDescricaoPlanilhaSelecionado({ ...values, descricaoPlanilha: newVal })
+                }
                 renderInput={(params) => <TextField {...params} label="Descrição planilha *" />}
               />
 
@@ -356,11 +373,11 @@ const FormularioFechamentoProjeto = ({ values, onChange }) => {
         <Box sx={{ display: "flex", gap: "10px" }}>
           <Box>
             <Button
-              color="primary"
+              color="error"
               variant="contained"
               type="submit"
               sx={{ mt: 2 }}
-              // onClick={handleVoltar}
+              onClick={handleVoltar}
             >
               <Icon>arrow_back</Icon>
               <Span sx={{ pl: 1, textTransform: "capitalize" }}>Voltar</Span>
@@ -368,7 +385,13 @@ const FormularioFechamentoProjeto = ({ values, onChange }) => {
           </Box>
 
           <Box>
-            <Button color="primary" variant="contained" type="submit" sx={{ mt: 2 }}>
+            <Button
+              color="primary"
+              variant="contained"
+              type="submit"
+              sx={{ mt: 2 }}
+              onClick={handleSubmit}
+            >
               <Icon>save</Icon>
               <Span sx={{ pl: 1, textTransform: "capitalize" }}>Cadastrar</Span>
             </Button>

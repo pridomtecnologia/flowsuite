@@ -561,7 +561,7 @@ const FormCadastro = () => {
         <Box sx={{ display: "flex", gap: "10px" }}>
           <Box>
             <Button
-              color="primary"
+              color="error"
               variant="contained"
               type="submit"
               sx={{ mt: 2 }}

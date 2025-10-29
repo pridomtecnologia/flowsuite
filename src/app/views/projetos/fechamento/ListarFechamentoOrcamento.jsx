@@ -30,13 +30,13 @@ export default function ListarFechamentoOrcamento() {
 
   return (
     <Container>
-      {/* <Box className="breadcrumb">
+      <Box className="breadcrumb">
         <StyledButton variant="contained" color="primary" onClick={handleFechamentOrcamento}>
           + Cadastrar Fechamento do Projeto
         </StyledButton>
-      </Box> */}
+      </Box>
 
-      <SimpleCard title="Usuários cadastrado">
+      <SimpleCard title="Fechamento de projetos cadastrados">
         <TabelaFechamentOrcamento />
       </SimpleCard>
     </Container>
