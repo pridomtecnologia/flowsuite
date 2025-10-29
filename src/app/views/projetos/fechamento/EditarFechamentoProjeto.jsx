@@ -1,7 +1,7 @@
 import { Stack } from "@mui/material";
 import { Box, styled } from "@mui/material";
 import { Breadcrumb, SimpleCard } from "app/components";
-import FormularioFechamentoProjeto from "./FormularioFechamentoProjeto";
+import EditarFormularioFechamentoProjeto from "./EditarFormularioFechamentoProjeto";
 
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
@@ -13,21 +13,21 @@ const Container = styled("div")(({ theme }) => ({
   }
 }));
 
-export default function IncluirFechamentoProjeto() {
+export default function EditarFechamentoProjeto() {
   return (
     <Container>
       <Box className="breadcrumb">
         <Breadcrumb
           routeSegments={[
             { name: "Fechamento de Projetos" },
-            { name: "Cadastro fechamento projeto" }
+            { name: "Editar fechamento projeto" }
           ]}
         />
       </Box>
 
       <Stack spacing={3}>
         <SimpleCard title="">
-          <FormularioFechamentoProjeto />
+          <EditarFormularioFechamentoProjeto />
         </SimpleCard>
       </Stack>
     </Container>

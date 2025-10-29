@@ -41,6 +41,10 @@ const IncluirFechamentoProjeto = Loadable(
   lazy(() => import("app/views/projetos/fechamento/IncluirFechamentoProjeto"))
 );
 
+const EditarFechamentoProjeto = Loadable(
+  lazy(() => import("app/views/projetos/fechamento/EditarFechamentoProjeto"))
+);
+
 const routes = [
   { path: "/", element: <Navigate to="dashboard" /> },
   {
@@ -95,6 +99,11 @@ const routes = [
       {
         path: "/projetos/fechamento/incluir-fechamento-projeto",
         element: <IncluirFechamentoProjeto />,
+        auth: authRoles.admin
+      },
+      {
+        path: "/projetos/fechamento/editar-fechamento-projeto/:id_fechamento_projeto/:id_editar_visualizar",
+        element: <EditarFechamentoProjeto />,
         auth: authRoles.admin
       }
     ]
