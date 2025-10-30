@@ -187,7 +187,7 @@ export default function TabelaFechamentOrcamento() {
                         }
                         title="Visualizar Fechamento Projeto"
                         sx={{
-                          display: ["Pago", "Reprovado"].includes(
+                          display: ["Aprovado", "Pago", "Reprovado"].includes(
                             listar_fechamento_projeto_cadastrado.status_job
                           )
                             ? "flex"
@@ -206,7 +206,7 @@ export default function TabelaFechamentOrcamento() {
                         // title="Editar Fechamento Projeto"
                         title={listar_fechamento_projeto_cadastrado.status_job}
                         sx={{
-                          display: ["Pago", "Reprovado"].includes(
+                          display: ["Aprovado", "Pago", "Reprovado"].includes(
                             listar_fechamento_projeto_cadastrado.status_job
                           )
                             ? "none"
