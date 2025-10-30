@@ -1,3 +1,4 @@
+// EditarPlanilhaCustosOrcamento.jsx - código corrigido
 import React, { useEffect, useMemo, useCallback } from "react";
 import {
   Accordion,
@@ -10,9 +11,8 @@ import {
   Link
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import itensFixosPorCategoria from "../../../data/itensFixosPorCategoria.json";
+import itensFixosPorCategoria from "../../data/itensFixosPorCategoria.json";
 
-// Categorias fixas
 const categorias = [
   { id: "1", nome: "PRÉ-PRODUÇÃO" },
   { id: "2", nome: "PRODUÇÃO" },
@@ -34,44 +34,6 @@ const categorias = [
   { id: "18", nome: "ALUGUÉIS" }
 ];
 
-// Valores padrão para cada item
-const defaultItem = { qtd: 1, valorUnit: 0, dias: 1, unid: "0", obs: "", nome_custo_projeto_id: 0 };
-
-const createDefaultItem = (catId, descricao = "") => ({
-  qtd: 1,
-  valorUnit: 0,
-  dias: 1,
-  unid: "0",
-  obs: "",
-  descricao,
-  nome_custo_projeto_id: Number(catId)
-});
-
-// Estado inicial de itens por categoria
-export const initialItensPorCategoria = categorias.reduce((acc, cat) => {
-  acc[cat.id] = itensFixosPorCategoria[cat.id]
-    ? itensFixosPorCategoria[cat.id].map((descricao) => createDefaultItem(cat.id, descricao))
-    : [];
-  return acc;
-}, {});
-
-// Estado inicial completo
-export const initialValues = {
-  itensPorCategoria: initialItensPorCategoria,
-  totais: {
-    custoProducaoComHonorarios: 0,
-    custoProducaoSemHonorarios: 0,
-    taxaImplantacao: 0,
-    condicaoComercial: 0,
-    impostos: 0,
-    taxaProducao: 0,
-    taxaLiquidez: 0,
-    total_planilha: 0,
-    total_geral: 0
-  }
-};
-
-// estilo reutilizável para inputs leves
 const inputStyle = {
   width: "100%",
   padding: "6px 8px",
@@ -82,89 +44,141 @@ const inputStyle = {
   background: "white"
 };
 
-// Linha de item otimizada
+// Componente de linha otimizado
 const ItemRow = React.memo(function ItemRow({
   catId,
   index,
   item,
   handleItemChange,
+  statusProjeto,
   formatCurrency
 }) {
+  const total = (item.qtd || 0) * (item.valorUnit || 0) * (item.dias || 1);
+
   return (
     <Grid container spacing={1} sx={{ mb: 1 }}>
       <Grid item xs={3.5}>
         <input
-          aria-label={`descricao-${catId}-${index}`}
-          style={inputStyle}
-          value={item.descricao}
+          style={{
+            ...inputStyle,
+            background: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "white"
+          }}
+          value={item.descricao || ""}
           onChange={(e) => handleItemChange(catId, index, "descricao", e.target.value)}
+          disabled={statusProjeto == 2 || statusProjeto == 3}
         />
       </Grid>
 
       <Grid item xs={1.2}>
         <input
-          aria-label={`qtd-${catId}-${index}`}
-          style={inputStyle}
+          style={{
+            ...inputStyle,
+            background: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "white"
+          }}
           type="number"
-          value={item.qtd}
-          onChange={(e) => handleItemChange(catId, index, "qtd", e.target.value)}
+          value={item.qtd || 1}
+          onChange={(e) => handleItemChange(catId, index, "qtd", Number(e.target.value))}
+          disabled={statusProjeto == 2 || statusProjeto == 3}
         />
       </Grid>
 
       <Grid item xs={1.2}>
         <input
-          aria-label={`valorUnit-${catId}-${index}`}
-          style={inputStyle}
+          style={{
+            ...inputStyle,
+            background: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "white"
+          }}
           type="number"
           step="0.01"
-          value={item.valorUnit}
-          onChange={(e) => handleItemChange(catId, index, "valorUnit", e.target.value)}
+          value={item.valorUnit || 0}
+          onChange={(e) => handleItemChange(catId, index, "valorUnit", Number(e.target.value))}
+          disabled={statusProjeto == 2 || statusProjeto == 3}
         />
       </Grid>
 
       <Grid item xs={1.2}>
         <input
-          aria-label={`dias-${catId}-${index}`}
-          style={inputStyle}
+          style={{
+            ...inputStyle,
+            background: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "white"
+          }}
           type="number"
-          value={item.dias}
-          onChange={(e) => handleItemChange(catId, index, "dias", e.target.value)}
+          value={item.dias || 1}
+          onChange={(e) => handleItemChange(catId, index, "dias", Number(e.target.value))}
+          disabled={statusProjeto == 2 || statusProjeto == 3}
         />
       </Grid>
 
       <Grid item xs={1.2}>
         <input
-          aria-label={`unid-${catId}-${index}`}
-          style={inputStyle}
+          style={{
+            ...inputStyle,
+            background: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "white"
+          }}
           type="number"
-          value={item.unid}
-          onChange={(e) => handleItemChange(catId, index, "unid", e.target.value)}
+          value={item.unid || 0}
+          onChange={(e) => handleItemChange(catId, index, "unid", Number(e.target.value))}
+          disabled={statusProjeto == 2 || statusProjeto == 3}
         />
       </Grid>
 
       <Grid item xs={1.6}>
         <input
-          aria-label={`total-${catId}-${index}`}
           style={{ ...inputStyle, background: "#e0e0e06b" }}
           readOnly
-          value={`R$ ${formatCurrency(item.total || 0)}`}
+          value={`R$ ${formatCurrency(total)}`}
+          disabled={statusProjeto == 2 || statusProjeto == 3}
         />
       </Grid>
 
       <Grid item xs={2.1}>
         <input
-          aria-label={`obs-${catId}-${index}`}
-          style={inputStyle}
-          value={item.obs}
+          style={{
+            ...inputStyle,
+            background: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "white"
+          }}
+          value={item.obs || ""}
           onChange={(e) => handleItemChange(catId, index, "obs", e.target.value)}
+          disabled={statusProjeto == 2 || statusProjeto == 3}
         />
       </Grid>
     </Grid>
   );
 });
 
-export default function PlanilhaCustosOrcamento({ values, onChange }) {
+export default function EditarPlanilhaCustosOrcamento({ values, onChange, statusProjeto }) {
   const { itensPorCategoria, totais } = values;
+
+  useEffect(() => {
+    const categoriasIds = categorias.map((cat) => cat.id);
+    const missingCategories = categoriasIds.filter((id) => !itensPorCategoria[id]);
+
+    if (missingCategories.length > 0) {
+      onChange((prev) => {
+        const updatedItens = { ...prev.itensPorCategoria };
+        missingCategories.forEach((id) => {
+          // 🔥 Use os itens fixos para categorias faltantes
+          if (itensFixosPorCategoria[id]) {
+            updatedItens[id] = itensFixosPorCategoria[id].map((descricao) => ({
+              descricao: descricao,
+              qtd: 1,
+              valorUnit: 0,
+              dias: 1,
+              unid: "0",
+              obs: "",
+              total: 0
+            }));
+          } else {
+            updatedItens[id] = [];
+          }
+        });
+        return {
+          ...prev,
+          itensPorCategoria: updatedItens
+        };
+      });
+    }
+  }, [itensPorCategoria, onChange]);
 
   const handleAddItem = useCallback(
     (catId) => {
@@ -172,7 +186,10 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
         ...prev,
         itensPorCategoria: {
           ...prev.itensPorCategoria,
-          [catId]: [...prev.itensPorCategoria[catId], createDefaultItem(catId, "")]
+          [catId]: [
+            ...(prev.itensPorCategoria[catId] || []),
+            { descricao: "", qtd: 1, valorUnit: 0, dias: 1, unid: "0", obs: "" }
+          ]
         }
       }));
     },
@@ -214,8 +231,7 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
   );
 
   const handleTotaisChange = useCallback(
-    (field, rawValue) => {
-      const value = String(rawValue).replace(",", ".");
+    (field, value) => {
       onChange((prev) => ({
         ...prev,
         totais: {
@@ -247,12 +263,6 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
       );
     }, 0);
   }, [itensPorCategoria]);
-
-  const formatCurrency = (value) =>
-    `${value.toLocaleString("pt-BR", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    })}`;
 
   const totalGeral = useMemo(() => {
     const valorBase = totalPlanilha;
@@ -326,32 +336,18 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
     return result;
   }, [itensPorCategoria]);
 
+  const formatCurrency = (value) =>
+    `${value.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })}`;
+
   return (
     <Grid container spacing={2}>
-      {/* Esquerda */}
+      {/* Esquerda - Lista de categorias e itens */}
       <Grid item xs={9}>
         {categorias.map((cat) => (
-          <Accordion
-            key={cat.id}
-            onChange={(_, expanded) => {
-              if (
-                expanded &&
-                itensPorCategoria[cat.id].length === 0 &&
-                itensFixosPorCategoria[cat.id]
-              ) {
-                onChange((prev) => ({
-                  ...prev,
-                  itensPorCategoria: {
-                    ...prev.itensPorCategoria,
-                    [cat.id]: itensFixosPorCategoria[cat.id].map((descricao) => ({
-                      ...defaultItem,
-                      descricao
-                    }))
-                  }
-                }));
-              }
-            }}
-          >
+          <Accordion key={cat.id}>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               sx={{
@@ -366,7 +362,7 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
               )})`}</Typography>
             </AccordionSummary>
 
-            <AccordionDetails sx={{ borderRadius: 2 }}>
+            <AccordionDetails>
               {/* Cabeçalho */}
               <Grid container spacing={1} sx={{ mb: 1 }}>
                 <Grid item xs={3.5}>
@@ -392,13 +388,15 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
                 </Grid>
               </Grid>
 
-              {itensPorCategoria[cat.id].map((item, index) => (
+              {/* Itens da categoria */}
+              {(itensPorCategoria[cat.id] || []).map((item, index) => (
                 <ItemRow
                   key={index}
                   catId={cat.id}
                   index={index}
                   item={item}
                   handleItemChange={handleItemChange}
+                  statusProjeto={statusProjeto}
                   formatCurrency={formatCurrency}
                 />
               ))}
@@ -407,7 +405,12 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
                 component="button"
                 variant="body2"
                 onClick={() => handleAddItem(cat.id)}
-                sx={{ mt: 1, textDecoration: "none", cursor: "pointer" }}
+                sx={{
+                  mt: 1,
+                  display: "block",
+                  color: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "blue"
+                }}
+                disabled={statusProjeto == 2 || statusProjeto == 3}
               >
                 + Adicionar Item
               </Link>
@@ -415,15 +418,19 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
           </Accordion>
         ))}
 
-        <Paper sx={{ p: 2, mt: 2, mb: 2, bgcolor: "primary.dark", color: "white" }}>
-          <Typography variant="h6">TOTAL PLANILHA: R$ {formatCurrency(totalPlanilha)}</Typography>
+        <Paper sx={{ p: 2, mt: 2, bgcolor: "primary.dark", color: "white" }}>
+          <Typography variant="h6">
+            TOTAL PLANILHA: R$ {totalPlanilha.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+          </Typography>
         </Paper>
       </Grid>
 
-      {/* Direita */}
+      {/* Direita - Totais e percentuais */}
       <Grid item xs={3}>
         <Paper sx={{ p: 2 }}>
-          <Typography variant="subtitle1">Valores</Typography>
+          <Typography variant="h6" gutterBottom>
+            Valores
+          </Typography>
 
           <TextField
             fullWidth
@@ -433,7 +440,11 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
             inputProps={{ step: "0.01" }}
             value={totais.custoProducaoComHonorarios === 0 ? "" : totais.custoProducaoComHonorarios}
             onChange={(e) => handleTotaisChange("custoProducaoComHonorarios", e.target.value)}
-            sx={{ mt: 2 }}
+            sx={{
+              mb: 2,
+              backgroundColor: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+            }}
+            disabled={statusProjeto == 2 || statusProjeto == 3}
           />
 
           <TextField
@@ -441,10 +452,13 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
             size="small"
             label="Taxa de Impulsionamento (%)"
             type="number"
-            inputProps={{ step: "0.01" }}
-            value={totais.taxaImplantacao === 0 ? "" : totais.taxaImplantacao}
+            value={totais.taxaImplantacao || 0}
             onChange={(e) => handleTotaisChange("taxaImplantacao", e.target.value)}
-            sx={{ mt: 2 }}
+            sx={{
+              mb: 2,
+              backgroundColor: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+            }}
+            disabled={statusProjeto == 2 || statusProjeto == 3}
           />
 
           <TextField
@@ -452,10 +466,13 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
             size="small"
             label="Comissão Comercial (%)"
             type="number"
-            inputProps={{ step: "0.01" }}
-            value={totais.condicaoComercial === 0 ? "" : totais.condicaoComercial}
+            value={totais.condicaoComercial || 0}
             onChange={(e) => handleTotaisChange("condicaoComercial", e.target.value)}
-            sx={{ mt: 2 }}
+            sx={{
+              mb: 2,
+              backgroundColor: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+            }}
+            disabled={statusProjeto == 2 || statusProjeto == 3}
           />
 
           <TextField
@@ -466,7 +483,11 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
             inputProps={{ step: "0.01" }}
             value={totais.taxaProducao === 0 ? "" : totais.taxaProducao}
             onChange={(e) => handleTotaisChange("taxaProducao", e.target.value)}
-            sx={{ mt: 2 }}
+            sx={{
+              mb: 2,
+              backgroundColor: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+            }}
+            disabled={statusProjeto == 2 || statusProjeto == 3}
           />
 
           <TextField
@@ -477,9 +498,14 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
             inputProps={{ step: "0.01" }}
             value={totais.taxaLiquidez === 0 ? "" : totais.taxaLiquidez}
             onChange={(e) => handleTotaisChange("taxaLiquidez", e.target.value)}
-            sx={{ mt: 2 }}
+            sx={{
+              mb: 2,
+              backgroundColor: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+            }}
+            disabled={statusProjeto == 2 || statusProjeto == 3}
           />
 
+          {/* ja corrigir */}
           <TextField
             fullWidth
             size="small"
@@ -488,7 +514,11 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
             inputProps={{ step: "0.01" }}
             value={totais.custoProducaoSemHonorarios === 0 ? "" : totais.custoProducaoSemHonorarios}
             onChange={(e) => handleTotaisChange("custoProducaoSemHonorarios", e.target.value)}
-            sx={{ mt: 2 }}
+            sx={{
+              mb: 2,
+              backgroundColor: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+            }}
+            disabled={statusProjeto == 2 || statusProjeto == 3}
           />
 
           <TextField
@@ -496,13 +526,16 @@ export default function PlanilhaCustosOrcamento({ values, onChange }) {
             size="small"
             label="Impostos (%)"
             type="number"
-            inputProps={{ step: "0.01" }}
-            value={totais.impostos === 0 ? "" : totais.impostos}
+            value={totais.impostos || 0}
             onChange={(e) => handleTotaisChange("impostos", e.target.value)}
-            sx={{ mt: 2 }}
+            sx={{
+              mb: 2,
+              backgroundColor: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+            }}
+            disabled={statusProjeto == 2 || statusProjeto == 3}
           />
 
-          <Paper sx={{ mt: 3, p: 1, bgcolor: "primary.main", color: "white" }}>
+          <Paper sx={{ p: 2, bgcolor: "primary.main", color: "white" }}>
             <Typography variant="body1">TOTAL GERAL: R$ {formatCurrency(totalGeral)}</Typography>
           </Paper>
         </Paper>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
+import { Box, styled } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Icon from "@mui/material/Icon";
@@ -10,10 +11,18 @@ import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid2";
 import Stack from "@mui/material/Stack";
 import { Span } from "app/components/Typography";
+import Swal from "sweetalert2";
 
 import axios from "axios";
 import useAuth from "app/hooks/useAuth";
 import { Tab, Tabs, Snackbar, Alert } from "@mui/material";
+
+import InputMask from "react-input-mask";
+
+const GreenRadio = styled(Radio)(() => ({
+  color: green[400],
+  "&$checked": { color: green[600] }
+}));
 
 const FormCadastro = () => {
   const [definirComissao, setDefinirComissao] = useState(null);
@@ -50,6 +59,8 @@ const FormCadastro = () => {
   const [tab, setTab] = useState(0);
   const [messageAlert, setMessageAlert] = useState("");
   const [corAlert, setCorAlert] = useState("");
+  const [selectedValue, setSelectedValue] = useState(1);
+  const [tipoDocumento, setTipoDocumento] = useState("CNPJ");
 
   const api = import.meta.env.VITE_API_FLOWSUITE;
 
@@ -82,16 +93,19 @@ const FormCadastro = () => {
     event.preventDefault();
 
     if (selectedTags.length == 0) {
-      setOpen(true);
-      setCorAlert("warning");
-      setMessageAlert("Obrigatório informar o perfil do cadastro");
+      Swal.fire({
+        title: "Atenção",
+        text: "Obrigatório selecionar o perfil de cadastro",
+        icon: "warning",
+        confirmButtonText: "Fechar"
+      });
       return;
     }
 
     let tipoComissaoId = tipoComissao;
 
     if (tipoComissao == "") {
-      tipoComissaoId = 0;
+      tipoComissaoId = 0.0;
     }
 
     const payload = {
@@ -110,7 +124,7 @@ const FormCadastro = () => {
       inscricao_estadual: state.inscricaoEstadual,
       inscricao_municipal: state.inscricaoMunicipal,
       web_site: state.webSite,
-      comissao: state.comissao,
+      comissao: String(state.comissao),
       tipo_comissao: parseInt(tipoComissaoId),
       address: [
         {
@@ -125,6 +139,8 @@ const FormCadastro = () => {
       ]
     };
 
+    // console.log("Payload enviado:", payload);
+    // return;
     try {
       const response_cadastro = await axios.post(`${api}cadastro/create`, payload, {
         headers: {
@@ -132,14 +148,24 @@ const FormCadastro = () => {
           Authorization: "Bearer " + localStorage.getItem("accessToken")
         }
       });
-      setOpen(true);
-      setMessageAlert("Cadastrado com sucesso!");
 
-      setCorAlert("success");
+      Swal.fire({
+        title: "",
+        text: "Cadastro realizado com sucesso",
+        icon: "success"
+      });
 
-      navigate("/cadastro/listar-cadastrados");
+      setTimeout(() => {
+        navigate("/cadastro/listar-cadastrados");
+      }, 1500);
     } catch (error) {
-      console.error("Erro ao enviar cadastro:", error.response?.data || error.message);
+      Swal.fire({
+        title: "",
+        text: "Erro ao realizar o cadastro",
+        icon: "error",
+        confirmButtonText: "Fechar"
+      });
+      // console.error("Erro ao enviar cadastro:", error.response?.data || error.message);
     }
   };
 
@@ -203,6 +229,10 @@ const FormCadastro = () => {
     setOpen(false);
   }
 
+  const handleVoltar = () => {
+    navigate("/cadastro/listar-cadastrados");
+  };
+
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -242,15 +272,43 @@ const FormCadastro = () => {
 
           <Grid size={{ md: 6, xs: 12 }} sx={{ mt: 2 }}>
             <Stack spacing={3}>
-              <TextField
-                fullWidth
-                type="text"
-                name="documento"
-                value={documento}
-                label="CNPJ / CPF"
-                required
-                onChange={handleChange}
-              />
+              <Box sx={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                <Box>
+                  <Radio
+                    value="CNPJ"
+                    onChange={() => setTipoDocumento("CNPJ")}
+                    checked={tipoDocumento === "CNPJ"}
+                  />
+                  {"CNPJ"}
+                </Box>
+                <Box>
+                  <Radio
+                    value="CPF"
+                    onChange={() => setTipoDocumento("CPF")}
+                    checked={tipoDocumento === "CPF"}
+                  />
+                  {"CPF"}
+                </Box>
+
+                <Box sx={{ flexGrow: 1 }}>
+                  <InputMask
+                    mask={tipoDocumento === "CNPJ" ? "99.999.999/9999-99" : "999.999.999-99"}
+                    value={documento}
+                    onChange={handleChange}
+                  >
+                    {(inputProps) => (
+                      <TextField
+                        {...inputProps}
+                        fullWidth
+                        type="text"
+                        name="documento"
+                        label="Documento"
+                        required
+                      />
+                    )}
+                  </InputMask>
+                </Box>
+              </Box>
 
               <TextField
                 fullWidth
@@ -500,10 +558,27 @@ const FormCadastro = () => {
           </Grid>
         )}
 
-        <Button color="primary" variant="contained" type="submit" sx={{ mt: 2 }}>
-          <Icon>send</Icon>
-          <Span sx={{ pl: 1, textTransform: "capitalize" }}>Cadastrar</Span>
-        </Button>
+        <Box sx={{ display: "flex", gap: "10px" }}>
+          <Box>
+            <Button
+              color="error"
+              variant="contained"
+              type="submit"
+              sx={{ mt: 2 }}
+              onClick={handleVoltar}
+            >
+              <Icon>arrow_back</Icon>
+              <Span sx={{ pl: 1, textTransform: "capitalize" }}>Voltar</Span>
+            </Button>
+          </Box>
+
+          <Box>
+            <Button color="primary" variant="contained" type="submit" sx={{ mt: 2 }}>
+              <Icon>send</Icon>
+              <Span sx={{ pl: 1, textTransform: "capitalize" }}>Cadastrar</Span>
+            </Button>
+          </Box>
+        </Box>
       </form>
 
       <Snackbar

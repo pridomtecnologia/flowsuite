@@ -1,17 +1,61 @@
 const navigations = [
-  { name: "Dashboard", path: "/dashboard", icon: "dashboard" },
-
-  { label: "CADASTRAR", type: "label" },
-  { name: "Cadastros Gerais", path: "/cadastro/listar-cadastrados", icon: "person" }
-  // { name: "Diretor", path: "/cadastro/listar-diretor", icon: "person" },
-  // { name: "Coprodutor", path: "/cadastro/listar-coprodutor", icon: "person" },
-  // { name: "Centro de Custo", path: "/cadastro/listar-centro-custo", icon: "add" },
-
-  // { label: "PROJETOS", type: "label" },
-  // { name: "Criar Projeto", path: "/projetos/listar-projetos", icon: "add" },
-  // // { name: "Criar Orçamento", path: "/projetos/orcamento/listar-orcamento", icon: "add" },
-  // { name: "Projetos (JOBs)", path: "/projetos/jobs/listar-jobs", icon: "visibility" }
-
+  {
+    name: "Dashboards",
+    icon: "dashboard",
+    children: [
+      {
+        name: "Projetos",
+        path: "/dashboard"
+      }
+    ]
+  },
+  { name: "Cadastros", path: "/cadastro/listar-cadastrados", icon: "person" },
+  // {
+  //   name: "Financeiro",
+  //   icon: "attach_money",
+  //   children: [
+  //     {
+  //       name: "Contas a Pagar",
+  //       path: "/financeiro/contas-pagar"
+  //     },
+  //     {
+  //       name: "Contas a Receber",
+  //       path: "/financeiro/contas-receber"
+  //     }
+  //   ]
+  // },
+  {
+    name: "Projetos",
+    icon: "folder",
+    children: [
+      {
+        name: "Orçamento",
+        path: "/projetos/listar-projetos"
+      },
+      {
+        name: "Projetos (JOBs)",
+        path: "/projetos/jobs/listar-jobs"
+      },
+      {
+        name: "Fechamento de Projeto",
+        path: "/projetos/fechamento/listar-fechamento-orcamento"
+      }
+    ]
+  },
+  {
+    name: "Configuração",
+    icon: "settings",
+    children: [
+      {
+        name: "Cadastrar Tags",
+        path: "/cadastro/listar-tags"
+      }
+      // {
+      //   name: "Fechamento de Projeto",
+      //   path: "/projetos/fechamento"
+      // }
+    ]
+  }
   // { label: "PAGES", type: "label" },
   // {
   //   name: "Session/Auth",
@@ -22,7 +66,7 @@ const navigations = [
   //     { name: "Forgot Password", iconText: "FP", path: "/session/forgot-password" },
   //     { name: "Error", iconText: "404", path: "/session/404" }
   //   ]
-  // },
+  // }
   // { label: "Components", type: "label" },
   // {
   //   name: "Components",
@@ -44,11 +88,6 @@ const navigations = [
   //     { name: "Snackbar", path: "/material/snackbar", iconText: "S" },
   //     { name: "Table", path: "/material/table", iconText: "T" }
   //   ]
-  // }
-  // {
-  //   name: "Charts",
-  //   icon: "trending_up",
-  //   children: [{ name: "Echarts", path: "/charts/echarts", iconText: "E" }]
   // }
 ];
 

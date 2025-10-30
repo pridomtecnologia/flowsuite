@@ -105,7 +105,8 @@ export default function MatxVerticalNav({ items }) {
             href={item.path}
             className={`${mode === "compact" && "compactNavItem"}`}
             rel="noopener noreferrer"
-            target="_blank">
+            target="_blank"
+          >
             <ButtonBase key={item.name} name="child" sx={{ width: "100%" }}>
               {(() => {
                 if (item.icon) {
@@ -131,7 +132,8 @@ export default function MatxVerticalNav({ items }) {
                 isActive
                   ? `navItemActive ${mode === "compact" && "compactNavItem"}`
                   : `${mode === "compact" && "compactNavItem"}`
-              }>
+              }
+            >
               <ButtonBase key={item.name} name="child" sx={{ width: "100%" }}>
                 {item?.icon ? (
                   <Icon className="icon" sx={{ width: 36 }}>
@@ -149,7 +151,8 @@ export default function MatxVerticalNav({ items }) {
                         ml: "20px",
                         fontSize: "11px",
                         display: mode !== "compact" && "none"
-                      }}>
+                      }}
+                    >
                       {item.iconText}
                     </Box>
                   </Fragment>

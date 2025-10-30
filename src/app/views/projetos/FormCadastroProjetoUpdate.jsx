@@ -26,19 +26,7 @@ const AutoComplete = styled(Autocomplete)({
   marginBottom: "16px"
 });
 
-const FormCadastroProjeto = ({ values, onChange }) => {
-  const [state, setState] = useState({
-    numerOrcamento: "",
-    empresaId: "",
-    centroCustoId: "",
-    agenciaId: "",
-    clienteId: "",
-    titulo: "",
-    coprodutorId: "",
-    diretorId: "",
-    tipoJobId: "",
-    validadeOrcamento: ""
-  });
+const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange, statusProjeto }) => {
   const [open, setOpen] = useState(false);
   const [openDiretor, setOpenDiretor] = useState(false);
   const [openCentroCusto, setOpenCentroCusto] = useState(false);
@@ -51,27 +39,26 @@ const FormCadastroProjeto = ({ values, onChange }) => {
   const [nameCentroCusto, setNameCentroCusto] = useState(null);
 
   const navigate = useNavigate();
-
   const api = import.meta.env.VITE_API_FLOWSUITE;
-
   const { user } = useAuth();
 
+  // --- Listagens ---
   const coprodutores = async () => {
     try {
-      const response_coprodutores = await axios.get(`${api}coprodutor`, {
+      const { data } = await axios.get(`${api}coprodutor`, {
         headers: {
           Accept: "application/json",
           Authorization: "Bearer " + localStorage.getItem("accessToken")
         }
       });
 
-      const listaCoprodutores = response_coprodutores.data.map((item) => ({
-        label: item.nome,
-        id: item.id_coprodutor,
-        original: item
-      }));
-
-      setListaCoprodutor(listaCoprodutores);
+      setListaCoprodutor(
+        data.map((item) => ({
+          label: item.nome,
+          id: item.id_coprodutor,
+          original: item
+        }))
+      );
     } catch (error) {
       console.error("Erro na requisição:", error.response?.data || error.message);
     }
@@ -79,22 +66,22 @@ const FormCadastroProjeto = ({ values, onChange }) => {
 
   const diretores = async () => {
     try {
-      const diretor_response = await axios.get(`${api}diretor`, {
+      const { data } = await axios.get(`${api}diretor`, {
         headers: {
           Accept: "application/json",
           Authorization: "Bearer " + localStorage.getItem("accessToken")
         }
       });
 
-      const listaDiretores = diretor_response.data.map((item) => ({
-        label: item.nome,
-        id: item.id_diretor,
-        nome_interno: item.nome_interno,
-        identificador_lancamento: item.identificador_lancamento,
-        original: item
-      }));
-
-      setListaDiretores(listaDiretores);
+      setListaDiretores(
+        data.map((item) => ({
+          label: item.nome,
+          id: item.id_diretor,
+          nome_interno: item.nome_interno,
+          identificador_lancamento: item.identificador_lancamento,
+          original: item
+        }))
+      );
     } catch (error) {
       console.error("Erro na requisição:", error.response?.data || error.message);
     }
@@ -102,20 +89,20 @@ const FormCadastroProjeto = ({ values, onChange }) => {
 
   const centro_custo = async () => {
     try {
-      const response_centro_custo = await axios.get(`${api}centro-de-custo`, {
+      const { data } = await axios.get(`${api}centro-de-custo`, {
         headers: {
           Accept: "application/json",
           Authorization: "Bearer " + localStorage.getItem("accessToken")
         }
       });
 
-      const listaCentroCusto = response_centro_custo.data.map((item) => ({
-        label: item.centro_custo,
-        id: item.id_centro_custo,
-        original: item
-      }));
-
-      setListaCentroCusto(listaCentroCusto);
+      setListaCentroCusto(
+        data.map((item) => ({
+          label: item.centro_custo,
+          id: item.id_centro_custo,
+          original: item
+        }))
+      );
     } catch (error) {
       console.error("Erro na requisição:", error.response?.data || error.message);
     }
@@ -124,19 +111,20 @@ const FormCadastroProjeto = ({ values, onChange }) => {
   useEffect(() => {
     const listarCadastro = async () => {
       try {
-        const response_cadastro = await axios.get(`${api}cadastro/list`, {
+        const { data } = await axios.get(`${api}cadastro/list`, {
           headers: {
             Accept: "application/json",
             Authorization: "Bearer " + localStorage.getItem("accessToken")
           }
         });
-        const listaFormatada = response_cadastro.data.map((item) => ({
-          label: item.nome_fantasia, // ou razao_social, se preferir
-          id: item.id_cadastro,
-          original: item // se quiser guardar o objeto todo
-        }));
 
-        setListaCadastro(listaFormatada);
+        setListaCadastro(
+          data.map((item) => ({
+            label: item.nome_fantasia,
+            id: item.id_cadastro,
+            original: item
+          }))
+        );
       } catch (error) {
         console.error("Erro na requisição:", error.response?.data || error.message);
       }
@@ -144,17 +132,14 @@ const FormCadastroProjeto = ({ values, onChange }) => {
 
     const numeroOrcamento = async () => {
       try {
-        const response_number_orcamento = await axios.get(`${api}projetos/next_orc_number`, {
+        const { data } = await axios.get(`${api}projetos/next_orc_number`, {
           headers: {
             Accept: "application/json",
             Authorization: "Bearer " + localStorage.getItem("accessToken")
           }
         });
 
-        setState((prevState) => ({
-          ...prevState,
-          numerOrcamento: response_number_orcamento.data.number_orc
-        }));
+        onChange({ ...values, numerOrcamento: data.number_orc });
       } catch (error) {
         console.error("Erro na requisição:", error.response?.data || error.message);
       }
@@ -170,28 +155,12 @@ const FormCadastroProjeto = ({ values, onChange }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     navigate("/projetos/listar-projetos");
-    console.log("submitted");
-    console.log(event);
   };
 
   const handleChange = (event) => {
-    event.persist();
-    setState({ ...state, [event.target.name]: event.target.value });
-    onChange({ ...values, [e.target.name]: e.target.value });
+    const { name, value } = event.target;
+    onChange({ ...values, [name]: value });
   };
-
-  const {
-    numerOrcamento,
-    empresaId,
-    clienteId,
-    centroCustoId,
-    agenciaId,
-    titulo,
-    coprodutorId,
-    diretorId,
-    tipoJobId,
-    validadeOrcamento
-  } = state;
 
   const handleOpenCoprodutor = () => setOpen(true);
   const handleCloseCoprodutor = () => setOpen(false);
@@ -211,13 +180,10 @@ const FormCadastroProjeto = ({ values, onChange }) => {
 
   const handleSaveCentroCusto = async (e) => {
     e.preventDefault();
-
     try {
-      const response = await axios.post(
+      await axios.post(
         `${api}centro-de-custo/create`,
-        {
-          centro_custo: nameCentroCusto
-        },
+        { centro_custo: nameCentroCusto },
         {
           headers: {
             Accept: "application/json",
@@ -227,16 +193,28 @@ const FormCadastroProjeto = ({ values, onChange }) => {
       );
 
       centro_custo();
-
       handleCloseCentroCusto();
 
       Swal.fire({
-        title: "",
         text: "Centro de custo cadastrado com sucesso",
         icon: "success"
       });
     } catch (error) {
       console.error("Erro ao criar centro de custo:", error.response?.data || error.message);
+    }
+  };
+
+  const handleAutoCompleteChange = (fieldName, newVal) => {
+    onChange({
+      ...values,
+      [fieldName]: newVal
+    });
+
+    if (onIdChange) {
+      onIdChange({
+        ...idForm,
+        [`${fieldName.toLowerCase()}`]: newVal?.id || null
+      });
     }
   };
 
@@ -250,67 +228,90 @@ const FormCadastroProjeto = ({ values, onChange }) => {
                 type="text"
                 name="numerOrcamento"
                 label="Número do Orçamento"
-                value={state.numerOrcamento}
+                variant="outlined"
+                value={values.numerOrcamento ? String(values.numerOrcamento) : ""}
                 onChange={handleChange}
-                InputProps={{
-                  readOnly: true
+                disabled={statusProjeto == 2 || statusProjeto == 3}
+                sx={{
+                  backgroundColor:
+                    statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
                 }}
               />
 
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Box>
-                  <AutoComplete
-                    required
-                    options={listaCentroCusto}
-                    value={values.centroCustoId || null}
-                    onChange={(e, newVal) => onChange({ ...values, centroCustoId: newVal })}
-                    renderInput={(params) => <TextField {...params} label="Centro de Custo *" />}
-                  />
-                </Box>
-                <Box>
-                  <IconButton
-                    sx={{ cursor: "pointer", color: "blue" }}
-                    onClick={handleOpenCentroCusto}
-                  >
-                    <Icon title="Adicionar Centro de Custo">person_add</Icon>
-                  </IconButton>
-                </Box>
+                <AutoComplete
+                  required
+                  options={listaCentroCusto}
+                  value={values.centroCustoId || null}
+                  onChange={(e, newVal) => handleAutoCompleteChange("centro_custo_id", newVal)}
+                  renderInput={(params) => <TextField {...params} label="Centro de Custo *" />}
+                  sx={{
+                    backgroundColor:
+                      statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                  }}
+                  disabled={statusProjeto == 2 || statusProjeto == 3}
+                />
+                <IconButton
+                  sx={{
+                    cursor: "pointer",
+                    color: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "blue"
+                  }}
+                  disabled={statusProjeto == 2 || statusProjeto == 3}
+                  onClick={handleOpenCentroCusto}
+                >
+                  <Icon>person_add</Icon>
+                </IconButton>
               </Box>
 
               <AutoComplete
                 required
                 options={listaCadastro}
                 value={values.clienteId || null}
-                onChange={(e, newVal) => onChange({ ...values, clienteId: newVal })}
+                onChange={(e, newVal) => handleAutoCompleteChange("cliente_id", newVal)}
                 renderInput={(params) => <TextField {...params} label="Cliente *" />}
+                sx={{
+                  backgroundColor:
+                    statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                }}
+                disabled={statusProjeto == 2 || statusProjeto == 3}
               />
 
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Box>
-                  <AutoComplete
-                    required
-                    options={listaCoprodutor}
-                    value={values.coprodutorId || null}
-                    onChange={(e, newVal) => onChange({ ...values, coprodutorId: newVal })}
-                    renderInput={(params) => <TextField {...params} label="Coprodutor *" />}
-                  />
-                </Box>
-                <Box>
-                  <IconButton
-                    sx={{ cursor: "pointer", color: "blue" }}
-                    onClick={handleOpenCoprodutor}
-                  >
-                    <Icon title="Adicionar Coprodutor">person_add</Icon>
-                  </IconButton>
-                </Box>
+                <AutoComplete
+                  required
+                  options={listaCoprodutor}
+                  value={values.coprodutorId || null}
+                  onChange={(e, newVal) => handleAutoCompleteChange("coprodutor_id", newVal)}
+                  renderInput={(params) => <TextField {...params} label="Coprodutor *" />}
+                  sx={{
+                    backgroundColor:
+                      statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                  }}
+                  disabled={statusProjeto == 2 || statusProjeto == 3}
+                />
+                <IconButton
+                  sx={{
+                    cursor: "pointer",
+                    color: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "blue"
+                  }}
+                  disabled={statusProjeto == 2 || statusProjeto == 3}
+                  onClick={handleOpenCoprodutor}
+                >
+                  <Icon>person_add</Icon>
+                </IconButton>
               </Box>
 
               <AutoComplete
                 required
                 options={listaCentroCusto}
                 value={values.tipoJobId || null}
-                onChange={(e, newVal) => onChange({ ...values, tipoJobId: newVal })}
+                onChange={(e, newVal) => handleAutoCompleteChange("tipo_job_id", newVal)}
                 renderInput={(params) => <TextField {...params} label="Tipo de Job *" />}
+                sx={{
+                  backgroundColor:
+                    statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                }}
+                disabled={statusProjeto == 2 || statusProjeto == 3}
               />
             </Stack>
           </Grid>
@@ -322,47 +323,63 @@ const FormCadastroProjeto = ({ values, onChange }) => {
                 type="text"
                 name="titulo"
                 value={values.titulo || ""}
-                onChange={(e) => onChange({ ...values, titulo: e.target.value })}
+                onChange={handleChange}
                 label="Título do Projeto"
+                sx={{
+                  backgroundColor:
+                    statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                }}
+                disabled={statusProjeto == 2 || statusProjeto == 3}
               />
 
               <AutoComplete
                 required
                 options={listaCadastro}
                 value={values.empresaId || null}
-                onChange={(e, newVal) => onChange({ ...values, empresaId: newVal })}
+                onChange={(e, newVal) => handleAutoCompleteChange("empresa_id", newVal)}
                 renderInput={(params) => <TextField {...params} label="Empresa *" />}
+                sx={{
+                  backgroundColor:
+                    statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                }}
+                disabled={statusProjeto == 2 || statusProjeto == 3}
               />
 
               <AutoComplete
                 required
                 options={listaCadastro}
                 value={values.agenciaId || null}
-                onChange={(e, newVal) => onChange({ ...values, agenciaId: newVal })}
+                onChange={(e, newVal) => handleAutoCompleteChange("agencia_id", newVal)}
                 renderInput={(params) => <TextField {...params} label="Agência *" />}
+                sx={{
+                  backgroundColor:
+                    statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                }}
+                disabled={statusProjeto == 2 || statusProjeto == 3}
               />
 
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1
-                }}
-              >
-                <Box>
-                  <AutoComplete
-                    options={listaDiretores}
-                    value={values.diretorId || null}
-                    onChange={(e, newVal) => onChange({ ...values, diretorId: newVal })}
-                    renderInput={(params) => <TextField {...params} label="Diretor *" />}
-                  />
-                </Box>
-
-                <Box>
-                  <IconButton sx={{ cursor: "pointer", color: "blue" }} onClick={handleOpenDiretor}>
-                    <Icon title="Adicionar Diretor">person_add</Icon>
-                  </IconButton>
-                </Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <AutoComplete
+                  options={listaDiretores}
+                  value={values.diretorId || null}
+                  onChange={(e, newVal) => handleAutoCompleteChange("diretor_id", newVal)}
+                  renderInput={(params) => <TextField {...params} label="Diretor *" />}
+                  sx={{
+                    backgroundColor:
+                      statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                  }}
+                  disabled={statusProjeto == 2 || statusProjeto == 3}
+                />
+                <IconButton
+                  sx={{
+                    cursor: "pointer",
+                    color: statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "blue"
+                  }}
+                  disabled={statusProjeto == 2 || statusProjeto == 3}
+                  onClick={handleOpenDiretor}
+                >
+                  <Icon>person_add</Icon>
+                </IconButton>
               </Box>
 
               <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
@@ -372,6 +389,11 @@ const FormCadastroProjeto = ({ values, onChange }) => {
                   onChange={(newValue) => onChange({ ...values, validadeOrcamento: newValue })}
                   slotProps={{ textField: { fullWidth: true } }}
                   format="DD/MM/YYYY"
+                  sx={{
+                    backgroundColor:
+                      statusProjeto == 2 || statusProjeto == 3 ? "#d4d2d05b" : "#ffffff"
+                  }}
+                  disabled={statusProjeto == 2 || statusProjeto == 3}
                 />
               </LocalizationProvider>
             </Stack>
@@ -379,61 +401,33 @@ const FormCadastroProjeto = ({ values, onChange }) => {
         </Grid>
       </form>
 
+      {/* Dialogs */}
       <Dialog open={open} onClose={handleCloseCoprodutor} fullWidth maxWidth="sm">
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2 }}>
-          <Box>
-            <DialogTitle>Novo Coprodutor</DialogTitle>
-          </Box>
-          <Box>
-            <IconButton sx={{ cursor: "pointer" }} onClick={handleCloseCoprodutor}>
-              <Icon title="Fechar">cancel</Icon>
-            </IconButton>
-          </Box>
-        </Box>
+        <DialogTitle>Novo Coprodutor</DialogTitle>
         <DialogContent>
           <FormCadastroCoprodutor onSuccess={coprodutores} onClose={handleCloseCoprodutor} />
         </DialogContent>
       </Dialog>
 
       <Dialog open={openDiretor} onClose={handleCloseDiretor} fullWidth maxWidth="sm">
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 1 }}>
-          <Box>
-            <DialogTitle>Novo Diretor</DialogTitle>
-          </Box>
-          <Box>
-            <IconButton sx={{ cursor: "pointer" }} onClick={handleCloseDiretor}>
-              <Icon title="Fechar">cancel</Icon>
-            </IconButton>
-          </Box>
-        </Box>
+        <DialogTitle>Novo Diretor</DialogTitle>
         <DialogContent>
           <FormCadastroDiretor onSuccess={diretores} onClose={handleCloseDiretor} />
         </DialogContent>
       </Dialog>
 
       <Dialog open={openCentroCusto} onClose={handleCloseCentroCusto} fullWidth maxWidth="sm">
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 1 }}>
-          <Box>
-            <DialogTitle>Novo Centro de Custo</DialogTitle>
-          </Box>
-          <Box>
-            <IconButton sx={{ cursor: "pointer" }} onClick={handleCloseCentroCusto}>
-              <Icon title="Fechar">cancel</Icon>
-            </IconButton>
-          </Box>
-        </Box>
+        <DialogTitle>Novo Centro de Custo</DialogTitle>
         <DialogContent>
           <form onSubmit={handleSaveCentroCusto}>
-            <Box>
-              <TextField
-                required
-                type="text"
-                name="nameCentroCusto"
-                label="Centro de Custo"
-                onChange={(e) => setNameCentroCusto(e.target.value)}
-                fullWidth
-              />
-            </Box>
+            <TextField
+              required
+              type="text"
+              name="nameCentroCusto"
+              label="Centro de Custo"
+              onChange={(e) => setNameCentroCusto(e.target.value)}
+              fullWidth
+            />
             <Box sx={{ display: "flex", justifyContent: "center" }}>
               <Button variant="contained" sx={{ mt: 2 }} type="submit">
                 Salvar
@@ -446,4 +440,4 @@ const FormCadastroProjeto = ({ values, onChange }) => {
   );
 };
 
-export default FormCadastroProjeto;
+export default FormCadastroProjetoUpdate;

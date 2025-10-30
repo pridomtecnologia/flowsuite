@@ -65,32 +65,30 @@ export const AuthProvider = ({ children }) => {
   const api = import.meta.env.VITE_API_FLOWSUITE;
 
   const login = async (email, password) => {
-    try {
-      const params = new URLSearchParams();
+    const params = new URLSearchParams();
 
-      params.append("username", email);
-      params.append("password", password);
+    params.append("username", email);
+    params.append("password", password);
 
-      const response_autenticacao = await axios.post(`${api}user/login`, params, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        }
-      });
+    const response_autenticacao = await axios.post(`${api}user/login`, params, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    });
 
-      const user = {
-        name: response_autenticacao.data.name,
-        email: response_autenticacao.data.email,
-        exp: response_autenticacao.data.exp,
-        id_user: response_autenticacao.data.id_user,
-        permissions: response_autenticacao.data.permissions
-      };
+    const user = {
+      name: response_autenticacao.data.name,
+      email: response_autenticacao.data.email,
+      exp: response_autenticacao.data.exp,
+      id_user: response_autenticacao.data.id_user,
+      permissions: response_autenticacao.data.permissions
+    };
 
-      setSession(response_autenticacao.data.access_token);
+    setSession(response_autenticacao.data.access_token);
 
-      dispatch({ type: "LOGIN", payload: { user } });
-    } catch (error) {
-      alert(error.response.data.detail.message);
-    }
+    localStorage.setItem("user", JSON.stringify(user));
+
+    dispatch({ type: "LOGIN", payload: { user } });
   };
 
   const register = async (email, username, password) => {
@@ -109,16 +107,14 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     (async () => {
       try {
-        const accessToken = window.localStorage.getItem("accessToken");
+        const accessToken = localStorage.getItem("accessToken");
+        const storedUser = localStorage.getItem("user");
 
-        if (accessToken && isValidToken(accessToken)) {
+        if (accessToken) {
           setSession(accessToken);
-          const response = await axios.get("/api/auth/profile");
-          const { user } = response.data;
-
           dispatch({
             type: "INIT",
-            payload: { isAuthenticated: true, user }
+            payload: { isAuthenticated: true, user: JSON.parse(storedUser) }
           });
         } else {
           dispatch({
@@ -128,7 +124,6 @@ export const AuthProvider = ({ children }) => {
         }
       } catch (err) {
         console.log(err);
-
         dispatch({
           type: "INIT",
           payload: { isAuthenticated: false, user: null }

@@ -12,10 +12,10 @@ import {
   IconButton,
   TablePagination,
   Snackbar,
-  Alert,
-  Typography
+  Alert
 } from "@mui/material";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 // STYLED COMPONENT
 const StyledTable = styled(Table)(() => ({
@@ -24,7 +24,7 @@ const StyledTable = styled(Table)(() => ({
     "& tr": { "& th": { paddingLeft: 0, paddingRight: 0 } }
   },
   "& tbody": {
-    "& tr": { "& td": { paddingLeft: 0, textTransform: "capitalize" } }
+    "& tr": { "& td": { paddingLeft: 0 } }
   }
 }));
 
@@ -65,8 +65,18 @@ export default function TabelaUsuarios() {
 
       setListCadastrado((prev) => prev.filter((item) => item.id_cadastro !== id_cadastro));
 
-      setOpen(true);
+      Swal.fire({
+        title: "",
+        text: "Cadastro excluído com sucesso",
+        icon: "success"
+      });
     } catch (error) {
+      Swal.fire({
+        title: "",
+        text: "Erro ao excluír o cadastro",
+        icon: "error",
+        confirmButtonText: "Fechar"
+      });
       console.error("Erro ao enviar cadastro:", error.response?.data || error.message);
     }
   };
@@ -91,7 +101,12 @@ export default function TabelaUsuarios() {
 
         setListCadastrado(response_list_cadastro.data);
       } catch (error) {
-        alert(error.response.data.detail.message);
+        Swal.fire({
+          title: "Atenção",
+          text: error.response.data.detail.message,
+          icon: "warning",
+          confirmButtonText: "Fechar"
+        });
       }
     };
 
@@ -119,28 +134,31 @@ export default function TabelaUsuarios() {
                 .map((subscriber, index) => (
                   <TableRow key={index}>
                     <TableCell align="center">
-                      <Typography
-                        sx={{
+                      <span
+                        style={{
                           background:
-                            subscriber.situacao_cadastro == "Ativo" ? "#8fa5c7ff" : "#a3a3a3ff",
-                          padding: "2px 5px",
+                            subscriber.situacao_cadastro == "Ativo" ? "#5CCB5F" : "#FF2C2C",
+                          padding: "4px 15px",
                           color: "#252323ff",
-                          fontWeight: "bold"
+                          fontWeight: "bold",
+                          borderRadius: "50px"
                         }}
                       >
                         {subscriber.situacao_cadastro}
-                      </Typography>
+                      </span>
                     </TableCell>
                     <TableCell align="center">
-                      {subscriber.tags.split(" ").map((word, i) => (
+                      {subscriber.tags.split(" - ").map((word, i) => (
                         <span
                           key={i}
                           style={{
-                            background: i % 2 === 0 ? "#8fa5c7ff" : "#a3a3a3ff",
-                            margin: "1px",
-                            padding: "2px 5px",
-                            color: "#302f2fff",
-                            fontWeight: "bold"
+                            background: i % 2 === 0 ? "#0000ff7e" : "#e29f3667",
+                            padding: "4px 10px",
+                            margin: "2px",
+                            color: i % 2 === 0 ? "#ffffff" : "#000000",
+                            fontWeight: "bold",
+                            borderRadius: "50px",
+                            display: "inline-block"
                           }}
                         >
                           {word}

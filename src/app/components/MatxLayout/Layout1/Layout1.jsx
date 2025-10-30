@@ -9,7 +9,7 @@ import ThemeProvider from "@mui/material/styles/ThemeProvider";
 
 import Layout1Topbar from "./Layout1Topbar";
 import Layout1Sidenav from "./Layout1Sidenav";
-import Footer from "app/components/Footer";
+// import Footer from "app/components/Footer";
 import { MatxSuspense } from "app/components";
 import useSettings from "app/hooks/useSettings";
 import { SecondarySidebar } from "app/components/SecondarySidebar";
@@ -121,7 +121,7 @@ const Layout1 = () => {
               </MatxSuspense>
             </Box>
 
-            {settings.footer.show && !settings.footer.fixed && <Footer />}
+            {/* {settings.footer.show && !settings.footer.fixed && <Footer />} */}
           </StyledScrollBar>
         )}
 
@@ -139,11 +139,11 @@ const Layout1 = () => {
               </MatxSuspense>
             </Box>
 
-            {settings.footer.show && !settings.footer.fixed && <Footer />}
+            {/* {settings.footer.show && !settings.footer.fixed && <Footer />} */}
           </ContentBox>
         )}
 
-        {settings.footer.show && settings.footer.fixed && <Footer />}
+        {/* {settings.footer.show && settings.footer.fixed && <Footer />} */}
       </LayoutContainer>
 
       {settings.secondarySidebar.show && <SecondarySidebar />}

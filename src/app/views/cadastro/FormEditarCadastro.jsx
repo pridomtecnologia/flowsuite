@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "@mui/material/Button";
+import { Box } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Icon from "@mui/material/Icon";
@@ -10,6 +11,7 @@ import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid2";
 import Stack from "@mui/material/Stack";
 import { Span } from "app/components/Typography";
+import Swal from "sweetalert2";
 
 import axios from "axios";
 import useAuth from "app/hooks/useAuth";
@@ -126,6 +128,13 @@ const FormEditarCadastro = () => {
 
         setTipoComissao(cadastroData.tipo_comissao_id || "");
       } catch (error) {
+        Swal.fire({
+          title: "Atenção",
+          text: "Erro ao listar o cadastro",
+          icon: "warning",
+          confirmButtonText: "Fechar"
+        });
+        navigate("/cadastro/listar-cadastrados");
         console.error("Erro na requisição:", error.response?.data || error.message);
       } finally {
         setLoading(false);
@@ -139,9 +148,12 @@ const FormEditarCadastro = () => {
     event.preventDefault();
 
     if (selectedTags.length == 0) {
-      setOpen(true);
-      setCorAlert("warning");
-      setMessageAlert("Obrigatório informar o perfil do cadastro");
+      Swal.fire({
+        title: "Atenção",
+        text: "Obrigatório selecionar o perfil de cadastro",
+        icon: "warning",
+        confirmButtonText: "Fechar"
+      });
       return;
     }
 
@@ -165,7 +177,7 @@ const FormEditarCadastro = () => {
       inscricao_estadual: state.inscricaoEstadual,
       inscricao_municipal: state.inscricaoMunicipal,
       web_site: state.webSite,
-      comissao: state.comissao,
+      comissao: String(state.comissao),
       tipo_comissao: tipoComissaoId,
       address: [
         {
@@ -187,10 +199,20 @@ const FormEditarCadastro = () => {
           Authorization: "Bearer " + localStorage.getItem("accessToken")
         }
       });
+      Swal.fire({
+        title: "",
+        text: "Cadastro atualizado com sucesso",
+        icon: "success"
+      });
 
-      setOpen(true);
       navigate("/cadastro/listar-cadastrados");
     } catch (error) {
+      Swal.fire({
+        title: "",
+        text: "Erro ao atualizar o cadastro",
+        icon: "error",
+        confirmButtonText: "Fechar"
+      });
       console.error("Erro ao atualizar cadastro:", error.response?.data || error.message);
     }
   };
@@ -256,6 +278,10 @@ const FormEditarCadastro = () => {
     inscricaoEstadual,
     inscricaoMunicipal
   } = state;
+
+  const handleVoltar = () => {
+    navigate("/cadastro/listar-cadastrados");
+  };
 
   return (
     <div>
@@ -549,10 +575,27 @@ const FormEditarCadastro = () => {
           </Grid>
         )}
 
-        <Button color="primary" variant="contained" type="submit" sx={{ mt: 2 }}>
-          <Icon>save</Icon>
-          <Span sx={{ pl: 1, textTransform: "capitalize" }}>Atualizar</Span>
-        </Button>
+        <Box sx={{ display: "flex", gap: "10px" }}>
+          <Box>
+            <Button
+              color="error"
+              variant="contained"
+              type="submit"
+              sx={{ mt: 2 }}
+              onClick={handleVoltar}
+            >
+              <Icon>arrow_back</Icon>
+              <Span sx={{ pl: 1, textTransform: "capitalize" }}>Voltar</Span>
+            </Button>
+          </Box>
+
+          <Box>
+            <Button color="primary" variant="contained" type="submit" sx={{ mt: 2 }}>
+              <Icon>send</Icon>
+              <Span sx={{ pl: 1, textTransform: "capitalize" }}>Atualizar</Span>
+            </Button>
+          </Box>
+        </Box>
       </form>
 
       <Snackbar

@@ -4,11 +4,11 @@ import Grid from "@mui/material/Grid2";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 import { styled } from "@mui/material/styles";
-import PersonIcon from "@mui/icons-material/Person";
-import Group from "@mui/icons-material/Group";
 import AttachMoney from "@mui/icons-material/AttachMoney";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import ArrowRightAlt from "@mui/icons-material/ArrowRightAlt";
+import FolderIcon from "@mui/icons-material/Folder";
+import DescriptionIcon from "@mui/icons-material/Description";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+
 import { Small } from "app/components/Typography";
 
 // STYLED COMPONENTS
@@ -40,30 +40,28 @@ const Heading = styled("h6")(({ theme }) => ({
 
 export default function StatCards() {
   const cardList = [
-    { name: "Cadastro", amount: 0, Icon: Group },
-    { name: "Vendas", amount: "$ 0,00", Icon: AttachMoney },
-    { name: "Agendamento", amount: "0", Icon: CalendarMonthIcon },
-    { name: "Artistas", amount: "0", Icon: PersonIcon }
+    { name: "Projetos Ativos", amount: 0, Icon: FolderIcon },
+    { name: "Orçamentos Pendentes", amount: 0, Icon: DescriptionIcon },
+    { name: "Tarefas Concluídas", amount: 0, Icon: CheckBoxIcon },
+    { name: "Rentabilidade Média", amount: 0, Icon: AttachMoney }
   ];
 
   return (
     <Grid container spacing={3} sx={{ mb: "24px" }}>
       {cardList.map(({ amount, Icon, name }) => (
-        <Grid size={{ md: 6, xs: 12 }} key={name}>
+        <Grid size={{ md: 3, xs: 12 }} key={name}>
           <StyledCard elevation={6}>
             <ContentBox>
               <Icon className="icon" />
 
-              <Box ml="12px">
+              <Box ml="5px">
                 <Small>{name}</Small>
                 <Heading>{amount}</Heading>
               </Box>
             </ContentBox>
 
             <Tooltip title="View Details" placement="top">
-              <IconButton>
-                <ArrowRightAlt />
-              </IconButton>
+              <IconButton>{/* <ArrowRightAlt /> */}</IconButton>
             </Tooltip>
           </StyledCard>
         </Grid>

@@ -11,6 +11,7 @@ import materialRoutes from "app/views/material-kit/MaterialRoutes";
 
 // DASHBOARD PAGE
 const Analytics = Loadable(lazy(() => import("app/views/dashboard/Analytics")));
+
 // cadastro
 const AppListarUsuarios = Loadable(lazy(() => import("app/views/cadastro/AppListarUsuarios")));
 const Cadastrar = Loadable(lazy(() => import("app/views/cadastro/Cadastrar")));
@@ -19,10 +20,13 @@ const ListarDiretor = Loadable(lazy(() => import("app/views/cadastro/ListarDiret
 const CadastrarCoprodutor = Loadable(lazy(() => import("app/views/cadastro/CadastrarCoprodutor")));
 const CadastrarDiretor = Loadable(lazy(() => import("app/views/cadastro/CadastrarDiretor")));
 const EditarCadastro = Loadable(lazy(() => import("app/views/cadastro/EditarCadastro")));
+const ListarTags = Loadable(lazy(() => import("app/views/cadastro/ListarTags")));
+const CadastrarTags = Loadable(lazy(() => import("app/views/cadastro/CadastrarTags")));
 
 // ´projetos
 const AppListarProjetos = Loadable(lazy(() => import("app/views/projetos/AppListarProjetos")));
 const CadastrarProjeto = Loadable(lazy(() => import("app/views/projetos/CadastrarProjeto")));
+const EditarOrcamento = Loadable(lazy(() => import("app/views/projetos/EditarOrcamento")));
 const AppListarOrcamento = Loadable(
   lazy(() => import("app/views/projetos/orcamento/AppListarOrcamento"))
 );
@@ -30,7 +34,16 @@ const CadastrarOrcamento = Loadable(
   lazy(() => import("app/views/projetos/orcamento/CadastrarOrcamento"))
 );
 const AppListarJobs = Loadable(lazy(() => import("app/views/projetos/jobs/AppListarJobs")));
-// const VisualizarJobs = Loadable(lazy(() => import("app/views/projetos/jobs/VisualizarJobs")));
+const ListarFechamentOrcamento = Loadable(
+  lazy(() => import("app/views/projetos/fechamento/ListarFechamentoOrcamento"))
+);
+const IncluirFechamentoProjeto = Loadable(
+  lazy(() => import("app/views/projetos/fechamento/IncluirFechamentoProjeto"))
+);
+
+const EditarFechamentoProjeto = Loadable(
+  lazy(() => import("app/views/projetos/fechamento/EditarFechamentoProjeto"))
+);
 
 const routes = [
   { path: "/", element: <Navigate to="dashboard" /> },
@@ -57,6 +70,8 @@ const routes = [
       { path: "/cadastro/coprodutor", element: <CadastrarCoprodutor />, auth: authRoles.admin },
       { path: "/cadastro/diretor", element: <CadastrarDiretor />, auth: authRoles.admin },
       { path: "/cadastro/editar/:id", element: <EditarCadastro />, auth: authRoles.admin },
+      { path: "/cadastro/listar-tags", element: <ListarTags />, auth: authRoles.admin },
+      { path: "/cadastro/tags", element: <CadastrarTags />, auth: authRoles.admin },
       // projetos
       {
         path: "/projetos/listar-projetos",
@@ -74,11 +89,23 @@ const routes = [
         element: <CadastrarOrcamento />,
         auth: authRoles.admin
       },
-      { path: "/projetos/jobs/listar-jobs", element: <AppListarJobs />, auth: authRoles.admin }
-      // { path: "/projeto/diretor", element: <CadastrarDiretor />, auth: authRoles.admin }
-
-      // // e-chart route
-      // { path: "/charts/echarts", element: <AppEchart />, auth: authRoles.editor }
+      { path: "/projetos/jobs/listar-jobs", element: <AppListarJobs />, auth: authRoles.admin },
+      { path: "/projeto/:id/:job/:id_job", element: <EditarOrcamento />, auth: authRoles.admin },
+      {
+        path: "/projetos/fechamento/listar-fechamento-orcamento",
+        element: <ListarFechamentOrcamento />,
+        auth: authRoles.admin
+      },
+      {
+        path: "/projetos/fechamento/incluir-fechamento-projeto",
+        element: <IncluirFechamentoProjeto />,
+        auth: authRoles.admin
+      },
+      {
+        path: "/projetos/fechamento/editar-fechamento-projeto/:id_fechamento_projeto/:id_editar_visualizar",
+        element: <EditarFechamentoProjeto />,
+        auth: authRoles.admin
+      }
     ]
   },
 
