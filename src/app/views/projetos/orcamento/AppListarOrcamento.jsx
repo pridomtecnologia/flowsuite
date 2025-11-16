@@ -24,6 +24,7 @@ export default function AppListarOrcamento() {
     try {
       navigate("/projeto/orcamento/cadastrar");
     } catch (e) {
+      if (e.response?.status === 401) return;
       console.error(e);
     }
   };

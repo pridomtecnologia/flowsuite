@@ -92,6 +92,7 @@ const FormJobsProjeto = () => {
 
         setTags(response_tag.data);
       } catch (error) {
+        if (error.response?.status === 401) return;
         console.error("Erro na requisição:", error.response?.data || error.message);
       }
     };

@@ -64,6 +64,7 @@ export default function TabelaTags() {
         });
         setListTags(response_list_tags.data);
       } catch (error) {
+        if (error.response?.status === 401) return;
         console.error("Erro ao listar tags:", error);
         Swal.fire({
           title: "Atenção",

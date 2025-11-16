@@ -156,6 +156,7 @@ export default function Adaptacao() {
 
       navigate("/projetos/listar-projetos");
     } catch (error) {
+      if (error.response?.status === 401) return;
       Swal.fire({
         title: "",
         text: error.response.data.detail,

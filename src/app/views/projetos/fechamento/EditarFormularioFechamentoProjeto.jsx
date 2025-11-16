@@ -45,6 +45,7 @@ const EditarFormularioFechamentoProjeto = () => {
   const [descricaoPlanilhaSelecionada, setDescricaoPlanilhaSelecionada] = useState(null);
   const [observacao, setObservacao] = useState("");
   const [statusPagamentoSelecionado, setStatusPagamentoSelecionado] = useState(null);
+  const [numeroNotaFiscal, setNumeroNotaFiscal] = useState(null);
 
   const [dadosFechamento, setDadosFechamento] = useState(null);
 
@@ -80,6 +81,8 @@ const EditarFormularioFechamentoProjeto = () => {
 
         setNomeServico(data.nome_servico ?? "");
 
+        setNumeroNotaFiscal(data.numero_nota_fiscal ?? "");
+
         setObservacao(data.observacao ?? "");
 
         setDataFaturamento(
@@ -104,6 +107,7 @@ const EditarFormularioFechamentoProjeto = () => {
 
         setStatusPagamentoSelecionado({ label: data.status_job, id: data.status_pagamento_id });
       } catch (error) {
+        if (error.response?.status === 401) return;
         console.error(error);
         Swal.fire({
           title: "Atenção",
@@ -129,6 +133,7 @@ const EditarFormularioFechamentoProjeto = () => {
         setArquivos(response_arquivo_nota_fiscais.data);
       } catch (error) {
         console.error(error);
+        if (error.response?.status === 401) return;
       }
     };
 
@@ -154,6 +159,7 @@ const EditarFormularioFechamentoProjeto = () => {
 
         setListaFornecedor(listaFormatada);
       } catch (error) {
+        if (error.response?.status === 401) return;
         console.error("Erro na requisição fornecedores:", error.response?.data || error.message);
       }
     };
@@ -177,6 +183,7 @@ const EditarFormularioFechamentoProjeto = () => {
 
         setListagemJob(listaJobFormatada);
       } catch (error) {
+        if (error.response?.status === 401) return;
         console.error("Erro na requisição jobs:", error.response?.data || error.message);
       }
     };
@@ -198,6 +205,7 @@ const EditarFormularioFechamentoProjeto = () => {
 
         setListaCentroCusto(listaCentroCusto);
       } catch (error) {
+        if (error.response?.status === 401) return;
         console.error("Erro na requisição centro de custo:", error.response?.data || error.message);
       }
     };
@@ -219,6 +227,7 @@ const EditarFormularioFechamentoProjeto = () => {
 
         setListaStatusPagamento(listaStatusJobsProjetoFormatada);
       } catch (error) {
+        if (error.response?.status === 401) return;
         console.error("Erro na requisição jobs:", error.response?.data || error.message);
       }
     };
@@ -257,6 +266,7 @@ const EditarFormularioFechamentoProjeto = () => {
 
       setListaDescricaoPlanilha(listarDescricaoProjetoJob);
     } catch (error) {
+      if (error.response?.status === 401) return;
       console.error("Erro ao buscar descrições:", error.response?.data || error.message);
     }
   };
@@ -343,7 +353,8 @@ const EditarFormularioFechamentoProjeto = () => {
           : null,
         centro_custo_id: centroCustoSelecionado?.id ?? null,
         observacao: observacao,
-        status_pagamento: statusPagamentoSelecionado?.id ?? null
+        status_pagamento: statusPagamentoSelecionado?.id ?? null,
+        numero_nota_fiscal: numeroNotaFiscal
       };
 
       const response_projeto_atualizado = await axios.put(
@@ -386,6 +397,7 @@ const EditarFormularioFechamentoProjeto = () => {
         navigate("/projetos/fechamento/listar-fechamento-orcamento");
       }, 1500);
     } catch (error) {
+      if (error.response?.status === 401) return;
       console.error(error);
       Swal.fire({
         title: "",
@@ -429,6 +441,7 @@ const EditarFormularioFechamentoProjeto = () => {
         confirmButtonText: "Fechar"
       });
     } catch (error) {
+      if (error.response?.status === 401) return;
       console.error("Erro ao excluir arquivo:", error);
       Swal.fire({
         title: "Atenção",
@@ -480,6 +493,8 @@ const EditarFormularioFechamentoProjeto = () => {
         const fileURL = URL.createObjectURL(blob);
         window.open(fileURL, "_blank");
       } catch (error) {
+        if (error.response?.status === 401) return;
+
         Swal.fire({
           title: "Atenção",
           text: "Erro ao visualizar arquivo",
@@ -643,6 +658,17 @@ const EditarFormularioFechamentoProjeto = () => {
                 renderInput={(params) => (
                   <TextField {...params} label="Status fechamento do projeto" />
                 )}
+                disabled={id_editar_visualizar == 0}
+              />
+
+              <TextField
+                required
+                sx={{ width: 474 }}
+                type="text"
+                name="numeroNotaFiscal"
+                value={numeroNotaFiscal}
+                onChange={(e) => setNumeroNotaFiscal(e.target.value)}
+                label="Nº Nota Fiscal"
                 disabled={id_editar_visualizar == 0}
               />
 

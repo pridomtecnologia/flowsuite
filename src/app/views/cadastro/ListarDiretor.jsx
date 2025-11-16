@@ -24,6 +24,7 @@ export default function ListarDiretor() {
     try {
       navigate("/cadastro/diretor");
     } catch (e) {
+      if (e.response?.status === 401) return;
       console.error(e);
     }
   };

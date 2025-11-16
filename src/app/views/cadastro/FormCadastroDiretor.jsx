@@ -45,6 +45,8 @@ const FormCadastroDiretor = ({ onSuccess, onClose }) => {
       if (onSuccess) onSuccess();
       if (onClose) onClose();
     } catch (error) {
+      if (error.response?.status === 401) return;
+
       Swal.fire({
         title: "",
         text: "Erro ao cadastrar o Diretor",

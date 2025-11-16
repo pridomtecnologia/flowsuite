@@ -169,6 +169,8 @@ export default function EditarOrcamento() {
 
       navigate("/projetos/listar-projetos");
     } catch (error) {
+      if (error.response?.status === 401) return;
+
       let errorMessage = "Erro ao atualizar o Orçamento!";
       if (error.response?.data?.detail) {
         errorMessage = JSON.stringify(error.response.data.detail);
@@ -298,6 +300,7 @@ export default function EditarOrcamento() {
         setStatusProjeto(data.id_status_projeto);
         seTransformarJob(data.id_projeto);
       } catch (error) {
+        if (error.response?.status === 401) return;
         console.error("Erro ao buscar orçamento:", error);
       }
     };
@@ -366,6 +369,7 @@ export default function EditarOrcamento() {
 
       navigate("/projetos/jobs/listar-jobs");
     } catch (error) {
+      if (error.response?.status === 401) return;
       console.error("Erro ao buscar orçamento:", error);
       alert("Erro ao transformar o projeto em Job");
     }

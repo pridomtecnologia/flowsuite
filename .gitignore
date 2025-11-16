@@ -12,6 +12,7 @@
 # production
 /dist
 
+.env
 
 # misc
 .eslintcache

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
-import { Box } from "@mui/material";
+import { Box, styled } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Icon from "@mui/material/Icon";
@@ -17,12 +17,16 @@ import axios from "axios";
 import useAuth from "app/hooks/useAuth";
 import { Tab, Tabs, Snackbar, Alert } from "@mui/material";
 
-const FormEditarCadastro = () => {
-  const { id } = useParams(); // Pega o ID da URL
-  const [definirComissao, setDefinirComissao] = useState("none");
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
+
+const Formulario = () => {
+  const [definirComissao, setDefinirComissao] = useState(null);
   const [state, setState] = useState({
-    nome: "",
-    nomeFantasia: "",
+    fornecedor: "",
+    vencimento: null,
     documento: "",
     email: "",
     telefone: "",
@@ -42,109 +46,49 @@ const FormEditarCadastro = () => {
     contaCorrente: "",
     inscricaoEstadual: "",
     inscricaoMunicipal: "",
-    tipo_comissao: ""
+    tipo_comissao: "",
+    nomeFantasia: ""
   });
 
   const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [showComissao, setShowComissao] = useState(false);
-  const [tipoComissao, setTipoComissao] = useState("");
+  const [tipoComissao, seTipoComissa] = useState("");
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [messageAlert, setMessageAlert] = useState("");
   const [corAlert, setCorAlert] = useState("");
+  const [selectedValue, setSelectedValue] = useState(1);
+  const [tipoDocumento, setTipoDocumento] = useState("CNPJ");
+  const [valor, setValor] = useState(null);
 
   const api = import.meta.env.VITE_API_FLOWSUITE;
+
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
+    setDefinirComissao("none");
+
+    const fetchTags = async () => {
       try {
-        // Buscar tags disponíveis
         const response_tag = await axios.get(`${api}tag/list`, {
           headers: {
             Accept: "application/json",
             Authorization: "Bearer " + localStorage.getItem("accessToken")
           }
         });
+
         setTags(response_tag.data);
-
-        // Buscar dados do cadastro
-        const response_cadastro = await axios.get(`${api}cadastro/${id}`, {
-          headers: {
-            Accept: "application/json",
-            Authorization: "Bearer " + localStorage.getItem("accessToken")
-          }
-        });
-
-        const cadastroData = response_cadastro.data[0];
-
-        // Preencher o estado com os dados do cadastro
-        setState({
-          nome: cadastroData.razao_social || "",
-          nomeFantasia: cadastroData.nome_fantasia || "",
-          documento: cadastroData.documento || "",
-          email: cadastroData.email || "",
-          telefone: cadastroData.telefone || "",
-          responsavel: cadastroData.responsavel_contato || "",
-          observacao: cadastroData.observacao || "",
-          comissao: cadastroData.comissao || "",
-          endereco: cadastroData.endereco || "",
-          numeroEndereco: cadastroData.numero || "",
-          bairro: cadastroData.bairro || "",
-          complemento: cadastroData.complemento || "",
-          estado: cadastroData.estado || "",
-          cidade: cadastroData.cidade || "",
-          cep: cadastroData.cep || "",
-          webSite: cadastroData.web_site || "",
-          banco: cadastroData.banco || "",
-          agencia: cadastroData.agencia || "",
-          contaCorrente: cadastroData.conta_corrente || "",
-          inscricaoEstadual: cadastroData.inscricao_estadual || "",
-          inscricaoMunicipal: cadastroData.inscricao_municipal || "",
-          tipo_comissao: cadastroData.tipo_comissao || ""
-        });
-
-        const tipo_comissao_id = cadastroData.tipo_comissao_id || "";
-
-        // Configurar tags selecionadas
-        if (cadastroData.ids_tags) {
-          const tagIds = cadastroData.ids_tags.split(",").map((id) => parseInt(id.trim()));
-          setSelectedTags(tagIds);
-
-          // Verificar se tem tag de Vendedor para mostrar comissão
-          const hasVendedorTag = tagIds.some((tagId) => {
-            const tag = response_tag.data.find((t) => t.id_tag === tagId);
-            return tag && tag.tag === "Vendedor";
-          });
-
-          if (hasVendedorTag) {
-            setShowComissao(true);
-            setDefinirComissao("block");
-          }
-        }
-
-        setTipoComissao(cadastroData.tipo_comissao_id || "");
       } catch (error) {
         if (error.response?.status === 401) return;
-
-        Swal.fire({
-          title: "Atenção",
-          text: "Erro ao listar o cadastro",
-          icon: "warning",
-          confirmButtonText: "Fechar"
-        });
-        navigate("/cadastro/listar-cadastrados");
         console.error("Erro na requisição:", error.response?.data || error.message);
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchData();
-  }, [id, api]);
+    fetchTags();
+  }, []);
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -160,13 +104,13 @@ const FormEditarCadastro = () => {
     }
 
     let tipoComissaoId = tipoComissao;
-    if (tipoComissao === "") {
-      tipoComissaoId = 0;
+
+    if (tipoComissao == "") {
+      tipoComissaoId = 0.0;
     }
 
     const payload = {
-      tag_id: selectedTags,
-      razao_social: state.nome,
+      razao_social: state.fornecedor,
       nome_fantasia: state.nomeFantasia,
       documento: state.documento,
       email: state.email,
@@ -180,7 +124,7 @@ const FormEditarCadastro = () => {
       inscricao_municipal: state.inscricaoMunicipal,
       web_site: state.webSite,
       comissao: String(state.comissao),
-      tipo_comissao: tipoComissaoId,
+      tipo_comissao: parseInt(tipoComissaoId),
       address: [
         {
           address: state.endereco,
@@ -194,40 +138,71 @@ const FormEditarCadastro = () => {
       ]
     };
 
+    // console.log("Payload enviado:", payload);
+    // return;
     try {
-      const response = await axios.put(`${api}cadastro/atualizar/${id}`, payload, {
+      const response_cadastro = await axios.post(`${api}cadastro/create`, payload, {
         headers: {
           Accept: "application/json",
           Authorization: "Bearer " + localStorage.getItem("accessToken")
         }
       });
+
       Swal.fire({
         title: "",
-        text: "Cadastro atualizado com sucesso",
+        text: "Cadastro realizado com sucesso",
         icon: "success"
       });
 
-      navigate("/cadastro/listar-cadastrados");
+      setTimeout(() => {
+        navigate("/cadastro/listar-cadastrados");
+      }, 1500);
     } catch (error) {
       if (error.response?.status === 401) return;
 
       Swal.fire({
         title: "",
-        text: "Erro ao atualizar o cadastro",
+        text: "Erro ao realizar o cadastro",
         icon: "error",
         confirmButtonText: "Fechar"
       });
-      console.error("Erro ao atualizar cadastro:", error.response?.data || error.message);
+      // console.error("Erro ao enviar cadastro:", error.response?.data || error.message);
     }
   };
 
   const handleChangeTipoComissao = (event) => {
-    setTipoComissao(event.target.value);
+    seTipoComissa(event.target.value);
   };
 
   const handleChange = (event) => {
+    event.persist();
     setState({ ...state, [event.target.name]: event.target.value });
   };
+
+  const {
+    fornecedor,
+    vencimento,
+    documento,
+    email,
+    telefone,
+    responsavel,
+    observacao,
+    comissao,
+    endereco,
+    numeroEndereco,
+    bairro,
+    complemento,
+    estado,
+    cidade,
+    cep,
+    webSite,
+    banco,
+    agencia,
+    contaCorrente,
+    inscricaoEstadual,
+    inscricaoMunicipal,
+    nomeFantasia
+  } = state;
 
   const handleTagChange = (event, tag) => {
     const isChecked = event.target.checked;
@@ -252,55 +227,58 @@ const FormEditarCadastro = () => {
     if (reason === "clickaway") {
       return;
     }
+
     setOpen(false);
   }
 
-  if (loading) {
-    return <div>Carregando...</div>;
-  }
-
-  const {
-    nome,
-    nomeFantasia,
-    documento,
-    email,
-    telefone,
-    responsavel,
-    observacao,
-    comissao,
-    endereco,
-    numeroEndereco,
-    bairro,
-    complemento,
-    estado,
-    cidade,
-    cep,
-    webSite,
-    banco,
-    agencia,
-    contaCorrente,
-    inscricaoEstadual,
-    inscricaoMunicipal
-  } = state;
-
   const handleVoltar = () => {
     navigate("/cadastro/listar-cadastrados");
+  };
+
+  const handleDateChange = (newValue) => {
+    setState({ ...state, vencimento: newValue });
   };
 
   return (
     <div>
       <form onSubmit={handleSubmit}>
         <Grid container spacing={6}>
-          <Grid size={{ md: 6, xs: 12 }} sx={{ mt: 2 }}>
+          <Grid size={{ md: 4, xs: 12 }} sx={{ mt: 2 }}>
             <Stack spacing={3}>
               <TextField
                 fullWidth
                 type="text"
-                name="nome"
-                value={nome}
+                name="fornecedor"
+                value={fornecedor}
                 onChange={handleChange}
                 required
-                label="Razão Social / Nome Completo"
+                label="Favorecido / Fornecedor"
+              />
+
+              <TextField
+                fullWidth
+                required
+                type="number"
+                name="valor"
+                onChange={(e) => {
+                  let value = e.target.value;
+
+                  // remove tudo que não for número
+                  value = value.replace(/\D/g, "");
+
+                  // garante pelo menos duas casas decimais
+                  const numericValue = (Number(value) / 100).toFixed(2);
+
+                  // formata no padrão brasileiro
+                  const formatted = new Intl.NumberFormat("pt-BR", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  }).format(numericValue);
+
+                  setValor(formatted);
+                }}
+                label="Valor da conta"
+                inputMode="decimal"
               />
 
               <TextField
@@ -324,16 +302,56 @@ const FormEditarCadastro = () => {
             </Stack>
           </Grid>
 
-          <Grid size={{ md: 6, xs: 12 }} sx={{ mt: 2 }}>
+          <Grid size={{ md: 4, xs: 12 }} sx={{ mt: 2 }}>
+            <Stack spacing={3}>
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
+                <DatePicker
+                  label="Vencimento *"
+                  value={state.vencimento ? dayjs(state.vencimento) : null}
+                  onChange={handleDateChange}
+                  slotProps={{ textField: { fullWidth: true } }}
+                  format="DD/MM/YYYY"
+                />
+              </LocalizationProvider>
+
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
+                <DatePicker
+                  label="Previsão de Pagamento *"
+                  value={state.vencimento ? dayjs(state.vencimento) : null}
+                  onChange={handleDateChange}
+                  slotProps={{ textField: { fullWidth: true } }}
+                  format="DD/MM/YYYY"
+                />
+              </LocalizationProvider>
+            </Stack>
+          </Grid>
+
+          <Grid size={{ md: 4, xs: 12 }} sx={{ mt: 2 }}>
             <Stack spacing={3}>
               <TextField
                 fullWidth
-                type="text"
-                name="documento"
-                value={documento}
-                label="CNPJ / CPF"
                 required
-                onChange={handleChange}
+                type="number"
+                name="valor"
+                onChange={(e) => {
+                  let value = e.target.value;
+
+                  // remove tudo que não for número
+                  value = value.replace(/\D/g, "");
+
+                  // garante pelo menos duas casas decimais
+                  const numericValue = (Number(value) / 100).toFixed(2);
+
+                  // formata no padrão brasileiro
+                  const formatted = new Intl.NumberFormat("pt-BR", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  }).format(numericValue);
+
+                  setValor(formatted);
+                }}
+                label="Valor da conta"
+                inputMode="decimal"
               />
 
               <TextField
@@ -358,52 +376,7 @@ const FormEditarCadastro = () => {
           </Grid>
         </Grid>
 
-        <Grid size={{ md: 12, xs: 12 }} sx={{ mt: 2 }}>
-          {tags.map((tagItem) => (
-            <FormControlLabel
-              key={tagItem.id_tag}
-              control={
-                <Checkbox
-                  onChange={(e) => handleTagChange(e, tagItem)}
-                  checked={selectedTags.includes(tagItem.id_tag)}
-                />
-              }
-              label={tagItem.tag}
-            />
-          ))}
-        </Grid>
-
-        <RadioGroup
-          row
-          name="tipo_comissao"
-          value={tipoComissao}
-          onChange={handleChangeTipoComissao}
-          sx={{ display: definirComissao, mt: 2 }}
-        >
-          <TextField
-            fullWidth
-            type="number"
-            name="comissao"
-            onChange={handleChange}
-            label="Comissão (%)"
-            value={comissao}
-            sx={{ mb: 2 }}
-          />
-
-          <FormControlLabel
-            value="1"
-            label="Bruto"
-            labelPlacement="end"
-            control={<Radio color="secondary" />}
-          />
-
-          <FormControlLabel
-            value="2"
-            label="Líquido"
-            labelPlacement="end"
-            control={<Radio color="secondary" />}
-          />
-        </RadioGroup>
+        <Grid size={{ md: 12, xs: 12 }} sx={{ mt: 2 }}></Grid>
 
         <Tabs
           value={tab}
@@ -422,6 +395,7 @@ const FormEditarCadastro = () => {
         {/* endereço */}
         {tab === 0 && (
           <Grid container spacing={6}>
+            {/* <Grid size={{ md: 6, xs: 12 }} sx={{ mt: 2 }}></Grid> */}
             <Grid size={{ md: 6, xs: 12 }} sx={{ mt: 2 }}>
               <Stack spacing={3}>
                 <TextField
@@ -493,6 +467,7 @@ const FormEditarCadastro = () => {
         {/* dados bancários */}
         {tab === 1 && (
           <Grid container spacing={6}>
+            {/* <Grid size={{ md: 6, xs: 12 }} sx={{ mt: 2 }}></Grid> */}
             <Grid size={{ md: 6, xs: 12 }} sx={{ mt: 2 }}>
               <Stack spacing={3}>
                 <TextField
@@ -503,6 +478,7 @@ const FormEditarCadastro = () => {
                   value={banco}
                   onChange={handleChange}
                 />
+
                 <TextField
                   fullWidth
                   type="text"
@@ -520,7 +496,7 @@ const FormEditarCadastro = () => {
                   fullWidth
                   type="text"
                   name="agencia"
-                  label="Agência"
+                  label="Agencia"
                   value={agencia}
                   onChange={handleChange}
                 />
@@ -532,6 +508,7 @@ const FormEditarCadastro = () => {
         {/* inscrição */}
         {tab === 2 && (
           <Grid container spacing={6}>
+            {/* <Grid size={{ md: 6, xs: 12 }} sx={{ mt: 2 }}></Grid> */}
             <Grid size={{ md: 6, xs: 12 }} sx={{ mt: 2 }}>
               <Stack spacing={3}>
                 <TextField
@@ -542,6 +519,7 @@ const FormEditarCadastro = () => {
                   label="Inscrição Estadual"
                   value={inscricaoEstadual}
                 />
+
                 <TextField
                   fullWidth
                   type="text"
@@ -563,6 +541,7 @@ const FormEditarCadastro = () => {
                   label="Inscrição Municipal"
                   value={inscricaoMunicipal}
                 />
+
                 <TextField
                   sx={{ mb: 4 }}
                   rows={3}
@@ -596,7 +575,7 @@ const FormEditarCadastro = () => {
           <Box>
             <Button color="primary" variant="contained" type="submit" sx={{ mt: 2 }}>
               <Icon>send</Icon>
-              <Span sx={{ pl: 1, textTransform: "capitalize" }}>Atualizar</Span>
+              <Span sx={{ pl: 1, textTransform: "capitalize" }}>Cadastrar</Span>
             </Button>
           </Box>
         </Box>
@@ -619,4 +598,4 @@ const FormEditarCadastro = () => {
   );
 };
 
-export default FormEditarCadastro;
+export default Formulario;

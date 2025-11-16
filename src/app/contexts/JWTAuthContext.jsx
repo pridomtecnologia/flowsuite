@@ -1,6 +1,7 @@
-import { createContext, useEffect, useReducer } from "react";
+import { createContext, useEffect, useReducer, useCallback } from "react";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 // GLOBAL CUSTOM COMPONENTS
 import Loading from "app/components/MatxLoading";
@@ -13,12 +14,25 @@ const initialState = {
 
 const isValidToken = (accessToken) => {
   if (!accessToken) return false;
-  const decodedToken = jwtDecode(accessToken);
 
-  // const currentTime = Date.now() / 1000;
-  // return decodedToken.exp > currentTime;
+  try {
+    const decodedToken = jwtDecode(accessToken);
 
-  return decodedToken?.id ? true : false;
+    if (!decodedToken.exp) {
+      return false;
+    }
+
+    const currentTime = Date.now() / 1000;
+    const isExpired = decodedToken.exp < currentTime;
+
+    if (isExpired) {
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    return false;
+  }
 };
 
 const setSession = (accessToken) => {
@@ -64,9 +78,41 @@ export const AuthProvider = ({ children }) => {
 
   const api = import.meta.env.VITE_API_FLOWSUITE;
 
+  const logout = useCallback(() => {
+    setSession(null);
+    localStorage.removeItem("user");
+    dispatch({ type: "LOGOUT" });
+
+    window.location.href = "/session/signin";
+  }, []);
+
+  const logoutWithAlert = useCallback(() => {
+    Swal.fire({
+      title: "Sessão Expirada",
+      text: "Sua sessão expirou por segurança. Redirecionando para login...",
+      icon: "warning",
+      timer: 3000,
+      timerProgressBar: true,
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      allowEscapeKey: false
+    });
+
+    setTimeout(() => {
+      logout();
+    }, 2500);
+  }, [logout]);
+
+  const checkTokenValidity = useCallback(() => {
+    const accessToken = localStorage.getItem("accessToken");
+
+    if (accessToken && !isValidToken(accessToken)) {
+      logoutWithAlert();
+    }
+  }, [logoutWithAlert]);
+
   const login = async (email, password) => {
     const params = new URLSearchParams();
-
     params.append("username", email);
     params.append("password", password);
 
@@ -85,7 +131,6 @@ export const AuthProvider = ({ children }) => {
     };
 
     setSession(response_autenticacao.data.access_token);
-
     localStorage.setItem("user", JSON.stringify(user));
 
     dispatch({ type: "LOGIN", payload: { user } });
@@ -99,38 +144,65 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: "REGISTER", payload: { user } });
   };
 
-  const logout = () => {
-    setSession(null);
-    dispatch({ type: "LOGOUT" });
-  };
-
   useEffect(() => {
     (async () => {
       try {
         const accessToken = localStorage.getItem("accessToken");
         const storedUser = localStorage.getItem("user");
 
-        if (accessToken) {
+        if (accessToken && isValidToken(accessToken)) {
           setSession(accessToken);
           dispatch({
             type: "INIT",
-            payload: { isAuthenticated: true, user: JSON.parse(storedUser) }
+            payload: {
+              isAuthenticated: true,
+              user: storedUser ? JSON.parse(storedUser) : null
+            }
           });
         } else {
-          dispatch({
-            type: "INIT",
-            payload: { isAuthenticated: false, user: null }
-          });
+          if (accessToken) {
+            logoutWithAlert();
+          } else {
+            setSession(null);
+            localStorage.removeItem("user");
+            dispatch({
+              type: "INIT",
+              payload: { isAuthenticated: false, user: null }
+            });
+          }
         }
       } catch (err) {
-        console.log(err);
+        setSession(null);
+        localStorage.removeItem("user");
         dispatch({
           type: "INIT",
           payload: { isAuthenticated: false, user: null }
         });
       }
     })();
-  }, []);
+  }, [logoutWithAlert]);
+
+  useEffect(() => {
+    const interval = setInterval(checkTokenValidity, 600000);
+
+    return () => clearInterval(interval);
+  }, [checkTokenValidity]);
+
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          logoutWithAlert();
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, [logoutWithAlert]);
 
   if (!state.isInitialized) return <Loading />;
 
