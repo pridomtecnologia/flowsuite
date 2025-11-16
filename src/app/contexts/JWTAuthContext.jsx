@@ -87,20 +87,19 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const logoutWithAlert = useCallback(() => {
-    Swal.fire({
-      title: "Sessão Expirada",
-      text: "Sua sessão expirou por segurança. Redirecionando para login...",
-      icon: "warning",
-      timer: 3000,
-      timerProgressBar: true,
-      showConfirmButton: false,
-      allowOutsideClick: false,
-      allowEscapeKey: false
-    });
-
-    setTimeout(() => {
-      logout();
-    }, 2500);
+    // Swal.fire({
+    //   title: "Sessão Expirada",
+    //   text: "Sua sessão expirou por segurança. Redirecionando para login...",
+    //   icon: "warning",
+    //   timer: 3000,
+    //   timerProgressBar: true,
+    //   showConfirmButton: false,
+    //   allowOutsideClick: false,
+    //   allowEscapeKey: false
+    // });
+    // setTimeout(() => {
+    //   logout();
+    // }, 2500);
   }, [logout]);
 
   const checkTokenValidity = useCallback(() => {
@@ -112,28 +111,61 @@ export const AuthProvider = ({ children }) => {
   }, [logoutWithAlert]);
 
   const login = async (email, password) => {
-    const params = new URLSearchParams();
-    params.append("username", email);
-    params.append("password", password);
+    try {
+      const params = new URLSearchParams();
+      params.append("username", email);
+      params.append("password", password);
 
-    const response_autenticacao = await axios.post(`${api}user/login`, params, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
+      const response_autenticacao = await axios.post(`${api}user/login`, params, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      });
+
+      console.log(response_autenticacao.data);
+
+      const user = {
+        name: response_autenticacao.data.name,
+        email: response_autenticacao.data.email,
+        exp: response_autenticacao.data.exp,
+        id_user: response_autenticacao.data.id_user,
+        permissions: response_autenticacao.data.permissions
+      };
+
+      setSession(response_autenticacao.data.access_token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      dispatch({ type: "LOGIN", payload: { user } });
+    } catch (error) {
+      console.log(error.status);
+      if (error.status == 401) {
+        Swal.fire({
+          title: "FlowSuite",
+          text: error.response.data.detail,
+          icon: "warning",
+          timer: 3000,
+          timerProgressBar: true,
+          showConfirmButton: true,
+          allowOutsideClick: false,
+          allowEscapeKey: false
+        });
+        return;
       }
-    });
 
-    const user = {
-      name: response_autenticacao.data.name,
-      email: response_autenticacao.data.email,
-      exp: response_autenticacao.data.exp,
-      id_user: response_autenticacao.data.id_user,
-      permissions: response_autenticacao.data.permissions
-    };
-
-    setSession(response_autenticacao.data.access_token);
-    localStorage.setItem("user", JSON.stringify(user));
-
-    dispatch({ type: "LOGIN", payload: { user } });
+      if (error.status == 422) {
+        Swal.fire({
+          title: "FlowSuite",
+          text: error.response.data.detail,
+          icon: "warning",
+          timer: 3000,
+          timerProgressBar: true,
+          showConfirmButton: true,
+          allowOutsideClick: false,
+          allowEscapeKey: false
+        });
+        return;
+      }
+    }
   };
 
   const register = async (email, username, password) => {
