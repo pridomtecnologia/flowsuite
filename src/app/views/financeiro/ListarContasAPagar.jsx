@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Box, Button, styled } from "@mui/material";
 import { SimpleCard } from "app/components";
-import TabelaCoprodutor from "./TabelaCoprodutor";
+import TabelaContasAPagar from "./TabelaContasAPagar";
 
 // STYLED COMPONENTS
 const Container = styled("div")(({ theme }) => ({
@@ -17,14 +17,13 @@ const StyledButton = styled(Button)(({ theme }) => ({
   margin: theme.spacing(1)
 }));
 
-export default function ListarCoprodutor() {
+export default function ListarContasAPagar() {
   const navigate = useNavigate();
 
-  const handleCadastrarCoprodutor = async (values) => {
+  const handleIncluirConta = async (values) => {
     try {
-      navigate("/cadastro/coprodutor");
+      navigate("/financeiro/incluir-contas-a-pagar");
     } catch (e) {
-      if (e.response?.status === 401) return;
       console.error(e);
     }
   };
@@ -32,13 +31,13 @@ export default function ListarCoprodutor() {
   return (
     <Container>
       <Box className="breadcrumb">
-        <StyledButton variant="contained" color="primary" onClick={handleCadastrarCoprodutor}>
-          + Cadastrar Coprodutor
+        <StyledButton variant="contained" color="primary" onClick={handleIncluirConta}>
+          + INCLUIR CONTA
         </StyledButton>
       </Box>
 
-      <SimpleCard title="Coprodutores cadastrados">
-        <TabelaCoprodutor />
+      <SimpleCard title="Usuários cadastrado">
+        <TabelaContasAPagar />
       </SimpleCard>
     </Container>
   );

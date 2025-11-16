@@ -53,6 +53,7 @@ const FormCadastroCoprodutor = ({ onSuccess, onClose }) => {
       if (onSuccess) onSuccess(); // chama a função para atualizar lista
       if (onClose) onClose();
     } catch (error) {
+      if (error.response?.status === 401) return;
       Swal.fire({
         title: "",
         text: "Erro ao cadastrar o Coprodutor",

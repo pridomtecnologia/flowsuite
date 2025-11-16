@@ -89,6 +89,7 @@ export default function TabelaProjeto() {
         icon: "success"
       });
     } catch (error) {
+      if (error.response?.status === 401) return;
       Swal.fire({
         title: "",
         text: "Erro ao excluir orçamento!",
@@ -110,6 +111,7 @@ export default function TabelaProjeto() {
         console.log(response_lista_orcamento_projeto_create.data);
         setListOrcamentoCadastrado(response_lista_orcamento_projeto_create.data);
       } catch (error) {
+        if (error.response?.status === 401) return;
         console.log(error);
         alert(error.response.data.detail);
       }

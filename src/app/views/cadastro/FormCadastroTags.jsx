@@ -43,6 +43,8 @@ const FormCadastroTags = ({ onSuccess, onClose }) => {
 
       navigate("/cadastro/listar-tags");
     } catch (error) {
+      if (error.response?.status === 401) return;
+
       Swal.fire({
         title: "",
         text: "Erro ao cadastrar a Tag",

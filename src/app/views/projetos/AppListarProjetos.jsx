@@ -24,6 +24,7 @@ export default function AppListarProjetos() {
     try {
       navigate("/projeto/cadastrar");
     } catch (e) {
+      if (e.response?.status === 401) return;
       console.error(e);
     }
   };

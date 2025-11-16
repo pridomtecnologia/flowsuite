@@ -77,6 +77,7 @@ export default function TabelaFechamentOrcamento() {
         icon: "success"
       });
     } catch (error) {
+      if (error.response?.status === 401) return;
       Swal.fire({
         title: "",
         text: "Erro ao excluír o Fechamento do projeto",
@@ -110,6 +111,7 @@ export default function TabelaFechamentOrcamento() {
 
         setListarFechamentoProjeto(response_list_fecharmento_projeto.data);
       } catch (error) {
+        if (error.response?.status === 401) return;
         Swal.fire({
           title: "Atenção",
           text: error.response.data.detail.message,
