@@ -73,6 +73,7 @@ const FormCadastroProjeto = ({ values, onChange }) => {
 
       setListaCoprodutor(listaCoprodutores);
     } catch (error) {
+      if (error.response?.status === 401) return;
       console.error("Erro na requisição:", error.response?.data || error.message);
     }
   };
@@ -96,6 +97,7 @@ const FormCadastroProjeto = ({ values, onChange }) => {
 
       setListaDiretores(listaDiretores);
     } catch (error) {
+      if (error.response?.status === 401) return;
       console.error("Erro na requisição:", error.response?.data || error.message);
     }
   };
@@ -117,6 +119,7 @@ const FormCadastroProjeto = ({ values, onChange }) => {
 
       setListaCentroCusto(listaCentroCusto);
     } catch (error) {
+      if (error.response?.status === 401) return;
       console.error("Erro na requisição:", error.response?.data || error.message);
     }
   };
@@ -138,6 +141,7 @@ const FormCadastroProjeto = ({ values, onChange }) => {
 
         setListaCadastro(listaFormatada);
       } catch (error) {
+        if (error.response?.status === 401) return;
         console.error("Erro na requisição:", error.response?.data || error.message);
       }
     };
@@ -156,6 +160,7 @@ const FormCadastroProjeto = ({ values, onChange }) => {
           numerOrcamento: response_number_orcamento.data.number_orc
         }));
       } catch (error) {
+        if (error.response?.status === 401) return;
         console.error("Erro na requisição:", error.response?.data || error.message);
       }
     };
@@ -236,6 +241,7 @@ const FormCadastroProjeto = ({ values, onChange }) => {
         icon: "success"
       });
     } catch (error) {
+      if (error.response?.status === 401) return;
       console.error("Erro ao criar centro de custo:", error.response?.data || error.message);
     }
   };

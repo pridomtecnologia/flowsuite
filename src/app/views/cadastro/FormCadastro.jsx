@@ -80,6 +80,7 @@ const FormCadastro = () => {
 
         setTags(response_tag.data);
       } catch (error) {
+        if (error.response?.status === 401) return;
         console.error("Erro na requisição:", error.response?.data || error.message);
       }
     };
@@ -159,6 +160,8 @@ const FormCadastro = () => {
         navigate("/cadastro/listar-cadastrados");
       }, 1500);
     } catch (error) {
+      if (error.response?.status === 401) return;
+
       Swal.fire({
         title: "",
         text: "Erro ao realizar o cadastro",

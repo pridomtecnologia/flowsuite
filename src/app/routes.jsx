@@ -23,7 +23,7 @@ const EditarCadastro = Loadable(lazy(() => import("app/views/cadastro/EditarCada
 const ListarTags = Loadable(lazy(() => import("app/views/cadastro/ListarTags")));
 const CadastrarTags = Loadable(lazy(() => import("app/views/cadastro/CadastrarTags")));
 
-// ´projetos
+// projetos
 const AppListarProjetos = Loadable(lazy(() => import("app/views/projetos/AppListarProjetos")));
 const CadastrarProjeto = Loadable(lazy(() => import("app/views/projetos/CadastrarProjeto")));
 const EditarOrcamento = Loadable(lazy(() => import("app/views/projetos/EditarOrcamento")));
@@ -40,9 +40,14 @@ const ListarFechamentOrcamento = Loadable(
 const IncluirFechamentoProjeto = Loadable(
   lazy(() => import("app/views/projetos/fechamento/IncluirFechamentoProjeto"))
 );
-
 const EditarFechamentoProjeto = Loadable(
   lazy(() => import("app/views/projetos/fechamento/EditarFechamentoProjeto"))
+);
+
+// financeiro
+const ListarContasAPagar = Loadable(lazy(() => import("app/views/financeiro/ListarContasAPagar")));
+const IncluirContAPagar = Loadable(
+  lazy(() => import("app/views/financeiro/formularios/IncluirContAPagar"))
 );
 
 const routes = [
@@ -104,6 +109,17 @@ const routes = [
       {
         path: "/projetos/fechamento/editar-fechamento-projeto/:id_fechamento_projeto/:id_editar_visualizar",
         element: <EditarFechamentoProjeto />,
+        auth: authRoles.admin
+      },
+      // financeiro
+      {
+        path: "/financeiro/contas-a-pagar",
+        element: <ListarContasAPagar />,
+        auth: authRoles.admin
+      },
+      {
+        path: "/financeiro/incluir-contas-a-pagar",
+        element: <IncluirContAPagar />,
         auth: authRoles.admin
       }
     ]

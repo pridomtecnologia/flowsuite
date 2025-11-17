@@ -126,7 +126,7 @@ const ItemRow = React.memo(function ItemRow({
         <input
           style={{ ...inputStyle, background: "#e0e0e06b" }}
           readOnly
-          value={`R$ ${formatCurrency(total)}`}
+          value={`R$ ${formatCurrency(item.total)}`}
           disabled={statusProjeto == 2 || statusProjeto == 3}
         />
       </Grid>

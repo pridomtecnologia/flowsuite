@@ -9,6 +9,7 @@ const navigations = [
       }
     ]
   },
+  // play_arrow
   { name: "Cadastros", path: "/cadastro/listar-cadastrados", icon: "person" },
   // {
   //   name: "Financeiro",
@@ -16,12 +17,12 @@ const navigations = [
   //   children: [
   //     {
   //       name: "Contas a Pagar",
-  //       path: "/financeiro/contas-pagar"
-  //     },
-  //     {
-  //       name: "Contas a Receber",
-  //       path: "/financeiro/contas-receber"
+  //       path: "/financeiro/contas-a-pagar"
   //     }
+  //     // {
+  //     //   name: "Contas a Receber",
+  //     //   path: ""
+  //     // }
   //   ]
   // },
   {
@@ -50,10 +51,6 @@ const navigations = [
         name: "Cadastrar Tags",
         path: "/cadastro/listar-tags"
       }
-      // {
-      //   name: "Fechamento de Projeto",
-      //   path: "/projetos/fechamento"
-      // }
     ]
   }
   // { label: "PAGES", type: "label" },

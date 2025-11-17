@@ -17,7 +17,6 @@ import {
 import axios from "axios";
 import Swal from "sweetalert2";
 
-// STYLED COMPONENT
 const StyledTable = styled(Table)(() => ({
   whiteSpace: "pre",
   "& thead": {
@@ -28,7 +27,7 @@ const StyledTable = styled(Table)(() => ({
   }
 }));
 
-export default function TabelaUsuarios() {
+export default function TabelaContasAPagar() {
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -47,11 +46,11 @@ export default function TabelaUsuarios() {
     setPage(0);
   };
 
-  const handleEditarCadastro = (id_cadastro) => {
+  const handleEditarPagamento = (id_cadastro) => {
     navigate(`/cadastro/editar/${id_cadastro}`);
   };
 
-  const handleExcluirCadastro = async (id_cadastro) => {
+  const handleCancelarPagamento = async (id_cadastro) => {
     try {
       const response_exclusao_cadastro = await axios.delete(
         `${api}cadastro/delete/${id_cadastro}`,
@@ -123,10 +122,11 @@ export default function TabelaUsuarios() {
         <TableHead>
           <TableRow>
             <TableCell align="center">Situação</TableCell>
-            <TableCell align="center">Tag</TableCell>
-            <TableCell align="center">Razão Social</TableCell>
-            <TableCell align="center">CNPJ / CPF</TableCell>
-            <TableCell align="center">E-mail</TableCell>
+            <TableCell align="center">Nº Nota Fiscal</TableCell>
+            <TableCell align="center">Fornecedor</TableCell>
+            <TableCell align="center">Previsão Pagamento</TableCell>
+            <TableCell align="center">Data Pagamento</TableCell>
+            <TableCell align="center">Valor</TableCell>
             <TableCell align="center">Ação</TableCell>
           </TableRow>
         </TableHead>
@@ -172,15 +172,16 @@ export default function TabelaUsuarios() {
                     <TableCell align="center">{subscriber.razao_social}</TableCell>
                     <TableCell align="center">{subscriber.documento}</TableCell>
                     <TableCell align="center">{subscriber.email}</TableCell>
+                    <TableCell align="center">{subscriber.email}</TableCell>
                     <TableCell align="center">
-                      <IconButton onClick={() => handleEditarCadastro(subscriber.id_cadastro)}>
-                        <Icon color="blue" title="Editar">
+                      <IconButton onClick={() => handleEditarPagamento(subscriber.id_cadastro)}>
+                        <Icon color="blue" title="Editar Pagamento">
                           edit
                         </Icon>
                       </IconButton>
-                      <IconButton onClick={() => handleExcluirCadastro(subscriber.id_cadastro)}>
-                        <Icon color="error" title="Excluir">
-                          delete_forever
+                      <IconButton onClick={() => handleCancelarPagamento(subscriber.id_cadastro)}>
+                        <Icon color="error" title="Cancelar Pagamento">
+                          highlight_off
                         </Icon>
                       </IconButton>
                     </TableCell>
