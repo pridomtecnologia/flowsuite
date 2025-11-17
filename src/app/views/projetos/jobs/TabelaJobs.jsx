@@ -88,6 +88,7 @@ export default function TabelaJobs() {
 
         setListOrcamentoCadastrado(response_lista_orcamento_projeto_create.data);
       } catch (error) {
+        if (error.response?.status === 401) return;
         console.log(error);
         alert(error.response.data.detail);
       }

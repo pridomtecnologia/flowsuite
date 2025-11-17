@@ -35,6 +35,7 @@ const FormularioFechamentoProjeto = ({ values, onChange }) => {
   const [fornecedorSelecionado, setFornecedorSelecionado] = useState(null);
   const [valor, setValor] = useState(null);
   const [nomeServico, setNomeServico] = useState(null);
+  const [numeroNotaFiscal, setNumeroNotaFiscal] = useState(null);
   const [dataFaturamento, setDataFaturamento] = useState(null);
   const [previsaoPagamento, setPrevisaoPagamento] = useState(null);
   const [centroCustoSelecionado, setCentroCustoSelecionado] = useState(null);
@@ -86,6 +87,7 @@ const FormularioFechamentoProjeto = ({ values, onChange }) => {
 
         setListagemJob(listaJobFormatada);
       } catch (error) {
+        if (error.response?.status === 401) return;
         console.error("Erro na requisição:", error.response?.data || error.message);
       }
     };
@@ -129,7 +131,8 @@ const FormularioFechamentoProjeto = ({ values, onChange }) => {
         data_faturamento: dayjs(dataFaturamento).format("YYYY-MM-DD"),
         previsao_pagamento: dayjs(previsaoPagamento).format("YYYY-MM-DD"),
         centro_custo_id: centroCustoSelecionado.centroCustoId.id,
-        observacao: observacao
+        observacao: observacao,
+        numero_nota_fiscal: numeroNotaFiscal.numeroNotaFiscal
       };
 
       const formData = new FormData();
@@ -334,6 +337,17 @@ const FormularioFechamentoProjeto = ({ values, onChange }) => {
                   handleHandleDescricaoPlanilhaSelecionado({ ...values, descricaoPlanilha: newVal })
                 }
                 renderInput={(params) => <TextField {...params} label="Descrição planilha *" />}
+              />
+
+              <TextField
+                required
+                sx={{ width: 474 }}
+                type="text"
+                name="numeroNotaFiscal"
+                onChange={(e) =>
+                  setNumeroNotaFiscal({ ...values, numeroNotaFiscal: e.target.value })
+                }
+                label="Nº Nota Fiscal"
               />
 
               <Box sx={{ mt: 2 }}>

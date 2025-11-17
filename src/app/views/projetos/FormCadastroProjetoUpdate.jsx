@@ -60,6 +60,7 @@ const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange, statu
         }))
       );
     } catch (error) {
+      if (error.response?.status === 401) return;
       console.error("Erro na requisição:", error.response?.data || error.message);
     }
   };
@@ -83,6 +84,7 @@ const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange, statu
         }))
       );
     } catch (error) {
+      if (error.response?.status === 401) return;
       console.error("Erro na requisição:", error.response?.data || error.message);
     }
   };
@@ -104,6 +106,7 @@ const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange, statu
         }))
       );
     } catch (error) {
+      if (error.response?.status === 401) return;
       console.error("Erro na requisição:", error.response?.data || error.message);
     }
   };
@@ -126,6 +129,7 @@ const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange, statu
           }))
         );
       } catch (error) {
+        if (error.response?.status === 401) return;
         console.error("Erro na requisição:", error.response?.data || error.message);
       }
     };
@@ -141,6 +145,7 @@ const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange, statu
 
         onChange({ ...values, numerOrcamento: data.number_orc });
       } catch (error) {
+        if (error.response?.status === 401) return;
         console.error("Erro na requisição:", error.response?.data || error.message);
       }
     };
@@ -200,6 +205,7 @@ const FormCadastroProjetoUpdate = ({ values, onChange, idForm, onIdChange, statu
         icon: "success"
       });
     } catch (error) {
+      if (error.response?.status === 401) return;
       console.error("Erro ao criar centro de custo:", error.response?.data || error.message);
     }
   };

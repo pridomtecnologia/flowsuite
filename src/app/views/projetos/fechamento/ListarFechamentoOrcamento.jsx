@@ -24,6 +24,7 @@ export default function ListarFechamentoOrcamento() {
     try {
       navigate("/projetos/fechamento/incluir-fechamento-projeto");
     } catch (e) {
+      if (e.response?.status === 401) return;
       console.error(e);
     }
   };

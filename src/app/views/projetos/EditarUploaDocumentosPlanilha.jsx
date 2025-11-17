@@ -52,6 +52,7 @@ export default function EditarUploaDocumentosPlanilha({
         confirmButtonText: "Fechar"
       });
     } catch (error) {
+      if (error.response?.status === 401) return;
       console.error("Erro ao excluir arquivo:", error);
       Swal.fire({
         title: "Atenção",
@@ -103,6 +104,7 @@ export default function EditarUploaDocumentosPlanilha({
         const fileURL = URL.createObjectURL(blob);
         window.open(fileURL, "_blank");
       } catch (error) {
+        if (error.response?.status === 401) return;
         Swal.fire({
           title: "Atenção",
           text: "Erro ao visualizar arquivo",
