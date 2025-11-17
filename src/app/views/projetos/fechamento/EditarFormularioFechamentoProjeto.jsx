@@ -670,9 +670,6 @@ const EditarFormularioFechamentoProjeto = () => {
                 onChange={(e) => setNumeroNotaFiscal(e.target.value)}
                 label="Nº Nota Fiscal"
                 disabled={id_editar_visualizar == 0}
-                InputLabelProps={{
-                  shrink: Boolean(numeroNotaFiscal)
-                }}
               />
 
               <Box sx={{ mt: 2 }}>
