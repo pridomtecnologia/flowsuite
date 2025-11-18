@@ -131,7 +131,7 @@ const FormularioFechamentoProjeto = ({ values, onChange }) => {
         data_faturamento: dayjs(dataFaturamento).format("YYYY-MM-DD"),
         previsao_pagamento: dayjs(previsaoPagamento).format("YYYY-MM-DD"),
         centro_custo_id: centroCustoSelecionado.centroCustoId.id,
-        observacao: observacao,
+        observacao: observacao.observacao,
         numero_nota_fiscal: numeroNotaFiscal.numeroNotaFiscal
       };
 
