@@ -196,7 +196,7 @@ const FormularioFechamentoProjeto = ({ values, onChange }) => {
 
     try {
       const response_descricao_planilha = await axios.get(
-        `${api}projetos/listar-descricao-job-fechamento/${jobSelecionado.projetoJob.id}`,
+        `${api}projetos/listar-descricao-job-fechamento/${jobSelecionado.projetoJob.original.projeto_id}`,
         {
           headers: {
             Accept: "application/json",
